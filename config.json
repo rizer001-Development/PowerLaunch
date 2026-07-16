@@ -1,0 +1,23 @@
+{
+  "profileName": "Default",
+  "gameWidth": 854,
+  "javaChoice": "auto",
+  "connectServerIp": "oakworld.giize.com",
+  "gameDirectory": "C:\\.minecraft",
+  "gpuChoice": "auto",
+  "saveConsoleLog": true,
+  "autoLogin": false,
+  "autoConnect": false,
+  "gameHeight": 480,
+  "javaArgs": "",
+  "selectedVersion": "Fabric 26.2",
+  "javaPath": "",
+  "serverIp": "",
+  "theme": "dark",
+  "selectedModpack": "vanilla",
+  "enableSkins": true,
+  "showNews": true,
+  "username": "rizer001",
+  "ram": 4096,
+  "useCustomResolution": false
+}

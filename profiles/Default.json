@@ -1,0 +1,22 @@
+{
+  "profileName": "Default",
+  "gameWidth": 854.0,
+  "javaChoice": "auto",
+  "connectServerIp": "",
+  "gameDirectory": "C:\\.minecraft",
+  "gpuChoice": "auto",
+  "autoLogin": false,
+  "autoConnect": false,
+  "gameHeight": 480.0,
+  "javaArgs": "-Xmx8888M -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis\u003d200",
+  "selectedVersion": "Fabric 26.2",
+  "javaPath": "",
+  "serverIp": "",
+  "theme": "dark",
+  "selectedModpack": "vanilla",
+  "enableSkins": true,
+  "showNews": true,
+  "username": "1111",
+  "ram": 4096.0,
+  "useCustomResolution": false
+}

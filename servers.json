@@ -1,0 +1,22 @@
+[
+  {
+    "name": "OakWorld",
+    "ip": "oakworld.giize.com",
+    "port": "25565"
+  },
+  {
+    "name": "Тестовый сервер",
+    "ip": "localhost",
+    "port": "1"
+  },
+  {
+    "name": "Сервер Minecraft",
+    "ip": "Zero7977-3hZy.aternos.me",
+    "port": "25565"
+  },
+  {
+    "name": "Сервер Minecraft",
+    "ip": "cubix.minerent.io",
+    "port": "25565"
+  }
+]
