@@ -98,7 +98,7 @@ public class TabManager {
         if (index < 0 || index >= tabs.size()) return null;
         TabData original = tabs.get(index);
         TabData copy = original.copy();
-        copy.setName(original.getName() + " (копия)");
+        copy.setName(original.getName() + " (copy)");
         copy = db.insertTab(copy);
         tabs.add(copy);
         activeTabIndex = tabs.size() - 1;
@@ -127,7 +127,7 @@ public class TabManager {
 
         // Always keep at least 1 tab
         if (tabs.isEmpty()) {
-            TabData defaultTab = new TabData("Основная");
+            TabData defaultTab = new TabData("Main");
             defaultTab = db.insertTab(defaultTab);
             tabs.add(defaultTab);
         }
@@ -309,7 +309,7 @@ public class TabManager {
 
         // If no tabs in DB, create default
         if (tabs.isEmpty()) {
-            TabData defaultTab = new TabData("Основная");
+            TabData defaultTab = new TabData("Main");
             defaultTab = db.insertTab(defaultTab);
             tabs.add(defaultTab);
         }

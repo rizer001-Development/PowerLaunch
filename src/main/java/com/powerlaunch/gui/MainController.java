@@ -156,7 +156,7 @@ public class MainController {
             selectedVersion = activeTab.getVersion();
         }
 
-        // Outer frame (рамка у краёв экрана)
+        // Outer frame (screen edge frame)
         BorderPane frame = new BorderPane();
         frame.setPadding(new Insets(3));
         frame.setStyle("-fx-border-color: rgba(233,69,96,0.15); -fx-border-width: 1;");
@@ -175,7 +175,7 @@ public class MainController {
         bottomArea.getChildren().add(createStatusBar());
         frame.setBottom(bottomArea);
 
-        // Wrap frame in StackPane for console overlay (поверх всего: вкладки, топбар, кнопки)
+        // Wrap frame in StackPane for console overlay (above everything: tabs, topbar, buttons)
         overlayContainer = new StackPane();
         overlayContainer.setStyle("-fx-background-color: transparent;");
         overlayContainer.getChildren().add(frame);
@@ -281,7 +281,7 @@ public class MainController {
                         "-fx-background-radius: 4;"
                 ));
         addTabButton.setOnAction(e -> showCreateTabDialog());
-        Tooltip.install(addTabButton, new Tooltip("Создать новую вкладку"));
+        Tooltip.install(addTabButton, new Tooltip("Create new tab"));
         tabBar.getChildren().add(addTabButton);
 
         // Push everything left, spacer fills remaining space
@@ -418,7 +418,7 @@ public class MainController {
         }
 
         String tabName = active != null ? active.getName() : "?";
-        setStatus("✓ Переключено на вкладку: " + tabName);
+        setStatus("✓ Switched to tab: " + tabName);
     }
 
     /**
@@ -440,10 +440,10 @@ public class MainController {
     // ==================== TAB DIALOGS ====================
 
     private void showCreateTabDialog() {
-        TextInputDialog dialog = new TextInputDialog("Новая вкладка");
-        dialog.setTitle("Создание вкладки");
-        dialog.setHeaderText("Введите название новой вкладки");
-        dialog.setContentText("Название:");
+        TextInputDialog dialog = new TextInputDialog("New Tab");
+        dialog.setTitle("Create Tab");
+        dialog.setHeaderText("Enter a name for the new tab");
+        dialog.setContentText("Name:");
 
         DialogPane dp = dialog.getDialogPane();
         dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -475,7 +475,7 @@ public class MainController {
                 TabData active = tabManager.getActiveTab();
                 if (active != null) selectedVersion = active.getVersion();
                 if ("main".equals(currentPage)) showMainPage();
-                setStatus("✓ Создана вкладка: " + name.trim());
+                setStatus("✓ Tab created: " + name.trim());
             }
         });
     }
@@ -485,9 +485,9 @@ public class MainController {
         if (tab == null) return;
 
         TextInputDialog dialog = new TextInputDialog(tab.getName());
-        dialog.setTitle("Переименование вкладки");
-        dialog.setHeaderText("Введите новое название");
-        dialog.setContentText("Название:");
+        dialog.setTitle("Rename Tab");
+        dialog.setHeaderText("Enter new name");
+        dialog.setContentText("Name:");
 
         DialogPane dp = dialog.getDialogPane();
         dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -511,14 +511,14 @@ public class MainController {
                 tabManager.renameTab(index, newName.trim());
                 rebuildTabBar();
                 if ("main".equals(currentPage)) showMainPage();
-                setStatus("✓ Вкладка переименована в: " + newName.trim());
+                setStatus("✓ Tab renamed to: " + newName.trim());
             }
         });
     }
 
     private void deleteTab(int index) {
         if (tabManager.getTabCount() <= 1) {
-            setStatus("✗ Нельзя удалить последнюю вкладку");
+            setStatus("✗ Cannot delete the last tab");
             return;
         }
 
@@ -526,9 +526,9 @@ public class MainController {
         String tabName = tab != null ? tab.getName() : "?";
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Удаление вкладки");
-        alert.setHeaderText("Удалить вкладку \"" + tabName + "\"?");
-        alert.setContentText("Настройки вкладки будут потеряны. Это действие нельзя отменить.");
+        alert.setTitle("Delete Tab");
+        alert.setHeaderText("Delete tab \"" + tabName + "\"?");
+        alert.setContentText("Tab settings will be lost. This action cannot be undone.");
 
         DialogPane dp = alert.getDialogPane();
         dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -552,7 +552,7 @@ public class MainController {
             TabData active = tabManager.getActiveTab();
             if (active != null) selectedVersion = active.getVersion();
             if ("main".equals(currentPage)) showMainPage();
-            setStatus("✓ Вкладка \"" + tabName + "\" удалена");
+            setStatus("✓ Tab \"" + tabName + "\" deleted");
         }
     }
 
@@ -569,11 +569,11 @@ public class MainController {
                 "-fx-padding: 4;"
         );
 
-        MenuItem renameItem = new MenuItem("✏️  Переименовать");
+        MenuItem renameItem = new MenuItem("✏️  Rename");
         renameItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         renameItem.setOnAction(e -> showRenameTabDialog(index));
 
-        MenuItem duplicateItem = new MenuItem("📋  Дублировать");
+        MenuItem duplicateItem = new MenuItem("📋  Duplicate");
         duplicateItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         duplicateItem.setOnAction(e -> {
             tabManager.updateActiveTabFromSettings();
@@ -583,22 +583,22 @@ public class MainController {
             TabData active = tabManager.getActiveTab();
             if (active != null) selectedVersion = active.getVersion();
             if ("main".equals(currentPage)) showMainPage();
-            setStatus("✓ Вкладка дублирована");
+            setStatus("✓ Tab duplicated");
         });
 
-        MenuItem exportItem = new MenuItem("📤  Экспорт...");
+        MenuItem exportItem = new MenuItem("📤  Export...");
         exportItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         exportItem.setOnAction(e -> {
             FileChooser fc = new FileChooser();
-            fc.setTitle("Экспорт вкладки");
+            fc.setTitle("Export Tab");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PowerLaunch Tab", "*.json"));
             fc.setInitialFileName(tab.getName().replaceAll("[\\/:*?\"<>|]", "_") + ".json");
             File file = fc.showSaveDialog(view.getScene().getWindow());
             if (file != null) {
                 if (tabManager.exportTab(index, file)) {
-                    setStatus("✓ Вкладка экспортирована: " + file.getName());
+                    setStatus("✓ Tab exported: " + file.getName());
                 } else {
-                    setStatus("✗ Ошибка экспорта вкладки");
+                    setStatus("✗ Tab export failed");
                 }
             }
         });
@@ -607,7 +607,7 @@ public class MainController {
             menu.getItems().addAll(renameItem, duplicateItem, exportItem);
             menu.getItems().add(new SeparatorMenuItem());
 
-            MenuItem deleteItem = new MenuItem("🗑️  Удалить");
+            MenuItem deleteItem = new MenuItem("🗑️  Delete");
             deleteItem.setStyle("-fx-text-fill: #ef4444; -fx-padding: 6 20;");
             deleteItem.setOnAction(e -> deleteTab(index));
             menu.getItems().add(deleteItem);
@@ -628,15 +628,15 @@ public class MainController {
                 "-fx-padding: 4;"
         );
 
-        MenuItem createItem = new MenuItem("➕  Создать вкладку");
+        MenuItem createItem = new MenuItem("➕  Create Tab");
         createItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         createItem.setOnAction(e -> showCreateTabDialog());
 
-        MenuItem importItem = new MenuItem("📥  Импорт вкладки...");
+        MenuItem importItem = new MenuItem("📥  Import Tab...");
         importItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         importItem.setOnAction(e -> {
             FileChooser fc = new FileChooser();
-            fc.setTitle("Импорт вкладки");
+            fc.setTitle("Import Tab");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PowerLaunch Tab", "*.json"));
             File file = fc.showOpenDialog(view.getScene().getWindow());
             if (file != null) {
@@ -648,9 +648,9 @@ public class MainController {
                     TabData active = tabManager.getActiveTab();
                     if (active != null) selectedVersion = active.getVersion();
                     if ("main".equals(currentPage)) showMainPage();
-                    setStatus("✓ Импортирована вкладка: " + imported.getName());
+                    setStatus("✓ Imported tab: " + imported.getName());
                 } else {
-                    setStatus("✗ Ошибка импорта вкладки");
+                    setStatus("✗ Tab import failed");
                 }
             }
         });
@@ -699,7 +699,7 @@ public class MainController {
             String name = (current != null) ? current.getUsername() : accountManager.getAccounts().get(0).getUsername();
             btn.setText("👤 " + name + "  ▾");
         } else {
-            btn.setText("👤 Создать аккаунт  ▾");
+            btn.setText("👤 Create Account  ▾");
         }
         btn.setStyle(
                 "-fx-background-color: rgba(233,69,96,0.12);" +
@@ -773,14 +773,14 @@ public class MainController {
                 accountManager.selectAccount(name);
                 auth.loginOffline(name);
                 updateAccountButton(btn);
-                setStatus("✓ Аккаунт: " + name);
+                setStatus("✓ Account: " + name);
             });
             menu.getItems().add(item);
         }
 
         menu.getItems().add(new SeparatorMenuItem());
 
-        MenuItem settingsItem = new MenuItem("⚙️ Настройки аккаунтов");
+        MenuItem settingsItem = new MenuItem("⚙️ Account Settings");
         settingsItem.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-padding: 6 20;");
         settingsItem.setOnAction(e -> showAccountSettings());
         menu.getItems().add(settingsItem);
@@ -800,31 +800,31 @@ public class MainController {
                 "-fx-border-width: 1 0 0 0;"
         );
 
-        // Version button - слева
+        // Version button - left
         versionButton = createVersionButton();
         versionButton.setAlignment(Pos.CENTER_LEFT);
 
         Region leftSpacer = new Region();
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
 
-        // Control buttons - по центру, как Play в LL
+        // Control buttons - center, like Play in LL
         HBox controlGroup = new HBox(10);
         controlGroup.setAlignment(Pos.CENTER);
 
-        Button startBtn = createStyledButton("▶  Старт", "#10b981");
-        Button restartBtn = createStyledButton("🔄  Рестарт", "#f59e0b");
-        Button stopBtn = createStyledButton("⏹  Стоп", "#e94560");
-        Button killBtn = createStyledButton("💀  Килл", "#ef4444");
+        Button startBtn = createStyledButton("▶  Start", "#10b981");
+        Button restartBtn = createStyledButton("🔄  Restart", "#f59e0b");
+        Button stopBtn = createStyledButton("⏹  Stop", "#e94560");
+        Button killBtn = createStyledButton("💀  Kill", "#ef4444");
 
         startBtn.setOnAction(e -> {
             if (!accountManager.hasAccounts()) {
                 flashButton(startBtn);
-                setStatus("✗ Сначала создайте аккаунт");
+                setStatus("✗ Please create an account first");
                 return;
             }
             if (selectedVersion == null || selectedVersion.isEmpty()) {
                 flashButton(startBtn);
-                setStatus("✗ Сначала выберите версию");
+                setStatus("✗ Please select a version first");
                 return;
             }
             handleConsoleStart();
@@ -841,27 +841,27 @@ public class MainController {
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
 
-        // Utility buttons - справа
+        // Utility buttons - right
         HBox utilGroup = new HBox(8);
         utilGroup.setAlignment(Pos.CENTER_RIGHT);
 
-        Button folderBtn = createSvgIconButton(createFolderSvg(), "Открыть корневую папку");
+        Button folderBtn = createSvgIconButton(createFolderSvg(), "Open game directory");
         folderBtn.setOnAction(e -> {
             try {
                 String path = versionManager.getGameDirectory().toAbsolutePath().toString();
                 Runtime.getRuntime().exec("explorer.exe " + path);
             } catch (Exception ex) {
-                setStatus("✗ Не удалось открыть папку");
+                setStatus("✗ Failed to open directory");
             }
         });
 
-        Button settingsBtn = createSvgIconButton(createGearSvg(), "Настройки лаунчера");
+        Button settingsBtn = createSvgIconButton(createGearSvg(), "Launcher Settings");
         settingsBtn.setOnAction(e -> showLauncherSettings());
 
         Button consoleBtn = createConsoleButton();
         utilGroup.getChildren().addAll(folderBtn, consoleBtn, settingsBtn);
         // Add status indicator
-        Label statusInd = new Label("●  Выключен");
+        Label statusInd = new Label("●  Off");
         statusInd.setFont(Font.font("System", 12));
         statusInd.setTextFill(Color.web("#ef4444"));
         statusInd.setAlignment(Pos.CENTER);
@@ -1024,8 +1024,8 @@ public class MainController {
     }
 
     private void updateVersionButton(Button btn) {
-        String version = selectedVersion.isEmpty() ? "не выбрана" : selectedVersion;
-        btn.setText("📦 Версия: " + version + "  ▾");
+        String version = selectedVersion.isEmpty() ? "none selected" : selectedVersion;
+        btn.setText("📦 Version: " + version + "  ▾");
         btn.setStyle(
                 "-fx-background-color: rgba(59,130,246,0.12);" +
                 "-fx-text-fill: #3b82f6;" +
@@ -1076,7 +1076,7 @@ public class MainController {
         List<String> versions = versionManager.getInstalledVersions();
 
         if (versions.isEmpty()) {
-            MenuItem emptyItem = new MenuItem("Нет установленных версий");
+            MenuItem emptyItem = new MenuItem("No installed versions");
             emptyItem.setDisable(true);
             emptyItem.setStyle("-fx-text-fill: rgba(255,255,255,0.4); -fx-padding: 6 20;");
             menu.getItems().add(emptyItem);
@@ -1095,14 +1095,14 @@ public class MainController {
                     updateVersionButton(btn);
                     // Save to active tab
                     tabManager.updateActiveTabFromSettings();
-                    setStatus("✓ Версия: " + v);
+                    setStatus("✓ Version: " + v);
                 });
                 menu.getItems().add(item);
             }
         }
 
         menu.getItems().add(new SeparatorMenuItem());
-        MenuItem manageItem = new MenuItem("⚙️ Управление версиями");
+        MenuItem manageItem = new MenuItem("⚙️ Manage Versions");
         manageItem.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-padding: 6 20;");
         manageItem.setOnAction(e -> showVersionSettings());
         menu.getItems().add(manageItem);
@@ -1122,7 +1122,7 @@ public class MainController {
         );
         bar.setAlignment(Pos.CENTER_LEFT);
 
-        Label status = new Label("✓ Готов к запуску");
+        Label status = new Label("✓ Ready to launch");
         status.setFont(Font.font("System", 13));
         status.setTextFill(Color.rgb(200, 200, 230));
 
@@ -1133,7 +1133,7 @@ public class MainController {
     }
 
     private PauseTransition statusTimeout;
-    private static final String DEFAULT_STATUS = "✓ Готов к запуску";
+    private static final String DEFAULT_STATUS = "✓ Ready to launch";
 
     private void setStatus(String text) {
         Platform.runLater(() -> {
@@ -1169,7 +1169,7 @@ public class MainController {
         page.setPadding(new Insets(25, 30, 25, 30));
         page.setStyle("-fx-background-color: transparent;");
 
-        Text title = new Text("⚙️ Настройки лаунчера");
+        Text title = new Text("⚙️ Launcher Settings");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
@@ -1179,21 +1179,21 @@ public class MainController {
         form.setPadding(new Insets(0, 0, 15, 0));
 
         // === 1. Game Directory ===
-        VBox gameDirCard = createSettingsCard("Корневая директория",
-                "Путь к папке с файлами Minecraft (.minecraft / .powerlaunch)");
+        VBox gameDirCard = createSettingsCard("Game Directory",
+                "Path to Minecraft files (.minecraft / .powerlaunch)");
         HBox dirRow = new HBox(10);
         dirRow.setAlignment(Pos.CENTER_LEFT);
 
         TextField dirField = new TextField(settings.getString("gameDirectory", ""));
-        dirField.setPromptText("Например: C:\\Users\\Имя\\AppData\\Roaming\\.powerlaunch");
+        dirField.setPromptText("e.g.: C:\\Users\\Name\\AppData\\Roaming\\.powerlaunch");
         dirField.setPrefWidth(400);
         dirField.setStyle(settingsInputStyle());
         dirField.textProperty().addListener((obs, old, val) -> settings.set("gameDirectory", val));
 
-        Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать папку");
+        Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Browse folder");
         dirBrowseBtn.setOnAction(e -> {
             DirectoryChooser dc = new DirectoryChooser();
-            dc.setTitle("Выберите корневую директорию");
+            dc.setTitle("Select game directory");
             if (!dirField.getText().isEmpty()) {
                 dc.setInitialDirectory(new File(dirField.getText()));
             }
@@ -1208,8 +1208,8 @@ public class MainController {
         form.getChildren().add(gameDirCard);
 
         // === 2. Java Selection ===
-        VBox javaCard = createSettingsCard("Выбор Java",
-                "Выберите версию Java для запуска Minecraft или укажите путь вручную");
+        VBox javaCard = createSettingsCard("Java Selection",
+                "Choose Java version for Minecraft or specify path manually");
 
         // Java choice dropdown
         HBox javaChoiceRow = new HBox(10);
@@ -1221,9 +1221,9 @@ public class MainController {
         // Auto-detect Java versions
         String currentJavaHome = System.getProperty("java.home");
         String currentJavaVersion = System.getProperty("java.version");
-        String autoLabel = "Автоопределение (Java " + currentJavaVersion + ")";
+        String autoLabel = "Auto-detect (Java " + currentJavaVersion + ")";
         javaChoice.getItems().add(autoLabel);
-        javaChoice.getItems().add("Только текущая");
+        javaChoice.getItems().add("Current only");
 
         // Try to find other Java installations
         try {
@@ -1269,7 +1269,7 @@ public class MainController {
             settings.set("javaChoice", val != null && val.equals(autoLabel) ? "auto" : val);
         });
 
-        Label javaChoiceLabel = new Label("Версия:");
+        Label javaChoiceLabel = new Label("Version:");
         javaChoiceLabel.setTextFill(Color.rgb(200, 200, 220));
         javaChoiceRow.getChildren().add(javaChoiceLabel);
         javaChoiceRow.getChildren().add(javaChoice);
@@ -1281,15 +1281,15 @@ public class MainController {
         javaPathRow.setPadding(new Insets(8, 0, 0, 0));
 
         TextField javaPathField = new TextField(settings.getString("javaPath", ""));
-        javaPathField.setPromptText("Путь к javaw.exe / java");
+        javaPathField.setPromptText("Path to javaw.exe / java");
         javaPathField.setPrefWidth(400);
         javaPathField.setStyle(settingsInputStyle());
         javaPathField.textProperty().addListener((obs, old, val) -> settings.set("javaPath", val));
 
-        Button javaBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать java/javaw.exe");
+        Button javaBrowseBtn = createBrowseButton(createFolderSvg(), "Browse java/javaw.exe");
         javaBrowseBtn.setOnAction(e -> {
             FileChooser fc = new FileChooser();
-            fc.setTitle("Выберите java/javaw.exe");
+            fc.setTitle("Select java/javaw.exe");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java Executable", "*.exe", "*"));
             if (!javaPathField.getText().isEmpty()) {
                 fc.setInitialDirectory(new File(javaPathField.getText()).getParentFile());
@@ -1300,7 +1300,7 @@ public class MainController {
             }
         });
 
-        Label javaPathLabel = new Label("Путь:");
+        Label javaPathLabel = new Label("Path:");
         javaPathLabel.setTextFill(Color.rgb(200, 200, 220));
         javaPathRow.getChildren().add(javaPathLabel);
         javaPathRow.getChildren().add(javaPathField);
@@ -1310,8 +1310,8 @@ public class MainController {
         form.getChildren().add(javaCard);
 
         // === 3. JVM Arguments ===
-        VBox jvmCard = createSettingsCard("JVM аргументы",
-                "Аргументы для виртуальной машины Java. По умолчанию выделено 4096 MB RAM.");
+        VBox jvmCard = createSettingsCard("JVM Arguments",
+                "Arguments for the Java Virtual Machine. Default allocation is 4096 MB RAM.");
 
         TextField jvmField = new TextField();
         String savedArgs = settings.getString("javaArgs", "");
@@ -1328,14 +1328,14 @@ public class MainController {
         form.getChildren().add(jvmCard);
 
         // === 4. GPU Selection ===
-        VBox gpuCard = createSettingsCard("Выбор видеокарты",
-                "Выберите видеокарту для запуска Minecraft (если доступно несколько)");
+        VBox gpuCard = createSettingsCard("GPU Selection",
+                "Choose GPU for Minecraft (if multiple available)");
         HBox gpuRow = new HBox(10);
         gpuRow.setAlignment(Pos.CENTER_LEFT);
 
         ComboBox<String> gpuChoice = new ComboBox<>();
         gpuChoice.setPrefWidth(400);
-        gpuChoice.getItems().add("Авто (системная)");
+        gpuChoice.getItems().add("Auto (system)");
 
         // Try to detect available GPUs
         try {
@@ -1357,20 +1357,20 @@ public class MainController {
 
         // Fallback if no GPUs detected
         if (gpuChoice.getItems().size() <= 1) {
-            gpuChoice.getItems().add("Встроенная (Integrated)");
-            gpuChoice.getItems().add("Дискретная (High Performance)");
+            gpuChoice.getItems().add("Integrated");
+            gpuChoice.getItems().add("Discrete (High Performance)");
         }
 
         String savedGpu = settings.getString("gpuChoice", "auto");
         if (savedGpu.equals("auto")) {
-            gpuChoice.setValue("Авто (системная)");
+            gpuChoice.setValue("Auto (system)");
         } else {
             gpuChoice.setValue(savedGpu);
         }
         gpuChoice.setStyle(settingsComboStyle());
         gpuChoice.setOnAction(e -> {
             String val = gpuChoice.getValue();
-            settings.set("gpuChoice", val != null && val.equals("Авто (системная)") ? "auto" : val);
+            settings.set("gpuChoice", val != null && val.equals("Auto (system)") ? "auto" : val);
         });
 
         gpuRow.getChildren().add(gpuChoice);
@@ -1378,8 +1378,8 @@ public class MainController {
         form.getChildren().add(gpuCard);
 
         // === 5. Auto-connect Server ===
-        VBox serverCard = createSettingsCard("Подключение к серверу",
-                "Автоматически подключаться к серверу при запуске Minecraft. Управляйте списком серверов.");
+        VBox serverCard = createSettingsCard("Server Connection",
+                "Auto-connect to server when Minecraft starts. Manage server list.");
 
         // Auto-connect toggle
         HBox autoConnectRow = new HBox(12);
@@ -1389,14 +1389,14 @@ public class MainController {
         boolean autoConnect = settings.getBoolean("autoConnect", false);
         autoConnectToggle.setSelected(autoConnect);
         updateToggleStyle(autoConnectToggle);
-        autoConnectToggle.setText(autoConnect ? "🟢 Вкл" : "🔴 Выкл");
+        autoConnectToggle.setText(autoConnect ? "🟢 On" : "🔴 Off");
         autoConnectToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("autoConnect", val);
             updateToggleStyle(autoConnectToggle);
-            autoConnectToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            autoConnectToggle.setText(val ? "🟢 On" : "🔴 Off");
         });
 
-        Label autoConnectLabel = new Label("Подключаться при запуске:");
+        Label autoConnectLabel = new Label("Connect on launch:");
         autoConnectLabel.setTextFill(Color.rgb(200, 200, 220));
 
         autoConnectRow.getChildren().addAll(autoConnectLabel, autoConnectToggle);
@@ -1407,11 +1407,11 @@ public class MainController {
         serverIpRow.setAlignment(Pos.CENTER_LEFT);
         serverIpRow.setPadding(new Insets(5, 0, 0, 0));
 
-        Label ipLabel = new Label("IP сервера:");
+        Label ipLabel = new Label("Server IP:");
         ipLabel.setTextFill(Color.rgb(200, 200, 220));
 
         TextField serverIpField = new TextField(settings.getString("connectServerIp", ""));
-        serverIpField.setPromptText("Пример: play.example.com:25565");
+        serverIpField.setPromptText("e.g.: play.example.com:25565");
         serverIpField.setPrefWidth(300);
         serverIpField.setStyle(settingsInputStyle());
         serverIpField.textProperty().addListener((obs, old, val) -> settings.set("connectServerIp", val));
@@ -1426,7 +1426,7 @@ public class MainController {
         serverCard.getChildren().add(serverSep);
 
         // Server list management section
-        Text serversSubtitle = new Text("Сохранённые серверы");
+        Text serversSubtitle = new Text("Saved Servers");
         serversSubtitle.setFont(Font.font("System", FontWeight.BOLD, 13));
         serversSubtitle.setFill(Color.rgb(200, 200, 220));
         serverCard.getChildren().add(serversSubtitle);
@@ -1475,32 +1475,32 @@ public class MainController {
         serverBtnRow.setAlignment(Pos.CENTER_LEFT);
         serverBtnRow.setPadding(new Insets(8, 0, 0, 0));
 
-        Button addServerBtn = new Button("➕ Добавить");
+        Button addServerBtn = new Button("➕ Add");
         styleSettingsButton(addServerBtn, "#10b981", "#059669");
         addServerBtn.setOnAction(e -> showAddServerDialog(serverListView));
 
-        Button editServerBtn = new Button("✏️ Изменить");
+        Button editServerBtn = new Button("✏️ Edit");
         styleSettingsButton(editServerBtn, "#3b82f6", "#2563eb");
         editServerBtn.setOnAction(e -> {
             int idx = serverListView.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
-                setStatus("✗ Выберите сервер из списка");
+                setStatus("✗ Select a server from the list");
                 return;
             }
             showEditServerDialog(serverListView, idx);
         });
 
-        Button removeServerBtn = new Button("🗑️ Удалить");
+        Button removeServerBtn = new Button("🗑️ Delete");
         styleSettingsButton(removeServerBtn, "#ef4444", "#dc2626");
         removeServerBtn.setOnAction(e -> {
             int idx = serverListView.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
-                setStatus("✗ Выберите сервер из списка");
+                setStatus("✗ Select a server from the list");
                 return;
             }
             serverManager.removeServer(idx);
             refreshServerList(serverListView);
-            setStatus("✓ Сервер удалён");
+            setStatus("✓ Server deleted");
         });
 
         serverBtnRow.getChildren().addAll(addServerBtn, editServerBtn, removeServerBtn);
@@ -1512,7 +1512,7 @@ public class MainController {
         buttonRow.setAlignment(Pos.CENTER);
         buttonRow.setPadding(new Insets(10, 0, 0, 0));
 
-        Button saveBtn = new Button("💾 Сохранить и выйти в меню");
+        Button saveBtn = new Button("💾 Save & return to menu");
         saveBtn.setPrefHeight(44);
         saveBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #e94560, #c23152);" +
@@ -1543,11 +1543,11 @@ public class MainController {
         ));
         saveBtn.setOnAction(e -> {
             settings.save();
-            setStatus("✓ Настройки сохранены");
+            setStatus("✓ Settings saved");
             showMainPage();
         });
 
-        Button cancelBtn = new Button("◀ Назад без сохранения");
+        Button cancelBtn = new Button("◀ Back without saving");
         cancelBtn.setPrefHeight(44);
         cancelBtn.setStyle(
                 "-fx-background-color: transparent;" +
@@ -1695,14 +1695,14 @@ public class MainController {
         page.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
 
         // Welcome/status info
-        Text welcomeText = new Text("Добро пожаловать в PowerLaunch!");
+        Text welcomeText = new Text("Welcome to PowerLaunch!");
         welcomeText.setFont(Font.font("System", FontWeight.BOLD, 24));
         welcomeText.setFill(Color.WHITE);
 
         String accountInfo = accountManager.hasAccounts()
-                ? "Аккаунт: " + accountManager.getCurrentAccount().getUsername()
-                : "Аккаунт не выбран";
-        String versionInfo = selectedVersion.isEmpty() ? "Версия не выбрана" : selectedVersion;
+                ? "Account: " + accountManager.getCurrentAccount().getUsername()
+                : "No account selected";
+        String versionInfo = selectedVersion.isEmpty() ? "Version none selected" : selectedVersion;
 
         Text infoText = new Text(accountInfo + "  ·  " + versionInfo);
         infoText.setFont(Font.font("System", 14));
@@ -1714,11 +1714,11 @@ public class MainController {
         infoCards.setPadding(new Insets(30, 0, 0, 0));
 
         infoCards.getChildren().add(createInfoCard("👤",
-                accountManager.hasAccounts() ? accountManager.getCurrentAccount().getUsername() : "Нет аккаунта",
-                "Нажмите на аккаунт вверху"));
+                accountManager.hasAccounts() ? accountManager.getCurrentAccount().getUsername() : "No account",
+                "Click the account above"));
         infoCards.getChildren().add(createInfoCard("📦",
-                selectedVersion.isEmpty() ? "Не выбрана" : selectedVersion,
-                "Выберите версию внизу"));
+                selectedVersion.isEmpty() ? "None selected" : selectedVersion,
+                "Choose a version below"));
         page.getChildren().addAll(welcomeText, infoText, infoCards);
 
         FadeTransition fade = new FadeTransition(Duration.millis(300), page);
@@ -1769,7 +1769,7 @@ public class MainController {
         page.setStyle("-fx-background-color: transparent;");
 
         // Title
-        Text title = new Text("⚙️ Настройки аккаунтов");
+        Text title = new Text("⚙️ Account Settings");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 15, 0));
@@ -1805,7 +1805,7 @@ public class MainController {
                     HBox.setHgrow(spacer, Priority.ALWAYS);
 
                     if (isCurrent) {
-                        Label currentBadge = new Label("Текущий");
+                        Label currentBadge = new Label("Current");
                         currentBadge.setStyle(
                                 "-fx-background-color: rgba(233,69,96,0.2);" +
                                 "-fx-text-fill: #e94560;" +
@@ -1842,14 +1842,14 @@ public class MainController {
         HBox topBtnRow = new HBox(10);
         topBtnRow.setAlignment(Pos.CENTER);
 
-        Button createBtn = new Button("➕ Создать новый аккаунт");
+        Button createBtn = new Button("➕ Create new account");
         styleSettingsButton(createBtn, "#10b981", "#059669");
         createBtn.setOnAction(e -> showCreateAccountDialog(() -> {
             accountList.getItems().setAll(accountManager.getAccounts());
             showAccountSettingsPage();
         }));
 
-        Button backBtn = new Button("◀ Назад");
+        Button backBtn = new Button("◀ Back");
         styleSettingsButton(backBtn, "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)");
         backBtn.setTextFill(Color.rgb(200, 200, 220));
         backBtn.setOnAction(e -> showMainPage());
@@ -1882,7 +1882,7 @@ public class MainController {
                 "-fx-padding: 0;"
         );
 
-        Label deleteLabel = new Label("→  Сдвиньте ползунок для удаления");
+        Label deleteLabel = new Label("→  Slide to delete");
         deleteLabel.setFont(Font.font("System", 13));
         deleteLabel.setTextFill(Color.rgb(160, 160, 180));
         deleteLabel.setMouseTransparent(true);
@@ -1903,7 +1903,7 @@ public class MainController {
         StackPane.setAlignment(deleteLabel, Pos.CENTER);
 
         // Delete button (disabled initially)
-        Button deleteBtn = new Button("Удалить");
+        Button deleteBtn = new Button("Delete");
         deleteBtn.setDisable(true);
         deleteBtn.setPrefHeight(42);
         deleteBtn.setStyle(
@@ -1931,7 +1931,7 @@ public class MainController {
                         "-fx-cursor: hand;" +
                         "-fx-effect: dropshadow(gaussian, rgba(239,68,68,0.4), 12, 0, 0, 4);"
                 );
-                deleteLabel.setText("✓  Подтверждено — нажмите «Удалить»");
+                deleteLabel.setText("✓  Подтверждено — нажмите «Delete»");
                 deleteLabel.setTextFill(Color.web("#10b981"));
             } else {
                 deleteBtn.setDisable(true);
@@ -1943,7 +1943,7 @@ public class MainController {
                         "-fx-background-radius: 21;" +
                         "-fx-padding: 8 24;"
                 );
-                deleteLabel.setText("→  Сдвиньте ползунок для удаления");
+                deleteLabel.setText("→  Slide to delete");
                 deleteLabel.setTextFill(Color.rgb(160, 160, 180));
             }
         });
@@ -1962,7 +1962,7 @@ public class MainController {
 
         deleteBtn.setOnAction(e -> {
             if (selectedAccount == null) {
-                setStatus("✗ Выберите аккаунт из списка");
+                setStatus("✗ Select an account from the list");
                 deleteSlider.setValue(0);
                 return;
             }
@@ -1975,7 +1975,7 @@ public class MainController {
                 auth.logout();
             }
 
-            setStatus("✓ Аккаунт \"" + name + "\" удалён");
+            setStatus("✓ Аккаунт \"" + name + "\" deleted");
 
             deleteSlider.setValue(0);
             deleteProgress.setProgress(0);
@@ -1988,7 +1988,7 @@ public class MainController {
                     "-fx-background-radius: 21;" +
                     "-fx-padding: 8 24;"
             );
-            deleteLabel.setText("→  Сдвиньте ползунок для удаления");
+            deleteLabel.setText("→  Slide to delete");
             deleteLabel.setTextFill(Color.rgb(160, 160, 180));
 
             accountList.getItems().setAll(accountManager.getAccounts());
@@ -2045,7 +2045,7 @@ public class MainController {
 
 
     private Button createConsoleButton() {
-        Button btn = createSvgIconButton(createTerminalSvg(), "Консоль (логирование)");
+        Button btn = createSvgIconButton(createTerminalSvg(), "Console (logging)");
         btn.setOnAction(e -> showConsolePanel());
         return btn;
     }
@@ -2077,18 +2077,8 @@ public class MainController {
         consoleArea.setText(existing.toString());
         consoleArea.setScrollTop(Double.MAX_VALUE);
 
-        launcher.setOnConsoleLine(line -> {
-            // Записываем в файл лога (если включено в настройках)
-            if (settings.getBoolean("saveConsoleLog", true)) {
-                FileLogManager.getInstance().log("[MC]", line);
-            }
-            if (consoleArea != null && consoleVisible && shouldShowInConsole(line)) {
-                Platform.runLater(() -> {
-                    consoleArea.appendText(line + "\n");
-                    consoleArea.setScrollTop(Double.MAX_VALUE);
-                });
-            }
-        });
+        // Note: setOnConsoleLine is already set in handleConsoleStart()
+        // Do NOT re-set it here — it would overwrite the launch callback
 
         stopSensors();
 
@@ -2100,7 +2090,7 @@ public class MainController {
         HBox topBar = new HBox(10);
         topBar.setAlignment(Pos.CENTER_LEFT);
 
-        Text title = new Text("🖥  Консоль");
+        Text title = new Text("🖥  Console");
         title.setFont(Font.font("System", FontWeight.BOLD, 20));
         title.setFill(Color.WHITE);
 
@@ -2108,19 +2098,19 @@ public class MainController {
         HBox.setHgrow(topSpacer, Priority.ALWAYS);
 
         ToggleGroup modeGroup = new ToggleGroup();
-        RadioButton offMode = new RadioButton("Выкл");
+        RadioButton offMode = new RadioButton("Off");
         offMode.setToggleGroup(modeGroup);
         offMode.setTextFill(Color.rgb(180, 180, 200));
         offMode.setFont(Font.font("System", 12));
         offMode.setStyle("-fx-cursor: hand; -fx-mark-color: #e94560;");
 
-        RadioButton errorsMode = new RadioButton("Сбои");
+        RadioButton errorsMode = new RadioButton("Errors");
         errorsMode.setToggleGroup(modeGroup);
         errorsMode.setTextFill(Color.rgb(180, 180, 200));
         errorsMode.setFont(Font.font("System", 12));
         errorsMode.setStyle("-fx-cursor: hand; -fx-mark-color: #e94560;");
 
-        RadioButton allMode = new RadioButton("Всё");
+        RadioButton allMode = new RadioButton("All");
         allMode.setToggleGroup(modeGroup);
         allMode.setTextFill(Color.rgb(180, 180, 200));
         allMode.setFont(Font.font("System", 12));
@@ -2133,7 +2123,7 @@ public class MainController {
         }
         offMode.setOnAction(e -> consoleMode = "off");
         errorsMode.setOnAction(e -> consoleMode = "errors");
-        Tooltip allWarn = new Tooltip("⚠ Может вызвать дополнительную нагрузку на систему");
+        Tooltip allWarn = new Tooltip("⚠ May cause additional system load");
         allWarn.setStyle("-fx-background-color: #16213e; -fx-text-fill: #f59e0b; -fx-font-size: 11; -fx-background-radius: 4; -fx-padding: 4 8;");
         Tooltip.install(allMode, allWarn);
         allMode.setOnAction(e -> consoleMode = "all");
@@ -2167,19 +2157,19 @@ public class MainController {
 
         HBox ctrlRow = new HBox(8);
         ctrlRow.setAlignment(Pos.CENTER_LEFT);
-        Button startBtn = createStyledButton("▶  Старт", "#10b981");
-        Button restartBtn = createStyledButton("🔄  Рестарт", "#f59e0b");
-        Button stopBtn = createStyledButton("⏹  Стоп", "#e94560");
-        Button killBtn = createStyledButton("💀  Килл", "#ef4444");
+        Button startBtn = createStyledButton("▶  Start", "#10b981");
+        Button restartBtn = createStyledButton("🔄  Restart", "#f59e0b");
+        Button stopBtn = createStyledButton("⏹  Stop", "#e94560");
+        Button killBtn = createStyledButton("💀  Kill", "#ef4444");
         startBtn.setOnAction(e -> {
             if (!accountManager.hasAccounts()) {
                 flashButton(startBtn);
-                setStatus("✗ Сначала создайте аккаунт");
+                setStatus("✗ Please create an account first");
                 return;
             }
             if (selectedVersion == null || selectedVersion.isEmpty()) {
                 flashButton(startBtn);
-                setStatus("✗ Сначала выберите версию");
+                setStatus("✗ Please select a version first");
                 return;
             }
             handleConsoleStart();
@@ -2192,14 +2182,14 @@ public class MainController {
         HBox actionRow = new HBox(8);
         actionRow.setAlignment(Pos.CENTER_RIGHT);
 
-        Button clearBtn = new Button("🗑  Очистить");
+        Button clearBtn = new Button("🗑  Clear");
         clearBtn.setPrefHeight(36);
         clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;");
         clearBtn.setOnMouseEntered(e -> clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.14); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
         clearBtn.setOnMouseExited(e -> clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
-        clearBtn.setOnAction(e -> { consoleArea.clear(); setStatus("✓ Консоль очищена"); });
+        clearBtn.setOnAction(e -> { consoleArea.clear(); setStatus("✓ Console cleared"); });
 
-        Button exportBtn = new Button("📥  Экспорт");
+        Button exportBtn = new Button("📥  Export");
         exportBtn.setPrefHeight(36);
         exportBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;");
         exportBtn.setOnMouseEntered(e -> exportBtn.setStyle("-fx-background-color: rgba(255,255,255,0.14); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
@@ -2214,7 +2204,7 @@ public class MainController {
         backBtn.setGraphic(homePane);
         backBtn.setPrefSize(36, 36);
         backBtn.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 0;");
-        Tooltip.install(backBtn, new Tooltip("В главное меню"));
+        Tooltip.install(backBtn, new Tooltip("Back to main menu"));
         backBtn.setOnMouseEntered(e -> { backBtn.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 0;"); homeIcon.setFill(Color.WHITE); });
         backBtn.setOnMouseExited(e -> { backBtn.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 0;"); homeIcon.setFill(Color.rgb(200, 200, 220)); });
         backBtn.setOnAction(e -> {
@@ -2247,13 +2237,13 @@ public class MainController {
 
     private void handleConsoleStart() {
         if (!accountManager.hasAccounts()) {
-            setStatus("✗ Сначала создайте аккаунт"); return;
+            setStatus("✗ Please create an account first"); return;
         }
         if (selectedVersion == null || selectedVersion.isEmpty()) {
-            setStatus("✗ Сначала выберите версию"); return;
+            setStatus("✗ Please select a version first"); return;
         }
         if (launcher.isRunning()) {
-            setStatus("✗ Minecraft уже запущен"); return;
+            setStatus("✗ Minecraft is already running"); return;
         }
         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
         timeoutReached = false;
@@ -2264,10 +2254,35 @@ public class MainController {
         }
 
         updateStatusIndicator("starting");
-        setStatus("▶ Запуск Minecraft " + selectedVersion + "...");
+        setStatus("▶ Launching Minecraft " + selectedVersion + "...");
+
+        // Auto-enable console output when game starts (if currently off)
+        if ("off".equals(consoleMode)) {
+            consoleMode = "errors";
+        }
+
+        // Always capture MC output to console log and file, regardless of console panel state.
+        launcher.setOnConsoleLine(line -> {
+            if (settings.getBoolean("saveConsoleLog", true)) {
+                FileLogManager.getInstance().log("[MC]", line);
+            }
+            if (consoleArea != null && consoleVisible && shouldShowInConsole(line)) {
+                Platform.runLater(() -> {
+                    consoleArea.appendText(line + "\n");
+                    consoleArea.setScrollTop(Double.MAX_VALUE);
+                });
+            }
+        });
+
+        // Auto-show console panel so user can see MC output
+        if (!consoleVisible) {
+            Platform.runLater(this::showConsolePanel);
+        }
+
         new Thread(() -> {
             var result = launcher.launchMinecraft(selectedVersion, "vanilla", exitCode -> {
-                // Закрываем лог консоли при завершении Minecraft (вне зависимости от кода)
+                // Close console log when Minecraft exits
+                FileLogManager.getInstance().disable();
                 FileLogManager.getInstance().disable();
                 Platform.runLater(() -> {
                     if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
@@ -2305,13 +2320,25 @@ public class MainController {
             if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
             timeoutReached = false;
             updateStatusIndicator("off");
-            setStatus("🔄 Перезапуск...");
+            setStatus("🔄 Restarting...");
             new Thread(() -> {
                 try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
                 if (!accountManager.hasAccounts() || selectedVersion == null) {
-                    Platform.runLater(() -> setStatus("✗ Невозможно перезапустить")); return;
+                    Platform.runLater(() -> setStatus("✗ Cannot restart")); return;
                 }
                 Platform.runLater(() -> updateStatusIndicator("starting"));
+                // Re-set console callback for restart
+                launcher.setOnConsoleLine(line -> {
+                    if (settings.getBoolean("saveConsoleLog", true)) {
+                        FileLogManager.getInstance().log("[MC]", line);
+                    }
+                    if (consoleArea != null && consoleVisible && shouldShowInConsole(line)) {
+                        Platform.runLater(() -> {
+                            consoleArea.appendText(line + "\n");
+                            consoleArea.setScrollTop(Double.MAX_VALUE);
+                        });
+                    }
+                });
                 var result = launcher.launchMinecraft(selectedVersion, "vanilla", exitCode -> {
                     Platform.runLater(() -> {
                         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
@@ -2341,7 +2368,7 @@ public class MainController {
                     }
                 });
             }).start();
-        } else { setStatus("✗ Minecraft не запущен"); }
+        } else { setStatus("✗ Minecraft is not running"); }
     }
 
     private void handleConsoleStop() {
@@ -2349,8 +2376,8 @@ public class MainController {
             launcher.stopMinecraft();
             if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
             updateStatusIndicator("off");
-            setStatus("⏹ Minecraft остановлен");
-        } else { setStatus("✗ Minecraft не запущен"); }
+            setStatus("✗ Minecraft stopped");
+        } else { setStatus("✗ Minecraft is not running"); }
         // Закрываем файл лога консоли
         FileLogManager.getInstance().disable();
     }
@@ -2359,7 +2386,7 @@ public class MainController {
         launcher.stopMinecraft();
         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
         updateStatusIndicator("off");
-        setStatus("💀 Процесс завершён");
+        setStatus("💀 Process killed");
         // Закрываем файл лога консоли
         FileLogManager.getInstance().disable();
     }
@@ -2372,7 +2399,7 @@ public class MainController {
         panel.setPadding(new Insets(8, 10, 8, 10));
         panel.setStyle("-fx-background-color: rgba(0,0,0,0.25); -fx-background-radius: 10; -fx-border-color: rgba(255,255,255,0.06); -fx-border-radius: 10;");
 
-        Text sensorTitle = new Text("Мониторинг");
+        Text sensorTitle = new Text("Monitoring");
         sensorTitle.setFont(Font.font("System", FontWeight.BOLD, 11));
         sensorTitle.setFill(Color.rgb(160, 160, 185));
 
@@ -2554,9 +2581,9 @@ public class MainController {
     }
 
     /**
-     * Надёжное чтение кумулятивных счётчиков сети на Windows.
-     * Сначала пробует PowerShell {@code Get-NetAdapterStatistics} (Win10+), затем fallback на
-     * {@code netstat -e}, который НЕ локализован и работает на всех локалях Windows.
+     * Reliable reading of cumulative network counters on Windows.
+     * First tries PowerShell {@code Get-NetAdapterStatistics} (Win10+), then falls back to
+     * {@code netstat -e}, which is NOT localized and works on all Windows locales.
      * @return [receivedBytes, sentBytes] cumulative across all adapters
      */
     private long[] readNetCumulativeWindows() throws java.io.IOException, InterruptedException {
@@ -2658,8 +2685,8 @@ public class MainController {
 
     private void exportConsoleLogs() {
         FileChooser fc = new FileChooser();
-        fc.setTitle("Экспорт логов");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Текстовый файл", "*.txt"));
+        fc.setTitle("Export Logs");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text file", "*.txt"));
         fc.setInitialFileName("powerlaunch-console-" + java.time.LocalDate.now() + ".txt");
         File file = fc.showSaveDialog(view.getScene().getWindow());
         if (file != null) {
@@ -2671,9 +2698,9 @@ public class MainController {
                     sb.append(line).append("\r\n");
                 }
                 java.nio.file.Files.writeString(file.toPath(), sb.toString());
-                setStatus("✓ Логи экспортированы: " + file.getName());
+                setStatus("✓ Logs exported: " + file.getName());
             } catch (java.io.IOException ex) {
-                setStatus("✗ Ошибка экспорта: " + ex.getMessage());
+                setStatus("✗ Export error: " + ex.getMessage());
             }
         }
     }
@@ -2694,13 +2721,13 @@ public class MainController {
         String crashReportsDir = gameDir + File.separator + "crash-reports";
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Краш игры");
-        alert.setHeaderText("💥 Игра аварийно завершилась (код: " + exitCode + ")");
+        alert.setTitle("Game Crash");
+        alert.setHeaderText("💥 Game crashed (exit code: " + exitCode + ")");
 
         VBox content2 = new VBox(10);
         content2.setPadding(new Insets(5, 0, 5, 0));
 
-        Label info = new Label("Краш-репорты находятся в папке:");
+        Label info = new Label("Crash reports are located in:");
         info.setTextFill(Color.rgb(200, 200, 220));
         info.setFont(Font.font("System", 12));
 
@@ -2714,8 +2741,8 @@ public class MainController {
         Button openBtn = new Button("📂");
         openBtn.setPrefSize(32, 32);
         openBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 6; -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 6; -fx-cursor: hand; -fx-padding: 0;");
-        Tooltip.install(openBtn, new Tooltip("Открыть папку с краш-репортами"));
-        openBtn.setOnAction(ev -> { try { Runtime.getRuntime().exec("explorer.exe \"" + crashReportsDir + "\""); } catch (Exception ex) { setStatus("✗ Не удалось открыть папку краш-репортов"); } });
+        Tooltip.install(openBtn, new Tooltip("Open crash reports folder"));
+        openBtn.setOnAction(ev -> { try { Runtime.getRuntime().exec("explorer.exe \"" + crashReportsDir + "\""); } catch (Exception ex) { setStatus("✗ Failed to open crash reports directory"); } });
 
         pathRow.getChildren().addAll(pathField, openBtn);
         content2.getChildren().addAll(info, pathRow);
@@ -2744,12 +2771,12 @@ public class MainController {
         Platform.runLater(() -> {
             if (statusIndicator == null) return;
             switch (status) {
-                case "off" -> { statusIndicator.setText("●  Выключен"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "starting" -> { statusIndicator.setText("●  Включается..."); statusIndicator.setTextFill(Color.web("#f59e0b")); }
-                case "running" -> { statusIndicator.setText("●  Включён"); statusIndicator.setTextFill(Color.web("#10b981")); }
-                case "startup-error" -> { statusIndicator.setText("●  Ошибка запуска"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "error" -> { statusIndicator.setText("●  Ошибка"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "timeout" -> { statusIndicator.setText("●  Время ожидания истекло"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "off" -> { statusIndicator.setText("●  Off"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "starting" -> { statusIndicator.setText("●  Starting..."); statusIndicator.setTextFill(Color.web("#f59e0b")); }
+                case "running" -> { statusIndicator.setText("●  Running"); statusIndicator.setTextFill(Color.web("#10b981")); }
+                case "startup-error" -> { statusIndicator.setText("●  Launch error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "error" -> { statusIndicator.setText("●  Error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "timeout" -> { statusIndicator.setText("●  Timed out"); statusIndicator.setTextFill(Color.web("#ef4444")); }
             }
         });
     }
@@ -2786,8 +2813,8 @@ public class MainController {
 
     private void showCreateAccountDialog(Runnable onSuccess) {
         Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Создание аккаунта");
-        dialog.setHeaderText("Введите ваш ник в Minecraft");
+        dialog.setTitle("Create Account");
+        dialog.setHeaderText("Enter your Minecraft nickname");
 
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.setStyle(
@@ -2810,7 +2837,7 @@ public class MainController {
         }
 
         TextField nickField = new TextField();
-        nickField.setPromptText("Ваш ник");
+        nickField.setPromptText("Your nickname");
         nickField.setMaxWidth(300);
         nickField.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.08);" +
@@ -2828,8 +2855,8 @@ public class MainController {
         contentBox.setPadding(new Insets(10, 0, 5, 0));
         dialogPane.setContent(contentBox);
 
-        ButtonType confirmType = new ButtonType("Создать", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelType = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType confirmType = new ButtonType("Create", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialogPane.getButtonTypes().addAll(confirmType, cancelType);
 
         Button confirmBtn = (Button) dialogPane.lookupButton(confirmType);
@@ -2870,7 +2897,7 @@ public class MainController {
             if (authResult.isSuccess()) {
                 accountManager.createAccount(nick);
                 settings.set("username", nick);
-                setStatus("✓ Аккаунт \"" + nick + "\" создан!");
+                setStatus("✓ Аккаунт \"" + nick + "\" created!");
                 if (onSuccess != null) onSuccess.run();
             } else {
                 setStatus("✗ " + authResult.getMessage());
@@ -2883,9 +2910,9 @@ public class MainController {
         // If it's the last account, show simple dialog
         if (accountManager.getAccountCount() <= 1) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Удаление аккаунта");
-            alert.setHeaderText("Удалить аккаунт \"" + username + "\"?");
-            alert.setContentText("Это действие нельзя отменить. Аккаунт будет удалён навсегда.");
+            alert.setTitle("Delete Account");
+            alert.setHeaderText("Delete Account \"" + username + "\"?");
+            alert.setContentText("This action cannot be undone. The account will be permanently deleted.");
 
             DialogPane dp = alert.getDialogPane();
             dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -2893,7 +2920,7 @@ public class MainController {
                 if (response == ButtonType.OK) {
                     accountManager.removeAccount(username);
                     auth.logout();
-                    setStatus("✓ Аккаунт \"" + username + "\" удалён");
+                    setStatus("✓ Аккаунт \"" + username + "\" deleted");
                     if (onSuccess != null) onSuccess.run();
                 }
             });
@@ -2902,8 +2929,8 @@ public class MainController {
 
         // Full confirmation dialog with slider
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Подтверждение удаления");
-        dialog.setHeaderText("Удалить аккаунт \"" + username + "\"?");
+        dialog.setTitle("Confirm Deletion");
+        dialog.setHeaderText("Delete Account \"" + username + "\"?");
 
         DialogPane dp = dialog.getDialogPane();
         dp.setStyle(
@@ -2929,12 +2956,12 @@ public class MainController {
         confirmContent.setAlignment(Pos.CENTER);
         confirmContent.setPadding(new Insets(15, 10, 5, 10));
 
-        Label warningLabel = new Label("⚠ Аккаунт будет удалён навсегда!");
+        Label warningLabel = new Label("⚠ Account will be permanently deleted!");
         warningLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         warningLabel.setTextFill(Color.web("#ef4444"));
         warningLabel.setAlignment(Pos.CENTER);
 
-        Label instructionLabel = new Label("Потяните ползунок вправо для подтверждения:");
+        Label instructionLabel = new Label("Slide the slider right to confirm:");
         instructionLabel.setFont(Font.font("System", 12));
         instructionLabel.setTextFill(Color.rgb(180, 180, 200));
 
@@ -2948,11 +2975,11 @@ public class MainController {
                 "-fx-background-color: transparent;"
         );
 
-        Label sliderLabel = new Label("Подтвердите удаление");
+        Label sliderLabel = new Label("Confirm deletion");
         sliderLabel.setFont(Font.font("System", 12));
         sliderLabel.setTextFill(Color.rgb(200, 200, 220));
 
-        Button confirmDeleteBtn = new Button("🗑️ Подтвердить удаление");
+        Button confirmDeleteBtn = new Button("🗑️ Confirm deletion");
         confirmDeleteBtn.setDisable(true);
         confirmDeleteBtn.setPrefWidth(300);
         confirmDeleteBtn.setStyle(
@@ -2967,7 +2994,7 @@ public class MainController {
             boolean confirmed = val.doubleValue() >= 90;
             confirmDeleteBtn.setDisable(!confirmed);
             if (confirmed) {
-                sliderLabel.setText("✓ Подтверждено");
+                sliderLabel.setText("✓ Confirmed");
                 sliderLabel.setTextFill(Color.web("#4ade80"));
                 confirmDeleteBtn.setStyle(
                         "-fx-background-color: #ef4444;" +
@@ -2978,7 +3005,7 @@ public class MainController {
                         "-fx-cursor: hand;"
                 );
             } else {
-                sliderLabel.setText("Дотяните до конца (" + (int) val.doubleValue() + "%)");
+                sliderLabel.setText("Slide to end (" + (int) val.doubleValue() + "%)");
                 sliderLabel.setTextFill(Color.rgb(200, 200, 220));
                 confirmDeleteBtn.setStyle(
                         "-fx-background-color: #6b7280;" +
@@ -2993,7 +3020,7 @@ public class MainController {
         confirmContent.getChildren().addAll(warningLabel, instructionLabel, confirmSlider, sliderLabel, confirmDeleteBtn);
         dp.setContent(confirmContent);
 
-        ButtonType cancelType = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         dp.getButtonTypes().add(cancelType);
 
         Button cancelBtn = (Button) dp.lookupButton(cancelType);
@@ -3012,7 +3039,7 @@ public class MainController {
         confirmDeleteBtn.setOnAction(e -> {
             accountManager.removeAccount(username);
             auth.logout();
-            setStatus("✓ Аккаунт \"" + username + "\" удалён");
+            setStatus("✓ Аккаунт \"" + username + "\" deleted");
             dialog.close();
             if (onSuccess != null) onSuccess.run();
         });
@@ -3033,7 +3060,7 @@ public class MainController {
         page.setPadding(new Insets(20));
         page.setStyle("-fx-background-color: transparent;");
 
-        Text title = new Text("⚙️ Управление версиями");
+        Text title = new Text("⚙️ Manage Versions");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 15, 0));
@@ -3067,7 +3094,7 @@ public class MainController {
                     HBox.setHgrow(spacer, Priority.ALWAYS);
 
                     if (isCurrent) {
-                        Label badge = new Label("Выбрана");
+                        Label badge = new Label("Selected");
                         badge.setStyle(
                                 "-fx-background-color: rgba(59,130,246,0.2);" +
                                 "-fx-text-fill: #3b82f6;" +
@@ -3098,18 +3125,18 @@ public class MainController {
         buttons.setAlignment(Pos.CENTER);
         buttons.setPadding(new Insets(15, 0, 0, 0));
 
-        Button deleteBtn = new Button("🗑️ Удалить версию");
+        Button deleteBtn = new Button("🗑️ Delete версию");
         styleSettingsButton(deleteBtn, "#ef4444", "#dc2626");
         deleteBtn.setOnAction(e -> {
             if (selectedVersion == null || selectedVersion.isEmpty()) {
-                setStatus("✗ Выберите версию из списка");
+                setStatus("✗ Select a version from the list");
                 return;
             }
             // Confirm
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Удаление версии");
-            alert.setHeaderText("Удалить версию \"" + selectedVersion + "\"?");
-            alert.setContentText("Версия будет удалена из списка. Файлы останутся в папке.");
+            alert.setTitle("Delete Version");
+            alert.setHeaderText("Delete версию \"" + selectedVersion + "\"?");
+            alert.setContentText("Version will be removed from the list. Files will remain in the folder.");
 
             DialogPane dp = alert.getDialogPane();
             dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -3118,13 +3145,13 @@ public class MainController {
                     String removed = selectedVersion;
                     versionManager.removeVersion(selectedVersion);
                     selectedVersion = versionManager.getCurrentVersion();
-                    setStatus("✓ Версия \"" + removed + "\" удалена из списка");
+                    setStatus("✓ Версия \"" + removed + "\" removed from list");
                     showVersionSettingsPage();
                 }
             });
         });
 
-        Button backBtn = new Button("◀ Назад");
+        Button backBtn = new Button("◀ Back");
         styleSettingsButton(backBtn, "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)");
         backBtn.setTextFill(Color.rgb(200, 200, 220));
         backBtn.setOnAction(e -> showMainPage());
@@ -3173,8 +3200,8 @@ public class MainController {
 
     private void showAddServerDialog(ListView<ServerEntry> listView) {
         Dialog<List<String>> dialog = new Dialog<>();
-        dialog.setTitle("Добавление сервера");
-        dialog.setHeaderText("Введите название и IP сервера");
+        dialog.setTitle("Add Server");
+        dialog.setHeaderText("Enter server name and IP");
 
         DialogPane dp = dialog.getDialogPane();
         dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -3184,13 +3211,13 @@ public class MainController {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 20, 20, 20));
 
-        Label nameLabel = new Label("Название:");
+        Label nameLabel = new Label("Name:");
         nameLabel.setTextFill(Color.rgb(200, 200, 220));
         TextField nameField = new TextField();
-        nameField.setPromptText("Мой сервер");
+        nameField.setPromptText("My Server");
         nameField.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12;");
 
-        Label ipLabel = new Label("IP адрес:");
+        Label ipLabel = new Label("IP Address:");
         ipLabel.setTextFill(Color.rgb(200, 200, 220));
         TextField ipField = new TextField();
         ipField.setPromptText("play.example.com:25565");
@@ -3203,8 +3230,8 @@ public class MainController {
 
         dp.setContent(grid);
 
-        ButtonType addBtn = new ButtonType("Добавить", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelBtn = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType addBtn = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         dp.getButtonTypes().addAll(addBtn, cancelBtn);
 
         Node okNode = dp.lookupButton(addBtn);
@@ -3228,7 +3255,7 @@ public class MainController {
             if (result.size() >= 2 && !result.get(0).isEmpty() && !result.get(1).isEmpty()) {
                 serverManager.addServer(result.get(0), result.get(1), "");
                 refreshServerList(listView);
-                setStatus("✓ Сервер \"" + result.get(0) + "\" добавлен");
+                setStatus("✓ Сервер \"" + result.get(0) + "\" added");
             }
         });
     }
@@ -3236,8 +3263,8 @@ public class MainController {
     private void showEditServerDialog(ListView<ServerEntry> listView, int idx) {
         ServerEntry entry = serverManager.getServers().get(idx);
         Dialog<List<String>> dialog = new Dialog<>();
-        dialog.setTitle("Редактирование сервера");
-        dialog.setHeaderText("Измените название и IP сервера");
+        dialog.setTitle("Edit Server");
+        dialog.setHeaderText("Edit server name and IP");
 
         DialogPane dp = dialog.getDialogPane();
         dp.setStyle("-fx-background-color: #1a1a2e; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12; -fx-background-radius: 12;");
@@ -3247,12 +3274,12 @@ public class MainController {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 20, 20, 20));
 
-        Label nameLabel = new Label("Название:");
+        Label nameLabel = new Label("Name:");
         nameLabel.setTextFill(Color.rgb(200, 200, 220));
         TextField nameField = new TextField(entry.getName());
         nameField.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12;");
 
-        Label ipLabel = new Label("IP адрес:");
+        Label ipLabel = new Label("IP Address:");
         ipLabel.setTextFill(Color.rgb(200, 200, 220));
         TextField ipField = new TextField(entry.getDisplayIp());
         ipField.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12;");
@@ -3264,8 +3291,8 @@ public class MainController {
 
         dp.setContent(grid);
 
-        ButtonType saveBtn = new ButtonType("Сохранить", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelBtn = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType saveBtn = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         dp.getButtonTypes().addAll(saveBtn, cancelBtn);
 
         Node okNode = dp.lookupButton(saveBtn);
@@ -3290,7 +3317,7 @@ public class MainController {
                 serverManager.removeServer(idx);
                 serverManager.addServer(result.get(0), result.get(1), "");
                 refreshServerList(listView);
-                setStatus("✓ Сервер \"" + result.get(0) + "\" изменён");
+                setStatus("✓ Сервер \"" + result.get(0) + "\" updated");
             }
         });
     }

@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Менеджер для записи логов консоли лаунчера в файл.
- * Включается/выключается через SettingsManager: saveConsoleLog = true/false.
+ * Manager for writing launcher console logs to file.
+ * Enabled/disabled via SettingsManager: saveConsoleLog = true/false.
  *
- * <p>Файлы логов сохраняются в {@code <LauncherHome>/logs/console-<timestamp>.log}.
- * Каждый запуск Minecraft создаёт новый файл лога.</p>
+ * <p>Log files are saved to {@code <LauncherHome>/logs/console-<timestamp>.log}.
+ * Each Minecraft launch creates a new log file.</p>
  */
 public class FileLogManager {
 
@@ -29,7 +29,7 @@ public class FileLogManager {
     }
 
     /**
-     * Включает запись логов в файл. Создаёт новый файл с текущей датой-временем.
+     * Enables file logging. Creates a new file with the current date-time.
      */
     public synchronized void enable() {
         if (enabled) return;
@@ -50,7 +50,7 @@ public class FileLogManager {
     }
 
     /**
-     * Выключает запись логов и закрывает файл.
+     * Disables file logging and closes the file.
      */
     public synchronized void disable() {
         if (!enabled) return;
@@ -64,7 +64,7 @@ public class FileLogManager {
     }
 
     /**
-     * Записывает строку в лог-файл (только если включено).
+     * Writes a line to the log file (only if enabled).
      */
     public synchronized void log(String message) {
         if (enabled && writer != null) {
@@ -73,7 +73,7 @@ public class FileLogManager {
     }
 
     /**
-     * Записывает префикс + сообщение в лог-файл (только если включено).
+     * Writes prefix + message to the log file (only if enabled).
      */
     public synchronized void log(String prefix, String message) {
         if (enabled && writer != null) {
@@ -90,7 +90,7 @@ public class FileLogManager {
     }
 
     /**
-     * Закрывает лог-менеджер (то же что disable).
+     * Closes the log manager (same as disable).
      */
     public synchronized void close() {
         disable();

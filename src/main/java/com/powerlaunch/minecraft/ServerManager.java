@@ -59,7 +59,7 @@ public class ServerManager {
     }
 
     public void load() {
-        // First try to import from servers.dat (мультиплеер Minecraft)
+        // First try to import from servers.dat (Minecraft multiplayer)
         List<ServerEntry> fromServersDat = serversDatManager.importFromServersDat();
         if (!fromServersDat.isEmpty()) {
             servers = fromServersDat;

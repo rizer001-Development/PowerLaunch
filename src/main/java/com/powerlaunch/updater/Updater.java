@@ -88,16 +88,16 @@ public class Updater {
                 }
             } catch (java.net.UnknownHostException e) {
                 System.err.println("[PowerLaunch][Updater] DNS resolution failed (" + VERSIONS_MANIFEST_URL + "): "
-                    + e.getMessage() + " — не удаётся найти сервер (проверьте DNS/hosts)");
+                    + e.getMessage() + " — cannot resolve server (check DNS/hosts)");
             } catch (java.net.ConnectException e) {
                 System.err.println("[PowerLaunch][Updater] Connection refused (" + VERSIONS_MANIFEST_URL + "): "
-                    + e.getMessage() + " — сервер недоступен или блокируется файрволом");
+                    + e.getMessage() + " — server is unreachable or blocked by firewall");
             } catch (java.net.SocketTimeoutException e) {
                 System.err.println("[PowerLaunch][Updater] Timeout (" + VERSIONS_MANIFEST_URL + "): "
-                    + e.getMessage() + " — проверьте интернет-соединение");
+                    + e.getMessage() + " — check your internet connection");
             } catch (javax.net.ssl.SSLException e) {
                 System.err.println("[PowerLaunch][Updater] SSL/TLS error (" + VERSIONS_MANIFEST_URL + "): "
-                    + e.getMessage() + " — проблемы с сертификатами или TLS версией");
+                    + e.getMessage() + " — certificate problems or TLS version issues");
             } catch (Exception e) {
                 System.err.println("[PowerLaunch][Updater] Failed to fetch versions (" + VERSIONS_MANIFEST_URL + "): ["
                     + e.getClass().getSimpleName() + "] " + e.getMessage());

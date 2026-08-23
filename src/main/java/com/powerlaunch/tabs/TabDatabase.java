@@ -93,7 +93,7 @@ public class TabDatabase {
                 "CREATE TABLE IF NOT EXISTS tabs (" +
                 "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "  sort_order INTEGER NOT NULL DEFAULT 0," +
-                "  name TEXT NOT NULL DEFAULT 'Новая вкладка'," +
+                "  name TEXT NOT NULL DEFAULT 'New Tab'," +
                 "  version TEXT NOT NULL DEFAULT ''," +
                 "  game_directory TEXT NOT NULL DEFAULT ''," +
                 "  java_path TEXT NOT NULL DEFAULT ''," +

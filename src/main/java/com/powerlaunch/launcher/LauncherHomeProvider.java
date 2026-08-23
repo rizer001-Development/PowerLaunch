@@ -6,23 +6,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Единый источник правды для пути к "папке лаунчера" — месту где хранятся
- * настройки, аккаунты, профили, серверы и скины.
+ * Single source of truth for the "launcher folder path" — the place where
+ * settings, accounts, profiles, servers and skins.
  *
- * <p>Порядок разрешения:
+ * <p>Resolution order:
  * <ol>
- *   <li>env {@code POWERLAUNCH_HOME} — абсолютный путь. Удобно для portable дистрибутива.</li>
- *   <li>system property {@code powerlaunch.home} — для Gradle {@code ./gradlew run} или
- *       jpackage с флагом {@code -Dpowerlaunch.home=...}.</li>
- *   <li>Code-source relative: если запущен из {@code .jar} → путь рядом с jar.
- *       Если запущен из директории классов (Gradle dev-mode) → отдельная
- *       {@code build/dev-launcher-home}, чтобы не конфликтовать с эталонной папкой.</li>
- *   <li>Legacy fallback: {@code %APPDATA%/PowerLaunch} (desktop инсталляция через Wix).</li>
+ *   <li>env {@code POWERLAUNCH_HOME} — absolute path. Convenient for portable distribution.</li>
+ *   <li>system property {@code powerlaunch.home} — for Gradle {@code ./gradlew run} or
+ *       jpackage with flag {@code -Dpowerlaunch.home=...}.</li>
+ *   <li>Code-source relative: if running from {@code .jar} → path next to jar.
+ *       If running from class directory (Gradle dev-mode) → separate
+ *       {@code build/dev-launcher-home}, to avoid conflicting with the reference folder.</li>
+ *   <li>Legacy fallback: {@code %APPDATA%/PowerLaunch} (desktop installation via Wix).</li>
  * </ol>
  *
- * <p>Папка создаётся автоматически при первом вызове {@link #getLauncherHome()}.
- * Все managers (Settings/Account/Profile/Server/Skin) должны использовать методы
- * этого класса вместо захардкоженного {@code System.getenv("APPDATA")}.
+ * <p>The directory is created automatically on first call {@link #getLauncherHome()}.
+ * All managers (Settings/Account/Profile/Server/Skin) should use the methods
+ * of this class instead of hardcoded {@code System.getenv("APPDATA")}.
  */
 public final class LauncherHomeProvider {
 
@@ -34,7 +34,7 @@ public final class LauncherHomeProvider {
 
     private LauncherHomeProvider() {}
 
-    /** Возвращает абсолютный путь к LauncherHome. Создаёт директорию при отсутствии. */
+    /** Returns the absolute path to LauncherHome. Creates directory if missing. */
     public static Path getLauncherHome() {
         Path home = cachedHome;
         if (home != null) return home;
@@ -50,7 +50,7 @@ public final class LauncherHomeProvider {
         }
     }
 
-    /** Сбрасывает кеш (для тестов и для ситуаций когда путь нужно пересчитать). */
+    /** Resets cache (for tests and when the path needs recalculation). */
     public static void resetForTests() {
         synchronized (LauncherHomeProvider.class) {
             cachedHome = null;
@@ -58,7 +58,7 @@ public final class LauncherHomeProvider {
     }
 
     private static Path resolveHome() {
-        // 1. Переменная среды POWERLAUNCH_HOME.
+        // 1. POWERLAUNCH_HOME environment variable.
         String env = System.getenv("POWERLAUNCH_HOME");
         if (env != null && !env.isEmpty()) {
             return Paths.get(env);
@@ -70,34 +70,34 @@ public final class LauncherHomeProvider {
             return Paths.get(sysProp);
         }
 
-        // 3. Code-source relative — jar-режим или директория классов.
+        // 3. Code-source relative — jar mode or class directory.
         try {
             Path code = Paths.get(LauncherHomeProvider.class
                     .getProtectionDomain().getCodeSource().getLocation().toURI());
             if (Files.isRegularFile(code)) {
-                // Запуск из .jar. Ожидаемая структура: <root>/app/PowerLaunch-1.0.0.jar.
-                // LauncherHome = <root> (содержит папку lib, custom-jre, scripts).
+                // Running from .jar. Expected structure: <root>/app/PowerLaunch-1.0.0.jar.
+                // LauncherHome = <root> (contains lib, custom-jre, scripts folders).
                 Path jarDir = code.getParent(); // <root>/app
                 if (jarDir != null && APP_SUBDIR.equals(jarDir.getFileName().toString())) {
                     Path root = jarDir.getParent();
                     if (root != null) return root;
                 }
-                // Общий fallback — на уровень выше jar-файла.
+                // Generic fallback — one level above the jar file.
                 Path parent = (jarDir != null) ? jarDir.getParent() : null;
                 if (parent != null) return parent.resolve(LAUNCHER_DIR_NAME);
             } else if (Files.isDirectory(code)) {
-                // Запуск из "build/classes/java/main" — это Gradle dev-mode.
-                // Используем ОТДЕЛЬНУЮ build/dev-launcher-home чтобы изолировать от
-                // эталонной build/distributions/PowerLaunch/.
+                // Running from "build/classes/java/main" — this is Gradle dev-mode.
+                // Using SEPARATE build/dev-launcher-home to isolate from
+                // the reference build/distributions/PowerLaunch/.
                 Path ancestor = code.toAbsolutePath();
                 for (int i = 0; i < 3 && ancestor.getParent() != null; i++) {
                     ancestor = ancestor.getParent();
                 }
                 return ancestor.resolve("build").resolve(DEV_LAUNCHER_HOME_NAME);
             }
-        } catch (URISyntaxException ignored) { /* безопасный fallback ниже */ }
+        } catch (URISyntaxException ignored) { /* safe fallback below */ }
 
-        // 4. Legacy fallback (Wix installer инсталляция на Windows / .config / Application Support).
+        // 4. Legacy fallback (Wix installer installation on Windows / .config / Application Support).
         return legacyHome();
     }
 
@@ -126,10 +126,10 @@ public final class LauncherHomeProvider {
     private static final String MIGRATION_MARKER = ".migrated.marker";
 
     /**
-     * One-shot data lift: копирует config/accounts/servers/profiles/skins/sqlite
-     * из legacy %APPDATA%/PowerLaunch в {@code newHome}, если newHome пуст.
-     * Вызывается из getLauncherHome() при первом запуске. Marker-файл
-     * .migrated.marker предотвращает повторные копирования.
+     * One-shot data lift: copies config/accounts/servers/profiles/skins/sqlite
+     * from legacy %APPDATA%/PowerLaunch to {@code newHome}, if newHome is empty.
+     * Called from getLauncherHome() on first run. Marker file
+     * .migrated.marker prevents repeated copying.
      */
     private static void migrateLegacyData(Path newHome) {
         try {

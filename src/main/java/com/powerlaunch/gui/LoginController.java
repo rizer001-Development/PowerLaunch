@@ -76,12 +76,12 @@ public class LoginController {
         VBox formBox = new VBox(12);
         formBox.setAlignment(Pos.CENTER);
 
-        Label usernameLabel = new Label("Имя пользователя");
+        Label usernameLabel = new Label("Username");
         usernameLabel.setFont(Font.font("System", FontWeight.MEDIUM, 13));
         usernameLabel.setTextFill(Color.rgb(200, 200, 220));
 
         TextField usernameField = new TextField();
-        usernameField.setPromptText("Введите ваш ник");
+        usernameField.setPromptText("Enter your nickname");
         usernameField.setMaxWidth(340);
         usernameField.setPrefHeight(44);
         usernameField.setId("login-field");
@@ -108,7 +108,7 @@ public class LoginController {
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
 
-        Button loginButton = new Button("Войти");
+        Button loginButton = new Button("Log In");
         loginButton.setMaxWidth(340);
         loginButton.setPrefHeight(48);
         loginButton.setId("login-button");
@@ -158,7 +158,7 @@ public class LoginController {
         formBox.getChildren().addAll(usernameLabel, usernameField, errorLabel, loginButton);
 
         // Footer text
-        Text footerText = new Text("Оффлайн-режим · Редактирование скинов · Модпаки");
+        Text footerText = new Text("Offline Mode \u00b7 Skin Editor \u00b7 Modpacks");
         footerText.setFont(Font.font("System", 11));
         footerText.setFill(Color.rgb(140, 140, 170));
 

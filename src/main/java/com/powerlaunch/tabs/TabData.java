@@ -36,7 +36,7 @@ public class TabData {
     public TabData() {
         this.dbId = -1;
         this.sortOrder = 0;
-        this.name = "Новая вкладка";
+        this.name = "New Tab";
         this.version = "";
         this.gameDirectory = "";
         this.javaPath = "";

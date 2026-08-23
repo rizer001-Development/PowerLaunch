@@ -215,6 +215,29 @@ tasks.register<Exec>("jpackageInstallerExe") {
 
 
 // === Portable mode: gradlew run uses project dir as launcher home (won't pollute reference distribution) ===
+// === Task: Build CLI-only JAR (no JavaFX, just Gson + SQLite) ===
+tasks.register<Jar>("cliJar") {
+    archiveBaseName.set("PowerLaunch")
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("cli")
+    manifest {
+        attributes["Main-Class"] = "com.powerlaunch.CliEntryPoint"
+    }
+    // Include only CLI classes (no GUI/FXML/JavaFX)
+    from(sourceSets.main.get().output) {
+        exclude("**/gui/**")
+        exclude("**/installer/**")
+        exclude("**/news/**")
+    }
+    // Fat JAR: include Gson + SQLite (no JavaFX)
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+        // Exclude JavaFX jars
+        exclude("**/javafx/**")
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.named<JavaExec>("run") {
     systemProperty("powerlaunch.home", layout.projectDirectory.asFile.absolutePath)
     systemProperty("powerlaunch.devhome", layout.buildDirectory.dir("dev-launcher-home").get().asFile.absolutePath)

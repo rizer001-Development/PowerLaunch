@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NewsManager {
     private static NewsManager instance;
-    // TODO: замените URL на свой репозиторий с новостями
+    // TODO: replace URL with your own news repository
     private static final String NEWS_URL = "https://raw.githubusercontent.com/your-repo/launcher-news/main/news.json";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
             .withZone(ZoneId.systemDefault());
@@ -69,24 +69,24 @@ public class NewsManager {
 
     private void generateDefaultNews() {
         cachedNews.add(new NewsItem(
-                "Добро пожаловать в PowerLaunch!",
-                "PowerLaunch — это мощный и современный лаунчер для Minecraft. " +
-                        "Наслаждайтесь игрой с лучшим лаунчером!",
+                "Welcome to PowerLaunch!",
+                "PowerLaunch is a powerful and modern launcher for Minecraft. " +
+                        "Enjoy the game with the best launcher!",
                 "01.01.2025 12:00",
                 "info"
         ));
         cachedNews.add(new NewsItem(
-                "Как начать играть",
-                "1. Введите свой ник в разделе авторизации\n" +
-                        "2. Выберите версию Minecraft\n" +
-                        "3. Настройте RAM и другие параметры\n" +
-                        "4. Нажмите Play!",
+                "How to get started",
+                "1. Enter your nickname in the login section\n" +
+                        "2. Choose a Minecraft version\n" +
+                        "3. Configure RAM and other settings\n" +
+                        "4. Press Play!",
                 "01.01.2025 12:00",
                 "guide"
         ));
         cachedNews.add(new NewsItem(
-                "Поддержка скинов",
-                "В лаунчере есть поддержка кастомных скинов! Загрузите свой скин в разделе Скины.",
+                "Skin Support",
+                "The launcher supports custom skins! Upload your skin in the Skins section.",
                 "01.01.2025 12:00",
                 "update"
         ));
@@ -128,16 +128,16 @@ public class NewsManager {
                 }
             } catch (java.net.UnknownHostException e) {
                 System.err.println("[PowerLaunch][News] DNS resolution failed (" + NEWS_URL + "): "
-                    + e.getMessage() + " — не удаётся найти сервер (проверьте DNS/hosts)");
+                    + e.getMessage() + " — cannot resolve server (check DNS/hosts)");
             } catch (java.net.ConnectException e) {
                 System.err.println("[PowerLaunch][News] Connection refused (" + NEWS_URL + "): "
-                    + e.getMessage() + " — сервер недоступен или блокируется файрволом");
+                    + e.getMessage() + " — server is unreachable or blocked by firewall");
             } catch (java.net.SocketTimeoutException e) {
                 System.err.println("[PowerLaunch][News] Timeout (" + NEWS_URL + "): "
-                    + e.getMessage() + " — проверьте интернет-соединение");
+                    + e.getMessage() + " — check your internet connection");
             } catch (javax.net.ssl.SSLException e) {
                 System.err.println("[PowerLaunch][News] SSL/TLS error (" + NEWS_URL + "): "
-                    + e.getMessage() + " — проблемы с сертификатами или TLS версией");
+                    + e.getMessage() + " — certificate problems or TLS version issues");
             } catch (Exception e) {
                 System.err.println("[PowerLaunch][News] Failed to load news (" + NEWS_URL + "): ["
                     + e.getClass().getSimpleName() + "] " + e.getMessage());

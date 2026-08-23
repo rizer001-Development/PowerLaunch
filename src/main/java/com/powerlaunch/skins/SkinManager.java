@@ -42,7 +42,7 @@ public class SkinManager {
     }
 
     /**
-     * Выполняет HTTP GET запрос и возвращает тело ответа в виде строки.
+     * Performs an HTTP GET request and returns the response body as a string.
      */
     private String httpGetString(String urlStr, int timeoutSec) throws IOException {
         HttpURLConnection conn = null;
@@ -74,7 +74,7 @@ public class SkinManager {
     }
 
     /**
-     * Выполняет HTTP GET запрос и возвращает тело ответа в виде байтового массива.
+     * Performs an HTTP GET request and returns the response body as a byte array.
      */
     private byte[] httpGetBytes(String urlStr, int timeoutSec) throws IOException {
         HttpURLConnection conn = null;
@@ -126,16 +126,16 @@ public class SkinManager {
 
             } catch (java.net.UnknownHostException e) {
                 System.err.println("[PowerLaunch][Skin] DNS resolution failed for " + username + ": "
-                    + e.getMessage() + " — не удаётся найти сервер");
+                    + e.getMessage() + " — cannot resolve server");
             } catch (java.net.ConnectException e) {
                 System.err.println("[PowerLaunch][Skin] Connection refused for " + username + ": "
-                    + e.getMessage() + " — сервер недоступен");
+                    + e.getMessage() + " — server is unreachable");
             } catch (java.net.SocketTimeoutException e) {
                 System.err.println("[PowerLaunch][Skin] Timeout for " + username + ": "
-                    + e.getMessage() + " — проверьте интернет-соединение");
+                    + e.getMessage() + " — check your internet connection");
             } catch (javax.net.ssl.SSLException e) {
                 System.err.println("[PowerLaunch][Skin] SSL/TLS error for " + username + ": "
-                    + e.getMessage() + " — проблемы с сертификатами");
+                    + e.getMessage() + " — certificate problems");
             } catch (Exception e) {
                 System.err.println("[PowerLaunch][Skin] Failed to download skin for " + username + ": ["
                     + e.getClass().getSimpleName() + "] " + e.getMessage());

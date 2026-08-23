@@ -5,19 +5,19 @@ import java.net.*;
 import java.nio.channels.SocketChannel;
 
 /**
- * Диагностика сети для лаунчера.
- * Тестирует соединение с ключевыми серверами и выводит детальную информацию.
- * Вызывается при старте лаунчера, чтобы помочь отладить проблемы с подключением.
+ * Network diagnostics for the launcher.
+ * Tests connection to key servers and outputs detailed information.
+ * Called at launcher start to help debug connection issues.
  */
 public class NetworkDiagnostics {
 
-    // Реальные URL лаунчера
+    // Real launcher URLs
     private static final String[] TEST_URLS = {
             "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
             "https://api.mojang.com/users/profiles/minecraft/Test"
     };
 
-    // Известные Minecraft сервера для TCP-теста (хост:порт)
+    // Known Minecraft servers for TCP test (host:port)
     private static final String[] TEST_SERVERS = {
             "mc.hypixel.net:25565",
             "mc.hypixel.net:80",
@@ -27,7 +27,7 @@ public class NetworkDiagnostics {
     private NetworkDiagnostics() {}
 
     /**
-     * Запускает полную диагностику сети.
+     * Runs full network diagnostics.
      */
     public static void runAllTests() {
         System.out.println("[PowerLaunch][NetDiag] === Network Diagnostics ===");
@@ -41,13 +41,13 @@ public class NetworkDiagnostics {
             testUrl(urlStr);
         }
 
-        // Прямой TCP-тест к Minecraft серверам
+        // Direct TCP test to Minecraft servers
         System.out.println("[PowerLaunch][NetDiag] --- TCP Socket tests ---");
         for (String server : TEST_SERVERS) {
             testTcpConnection(server);
         }
 
-        // Тест DNS через InetAddress.getByName (как это делает Minecraft)
+        // DNS test via InetAddress.getByName (as Minecraft does)
         System.out.println("[PowerLaunch][NetDiag] --- Minecraft-style DNS test ---");
         testMinecraftDns();
 
@@ -59,7 +59,7 @@ public class NetworkDiagnostics {
         String host = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        // 1. DNS для хоста
+        // 1. DNS for host
         System.out.print("[PowerLaunch][NetDiag] TCP " + host + ":" + port + " → ");
         try {
             InetAddress[] addresses = InetAddress.getAllByName(host);
@@ -87,8 +87,8 @@ public class NetworkDiagnostics {
     }
 
     private static void testMinecraftDns() {
-        // Minecraft использует InetAddress.getByName() для DNS при коннекте к серверу
-        // Проверяем что это работает для типичных адресов
+        // Minecraft uses InetAddress.getByName() for DNS when connecting to a server
+        // Checking that this works for typical addresses
         String[] testHosts = {"localhost", "mc.hypixel.net", "google.com"};
         for (String host : testHosts) {
             try {

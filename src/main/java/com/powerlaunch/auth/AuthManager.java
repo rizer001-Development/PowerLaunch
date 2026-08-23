@@ -41,28 +41,28 @@ public class AuthManager {
 
     public AuthResult loginOffline(String username) {
         if (username == null || username.trim().isEmpty()) {
-            return new AuthResult(false, "Имя пользователя не может быть пустым", null, null);
+            return new AuthResult(false, "Username cannot be empty", null, null);
         }
 
         username = username.trim();
 
         if (username.length() < 3) {
-            return new AuthResult(false, "Имя должно содержать минимум 3 символа", null, null);
+            return new AuthResult(false, "Username must be at least 3 characters", null, null);
         }
 
         if (username.length() > 16) {
-            return new AuthResult(false, "Имя не может быть длиннее 16 символов", null, null);
+            return new AuthResult(false, "Username cannot be longer than 16 characters", null, null);
         }
 
         if (!username.matches("[a-zA-Z0-9_]+")) {
-            return new AuthResult(false, "Имя может содержать только буквы, цифры и символ подчеркивания", null, null);
+            return new AuthResult(false, "Username may only contain letters, numbers, and underscores", null, null);
         }
 
         this.username = username;
         this.uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes());
         this.loggedIn = true;
 
-        return new AuthResult(true, "Успешный вход как " + username, username, this.uuid);
+        return new AuthResult(true, "Logged in as " + username, username, this.uuid);
     }
 
     public void logout() {

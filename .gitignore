@@ -5,6 +5,19 @@ build/
 !**/src/test/**/build/
 .kotlin
 
+### Runtime files ###
+logs/
+*.log
+*.db
+*.db-shm
+*.db-wal
+cli_*.log
+accounts.json
+settings.json
+config.json
+servers.json
+powerlaunch.db*
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
@@ -40,4 +53,4 @@ bin/
 .vscode/
 
 ### Mac OS ###
-.DS_Storenul
+.DS_Store

@@ -66,12 +66,12 @@ public class MinecraftLauncher {
 
     public LaunchResult launchMinecraft(String version, String modpack, ProcessExitCallback callback) {
         if (minecraftProcess != null && minecraftProcess.isAlive()) {
-            return new LaunchResult(false, "Minecraft уже запущен!");
+            return new LaunchResult(false, "Minecraft is already running!");
         }
 
         AuthManager auth = AuthManager.getInstance();
         if (!auth.isLoggedIn()) {
-            return new LaunchResult(false, "Сначала войдите в аккаунт!");
+            return new LaunchResult(false, "Please log in first!");
         }
 
         SettingsManager settings = SettingsManager.getInstance();
@@ -86,16 +86,24 @@ public class MinecraftLauncher {
                 javaPath = findJavaInPath();
             }
             if (javaPath == null || !new File(javaPath).exists()) {
-                return new LaunchResult(false, "Java не найдена. Установите Java или укажите путь в настройках.");
+                return new LaunchResult(false, "Java not found. Install Java or set the path in settings.");
             }
 
-            // Java 26 может иметь проблемы с сетью Minecraft (Netty, старые библиотеки).
-            // Пробуем найти Java 21 на системе — она гарантированно совместима с Minecraft 1.21+.
-            String compatibleJava = findCompatibleJava(21);
+            // Read required Java version from version.json (e.g., Java 26 for MC 26.x)
+            int requiredJava = getRequiredJavaVersion(gameDir, version);
+            if (requiredJava <= 0) requiredJava = 21; // fallback
+            System.out.println("[PowerLaunch] Minecraft requires Java " + requiredJava + "+");
+            
+            // Try to find a compatible Java version
+            String compatibleJava = findCompatibleJava(requiredJava);
             if (compatibleJava != null && !compatibleJava.equals(javaPath)) {
-                System.out.println("[PowerLaunch] Using Java 21 for Minecraft (found at: " + compatibleJava + ")");
+                System.out.println("[PowerLaunch] Using Java " + getJavaMajorVersion(compatibleJava) + " for Minecraft (found at: " + compatibleJava + ")");
                 javaPath = compatibleJava;
             } else {
+                int currentMajor = getJavaMajorVersion(javaPath);
+                if (currentMajor < requiredJava) {
+                    return new LaunchResult(false, "Java " + requiredJava + "+ is required for this Minecraft version, but only Java " + currentMajor + " was found.\nInstall Java " + requiredJava + " or set the path in settings.");
+                }
                 System.out.println("[PowerLaunch] Using system Java for Minecraft: " + javaPath);
             }
 
@@ -109,12 +117,12 @@ public class MinecraftLauncher {
             // Validate version exists
             File versionJar = new File(versionsDir + File.separator + version + File.separator + version + ".jar");
             if (!versionJar.exists()) {
-                return new LaunchResult(false, "Версия Minecraft '" + version + "' не найдена.\nУстановите её через официальный лаунчер в папку: " + versionsDir);
+                return new LaunchResult(false, "Minecraft version '" + version + "' not found.\nInstall it via the official launcher to: " + versionsDir);
             }
 
             // Validate libraries exist
             if (!new File(librariesDir).exists()) {
-                return new LaunchResult(false, "Библиотеки Minecraft не найдены в " + librariesDir);
+                return new LaunchResult(false, "Minecraft libraries not found in " + librariesDir);
             }
 
             // Create necessary directories
@@ -138,12 +146,12 @@ public class MinecraftLauncher {
             command.add("-Xms" + Math.min(ramMB / 2, 1024) + "M");
             command.add("-Xmx" + ramMB + "M");
 
-            // НЕ принуждаем IPv4! Java 9+ использует IPv6/IPv4 dual-stack.
-            // На некоторых сетях IPv6 работает, а IPv4 заблокирован/недоступен.
-            // preferIPv4Stack=true убивает IPv6 соединения → таймаут при подключении
-            // к мультиплеер-серверам.
-            // Вместо этого включаем короткий DNS TTL, чтобы Java не кэшировала
-            // устаревшие DNS записи (особенно актуально при смене сети/VPN).
+            // We do NOT force IPv4! Java 9+ uses IPv6/IPv4 dual-stack.
+            // On some networks IPv6 works but IPv4 is blocked/unavailable.
+            // preferIPv4Stack=true kills IPv6 connections → timeout when connecting
+            // to multiplayer servers.
+            // Instead, we enable short DNS TTL so Java doesn't cache
+            // stale DNS records (especially relevant when switching networks/VPN).
             command.add("-Dsun.net.inetaddr.ttl=0");
 
             // Custom Java args (filter out conflicts AND drop potentially-unsafe proxy/DNS args
@@ -195,34 +203,44 @@ public class MinecraftLauncher {
             javaMajor = getJavaMajorVersion(javaPath); // Re-check version (may have changed via findCompatibleJava)
             if (javaMajor >= 22) {
                 command.add("--enable-native-access=ALL-UNNAMED");
-                // Java 26 module system может блокировать доступ к java.net сокетам
-                // для старых версий Netty (Minecraft использует Netty для сети).
-                // --add-opens открывает модуль для рефлексивного доступа.
+                // Java 26 module system may block access to java.net sockets
+                // for older Netty versions (Minecraft uses Netty for networking).
+                // --add-opens opens modules for reflective access needed by
+                // Fabric, Mixin, SpongePowered ASM, and Minecraft itself.
                 command.add("--add-opens");
                 command.add("java.base/java.net=ALL-UNNAMED");
-                // НЕ используем -noverify — он deprecated с JDK 13 и может вызывать
-                // неопределённое поведение JVM на Java 26, включая проблемы с сокетами.
+                command.add("--add-opens");
+                command.add("java.base/java.lang=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/java.lang.reflect=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/java.util=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/java.io=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/java.nio=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/sun.nio.ch=ALL-UNNAMED");
+                command.add("--add-opens");
+                command.add("java.base/java.security=ALL-UNNAMED");
+                // Gson uses reflection to set final fields — allow it on Java 26+
+                if (javaMajor >= 26) {
+                    command.add("--enable-final-field-mutation=ALL-UNNAMED");
+                }
+                // Do NOT use -noverify — it's deprecated since JDK 13 and may cause
+                // undefined JVM behavior on Java 26, including socket issues.
             }
 
             command.add("-Djava.library.path=" + nativesDir);
             command.add("-cp");
             command.add(buildClassPath(gameDir, version));
-            // Use mainClass from version.json (Fabric, Forge, etc. have custom main classes)
-            // But only if the referenced game jar exists — otherwise this is a standalone
-            // merged jar (TLauncher-style) that should use the vanilla main class.
+            // Use mainClass from version.json (Fabric, Forge, etc. have custom main classes).
+            // IMPORTANT: If the version.json specifies a modloader main class (KnotClient,
+            // LaunchWrapper, etc.), ALWAYS use it. These are merged jars (TLauncher-style)
+            // where Fabric/Forge classes are embedded in the version jar. Falling back to
+            // vanilla main class would break mod loading and networking.
             String mainClass = getMainClass(gameDir, version);
-            String refJarCheck = getJarReference(gameDir, version);
-            if (refJarCheck != null && mainClass.contains("KnotClient")) {
-                // For Fabric versions, KnotClient needs a real standalone game jar in the
-                // referenced path (e.g., 26.2/26.2.jar). If it doesn't exist or looks like
-                // a copy of the Fabric launcher jar (same size), fall back to vanilla main class.
-                File checkRef = new File(gameDir + File.separator + "versions"
-                        + File.separator + refJarCheck + File.separator + refJarCheck + ".jar");
-                if (!checkRef.exists() || checkRef.length() == versionJar.length()) {
-                    mainClass = "net.minecraft.client.main.Main";
-                    System.out.println("[PowerLaunch] Fabric ref jar missing/duplicate, using vanilla main class");
-                }
-            }
+            System.out.println("[PowerLaunch] Using mainClass: " + mainClass);
             command.add(mainClass);
 
             // Minecraft args (order matters for some versions)
@@ -230,8 +248,11 @@ public class MinecraftLauncher {
             command.add(auth.getUsername());
             command.add("--uuid");
             command.add(auth.getUuid().toString().replace("-", ""));
+            // Access token: use a valid UUID-like format for offline mode.
+            // "0" is rejected by modern servers (1.19.3+). Use a deterministic
+            // UUID derived from the player name so servers see a consistent token.
             command.add("--accessToken");
-            command.add("0");
+            command.add(auth.getUuid().toString());
             command.add("--version");
             command.add(version);
             command.add("--gameDir");
@@ -242,8 +263,20 @@ public class MinecraftLauncher {
             command.add(getAssetIndex(gameDir, version));
             command.add("--userProperties");
             command.add("{}");
+            // userType: "legacy" for offline mode, "mojang" for authenticated.
+            // Using "mojang" with a fake token causes server auth failures.
             command.add("--userType");
-            command.add("mojang");
+            command.add("legacy");
+            // clientVersion: required by modern Minecraft (1.19.3+) for server connection.
+            // Without it, the client may fail to connect to multiplayer servers.
+            command.add("--clientVersion");
+            command.add(version);
+            // xuid/identity: used by modern MC for Xbox Live identification.
+            // Required by some servers for proper player identification.
+            command.add("--xuid");
+            command.add("");
+            command.add("--identity");
+            command.add("");
 
             if (settings.getBoolean("useCustomResolution", false)) {
                 int width = settings.getInt("gameWidth", 854);
@@ -274,7 +307,7 @@ public class MinecraftLauncher {
                 }
             }
 
-            // Логируем ПОЛНУЮ команду запуска для диагностики проблем с сетью
+            // Log the FULL launch command for diagnosing network issues
             System.out.println("[PowerLaunch][Launch] Full command:");
             for (int i = 0; i < command.size(); i++) {
                 String arg = command.get(i);
@@ -301,6 +334,7 @@ public class MinecraftLauncher {
                     while ((line = reader.readLine()) != null) {
                         String logLine = "[Minecraft] " + line;
                         System.out.println(logLine);
+                        System.out.flush();
                         synchronized (consoleLog) {
                             consoleLog.add(logLine);
                             if (consoleLog.size() > 10000) {
@@ -332,10 +366,10 @@ public class MinecraftLauncher {
                 }
             }, "Minecraft-Watcher").start();
 
-            return new LaunchResult(true, "Minecraft запущен!");
+            return new LaunchResult(true, "Minecraft launched!");
 
         } catch (IOException e) {
-            return new LaunchResult(false, "Ошибка запуска: " + e.getMessage());
+            return new LaunchResult(false, "Launch error: " + e.getMessage());
         }
     }
 
@@ -345,12 +379,15 @@ public class MinecraftLauncher {
 
         File binDir = new File(javaHome + File.separator + "bin");
 
-        // Try javaw.exe first (Windows, no console window)
+        // On Windows: prefer java.exe over javaw.exe.
+        // javaw.exe doesn't attach to a console and can cause output pipe issues
+        // with ProcessBuilder. java.exe with ProcessBuilder still creates a window
+        // for the child process; we just need its stdout/stderr piped correctly.
         if (os.contains("win")) {
-            File javaw = new File(binDir, "javaw.exe");
-            if (javaw.exists()) return javaw.getAbsolutePath();
             File java = new File(binDir, "java.exe");
             if (java.exists()) return java.getAbsolutePath();
+            File javaw = new File(binDir, "javaw.exe");
+            if (javaw.exists()) return javaw.getAbsolutePath();
         }
 
         // On non-Windows or if Windows executables not found
@@ -491,25 +528,65 @@ public class MinecraftLauncher {
     }
 
     private String buildClassPath(String gameDir, String version) throws IOException {
-        File librariesDir = new File(gameDir + File.separator + "libraries");
+        String mainClassCheck = getMainClass(gameDir, version);
+        boolean isFabric = mainClassCheck != null && mainClassCheck.contains("KnotClient");
 
-        // Collect all jars into a list (to avoid long command line)
+        // ─── Fabric / TLauncher merged jar: only the version jar on -cp ───
+        // Fabric's KnotClassLoader reads version.json and loads all libraries into its
+        // own classloader (KnotClassLoader). The system classloader (which uses -cp)
+        // must NOT see the library jars because they cause SecurityException:
+        //   "signer information does not match" when signed jars (fabric-loader)
+        //   and unsigned jars (sponge-mixin, merged jar) share the same package.
+        // By putting ONLY the version jar on -cp, the system classloader loads nothing
+        // conflicting, and Fabric handles everything else.
+        File versionJar = new File(gameDir + File.separator + "versions"
+                + File.separator + version + File.separator + version + ".jar");
+        if (!versionJar.exists()) {
+            throw new IOException("Version jar not found: " + versionJar.getAbsolutePath());
+        }
+
+        if (isFabric) {
+            File stripped = stripEmbeddedGson(versionJar);
+            // For Fabric with TLauncher merged jars: parse version.json to get the
+            // EXACT list of bootstrap libraries. This avoids:
+            //   1. Duplicate ASM versions (e.g. 6.2 + 9.10.1 → "duplicate ASM classes")
+            //   2. SecurityException from signed/unsigned jar conflicts on -cp
+            // Fabric's KnotClassLoader loads ALL libraries at runtime anyway;
+            // we only need the ones listed in version.json for system classpath bootstrap.
+            List<String> fabricCp = new ArrayList<>();
+            fabricCp.add(stripped.getAbsolutePath());
+
+            File librariesDir = new File(gameDir + File.separator + "libraries");
+            String versionJsonPath = gameDir + File.separator + "versions" + File.separator
+                    + version + File.separator + version + ".json";
+            List<String> bootstrapLibs = resolveVersionJsonLibraries(versionJsonPath, librariesDir);
+
+            // Strip signatures from ALL bootstrap jars to prevent SecurityException
+            int sigStripped = 0;
+            for (String libPath : bootstrapLibs) {
+                File libFile = new File(libPath);
+                File safe = stripSignaturesIfNeeded(libFile);
+                fabricCp.add(safe.getAbsolutePath());
+                if (!safe.equals(libFile)) sigStripped++;
+            }
+
+            System.out.println("[PowerLaunch] Fabric mode: -cp = version.jar + "
+                    + bootstrapLibs.size() + " bootstrap libs (" + sigStripped + " signatures stripped)");
+            return String.join(File.pathSeparator, fabricCp);
+        }
+
+        // ─── Vanilla / Forge / NeoForge: full classpath with all library jars ───
+        File librariesDir = new File(gameDir + File.separator + "libraries");
         List<String> jarPaths = new ArrayList<>();
         if (librariesDir.exists()) {
             collectJars(jarPaths, librariesDir);
         }
 
-        // Add version jar (with Gson classes stripped to prevent embedded Gson from
-        // overriding the library version, which causes NoSuchMethodError on Java 26+)
-        File versionJar = new File(gameDir + File.separator + "versions"
-                + File.separator + version + File.separator + version + ".jar");
-        if (versionJar.exists()) {
-            File stripped = stripEmbeddedGson(versionJar);
-            jarPaths.add(stripped.getAbsolutePath());
-        }
+        // Add version jar (with Gson classes stripped)
+        File stripped = stripEmbeddedGson(versionJar);
+        jarPaths.add(stripped.getAbsolutePath());
 
-        // If version.json has a "jar" field (e.g., Fabric references the vanilla Minecraft jar),
-        // add the referenced jar to the classpath if it exists.
+        // Add the referenced jar (vanilla Minecraft jar) if present
         String referencedJar = getJarReference(gameDir, version);
         if (referencedJar != null) {
             File refJar = new File(gameDir + File.separator + "versions"
@@ -521,8 +598,6 @@ public class MinecraftLauncher {
         }
 
         // Sort classpath so that LWJGL 3 loads before LWJGL 2 for versions that use LWJGL 3.
-        // LWJGL 2.x native code is incompatible with Java 22+ JNI, so LWJGL 3 must take priority.
-        // For older versions that only ship LWJGL 2, normal sort keeps LWJGL 2 first.
         String versionJsonPath = gameDir + File.separator + "versions" + File.separator
                 + version + File.separator + version + ".json";
         boolean usesLWJGL3 = checkForLWJGL3InVersion(versionJsonPath);
@@ -532,31 +607,14 @@ public class MinecraftLauncher {
             Collections.sort(jarPaths);
         }
 
-        // Deduplicate all Maven artifacts: keep only the newest version of each library.
-        // This prevents "duplicate class" errors (e.g., multiple fabric-loader versions)
-        // and ensures the correct version of libraries like Gson is used.
+        // Deduplicate all Maven artifacts
         deduplicateArtifacts(jarPaths, librariesDir);
 
-        // If the game uses LWJGL 3, remove OLDER LWJGL versions (both 2.x and older 3.x minors)
-        // that share packages with incompatible classes, causing VerifyError.
         if (usesLWJGL3) {
             removeConflictingLWJGL(jarPaths, librariesDir);
         }
 
-        // Remove fat jars that duplicate classes from separate module jars.
-        // e.g., asm-debug-all and asm-all contain the same classes as asm + asm-tree + etc.
         removeDuplicateFatJars(jarPaths);
-
-        // Strip Sealed: true from all jars that have it to prevent sealing violations on Java 26+.
-        // LWJGL module jars each seal the org.lwjgl package, causing SecurityException when
-        // multiple modules are on the classpath. stripSealingIfNeeded now correctly handles
-        // STORED/DEFLATED entries without corrupting class files.
-        List<String> finalPaths = new ArrayList<>(jarPaths.size());
-        for (String path : jarPaths) {
-            File original = new File(path);
-            File safe = stripSealingIfNeeded(original);
-            finalPaths.add(safe.getAbsolutePath());
-        }
 
         // CRITICAL FIX: previously we used a temporary JAR with Class-Path manifest.
         // Class-Path in JAR Manifest is BROKEN on Java 22+ — Netty, Mojang authlib and
@@ -570,7 +628,7 @@ public class MinecraftLauncher {
         // (safe margin), we use Java 9+ argfile syntax: -cp @<file> where file contains
         // the classpath entries on separate lines.
         StringBuilder classpathBuilder = new StringBuilder();
-        for (String path : finalPaths) {
+        for (String path : jarPaths) {
             if (classpathBuilder.length() > 0) {
                 classpathBuilder.append(File.pathSeparator);
             }
@@ -615,11 +673,11 @@ public class MinecraftLauncher {
         try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(
                 new FileOutputStream(argFile), java.nio.charset.StandardCharsets.UTF_8)) {
             StringBuilder lineBuilder = new StringBuilder();
-            for (int i = 0; i < finalPaths.size(); i++) {
+            for (int i = 0; i < jarPaths.size(); i++) {
                 if (i > 0) {
                     lineBuilder.append(File.pathSeparator);
                 }
-                String abs = new File(finalPaths.get(i)).getAbsolutePath();
+                String abs = new File(jarPaths.get(i)).getAbsolutePath();
                 // Escape backslashes and quotes for Java argfile parser
                 // (\ → \\, " → \") inside the quoted string
                 String escaped = abs.replace("\\", "\\\\").replace("\"", "\\\"");
@@ -640,6 +698,91 @@ public class MinecraftLauncher {
      * This prevents embedded Gson in merged/modloader jars from conflicting with
      * the Gson from Minecraft's libraries directory, which can be a different version.
      */
+    /**
+     * Resolves library paths from version.json's "libraries" section.
+     * Parses Maven coordinates (e.g. "org.ow2.asm:asm:9.10.1") and resolves
+     * them to actual jar file paths under the libraries directory.
+     * Returns only jars that actually exist on disk.
+     */
+    private List<String> resolveVersionJsonLibraries(String versionJsonPath, File librariesDir) {
+        List<String> result = new ArrayList<>();
+        File jsonFile = new File(versionJsonPath);
+        if (!jsonFile.exists()) return result;
+        try {
+            String content = new String(java.nio.file.Files.readAllBytes(jsonFile.toPath()));
+            // Find all "name" fields in the libraries array
+            int libsIdx = content.indexOf("\"libraries\"");
+            if (libsIdx < 0) return result;
+            int arrStart = content.indexOf('[', libsIdx);
+            if (arrStart < 0) return result;
+            int arrEnd = findMatchingBracket(content, arrStart);
+            if (arrEnd < 0) return result;
+            String libsSection = content.substring(arrStart, arrEnd + 1);
+
+            // Parse each library object
+            int pos = 0;
+            while (pos < libsSection.length()) {
+                int nameIdx = libsSection.indexOf("\"name\"", pos);
+                if (nameIdx < 0) break;
+                int colonIdx = libsSection.indexOf(':', nameIdx);
+                if (colonIdx < 0) break;
+                int startQ = libsSection.indexOf('"', colonIdx);
+                if (startQ < 0) break;
+                int endQ = libsSection.indexOf('"', startQ + 1);
+                if (endQ < 0) break;
+                String mavenName = libsSection.substring(startQ + 1, endQ);
+                pos = endQ + 1;
+
+                // Resolve Maven name to file path
+                // Format: groupId:artifactId:version[:classifier]
+                String[] parts = mavenName.split(":");
+                if (parts.length < 3) continue;
+                String groupId = parts[0];
+                String artifactId = parts[1];
+                String version = parts[2];
+                String classifier = (parts.length >= 4) ? parts[3] : null;
+
+                // Convert groupId dots to path separators
+                String groupPath = groupId.replace('.', '/');
+                // Maven layout: groupPath/artifactId/version/artifactId-version[-classifier].jar
+                String fileName = artifactId + "-" + version;
+                if (classifier != null && !classifier.isEmpty()) {
+                    fileName += "-" + classifier;
+                }
+                fileName += ".jar";
+                String jarPath = groupPath + "/" + artifactId + "/" + version + "/" + fileName;
+                File jarFile = new File(librariesDir, jarPath);
+                if (jarFile.exists()) {
+                    result.add(jarFile.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[PowerLaunch] Failed to parse version.json libraries: " + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * Finds the position of the matching closing bracket ']' for the opening '[' at startIdx.
+     */
+    private int findMatchingBracket(String content, int startIdx) {
+        int depth = 1;
+        boolean inString = false;
+        for (int i = startIdx + 1; i < content.length(); i++) {
+            char c = content.charAt(i);
+            if (c == '"' && (i == 0 || content.charAt(i - 1) != '\\')) {
+                inString = !inString;
+            } else if (!inString) {
+                if (c == '[') depth++;
+                else if (c == ']') {
+                    depth--;
+                    if (depth == 0) return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     private File stripEmbeddedGson(File jar) throws IOException {
         // Check if this jar actually contains Gson classes
         boolean hasGson = false;
@@ -799,6 +942,90 @@ public class MinecraftLauncher {
             }
             System.out.println("[PowerLaunch] Stripped Sealed from " + jar.getName());
             return tempJar;
+        }
+    }
+
+    /**
+     * Strips cryptographic signature files (.SF, .DSA, .RSA, .EC) from a jar.
+     * This is needed because different jars in the same package may have different
+     * signing states (signed vs unsigned), causing Java's ClassLoader to throw
+     * SecurityException: "signer information does not match". By stripping ALL
+     * signatures, we ensure consistent unsigned state across the classpath.
+     *
+     * If the jar has no signature files, returns the original jar (no copy needed).
+     */
+    private static final File SIG_CACHE_DIR = new File(
+            System.getProperty("java.io.tmpdir"), "powerlaunch-stripped");
+
+    private File stripSignaturesIfNeeded(File jar) {
+        try {
+            // --- Fast check: detect if jar is signed by looking for .SF entries ---
+            // In signed JARs, META-INF/*.SF files are typically among the first entries
+            // (added before class files). JarFile.stream().anyMatch() short-circuits
+            // on the first match, making this fast for signed jars.
+            // For unsigned jars (< 100 entries typically), iterating all is still fast.
+            boolean hasSignatures;
+            try (JarFile jf = new JarFile(jar)) {
+                hasSignatures = jf.stream()
+                    .map(java.util.zip.ZipEntry::getName)
+                    .anyMatch(name -> name.startsWith("META-INF/") &&
+                        (name.endsWith(".SF") || name.endsWith(".RSA") || name.endsWith(".DSA") || name.endsWith(".EC")));
+            }
+            if (!hasSignatures) return jar;
+
+            // --- Cache: check if we already stripped this jar ---
+            SIG_CACHE_DIR.mkdirs();
+            // Use file length + last modified as a fast cache key (no hash needed)
+            String cacheName = jar.getName() + "_" + jar.length() + "_" + jar.lastModified() + "_nosig.jar";
+            File cached = new File(SIG_CACHE_DIR, cacheName);
+            if (cached.exists() && cached.length() > 0) {
+                return cached; // Reuse cached stripped jar
+            }
+
+            // --- Slow path: copy jar without signature files ---
+            java.lang.Runtime.Version baseVersion = JarFile.baseVersion();
+            byte[] buf = new byte[65536];
+            try (JarFile jf2 = new JarFile(jar, false, ZipFile.OPEN_READ, baseVersion);
+                 java.util.jar.JarOutputStream jos = new java.util.jar.JarOutputStream(
+                     new FileOutputStream(cached))) {
+
+                java.util.Enumeration<JarEntry> e = jf2.entries();
+                while (e.hasMoreElements()) {
+                    JarEntry entry = e.nextElement();
+                    String name = entry.getName();
+
+                    // Skip signature files
+                    if (name.startsWith("META-INF/") &&
+                        (name.endsWith(".SF") || name.endsWith(".DSA") ||
+                         name.endsWith(".RSA") || name.endsWith(".EC"))) {
+                        continue;
+                    }
+
+                    JarEntry newEntry = new JarEntry(name);
+                    newEntry.setMethod(entry.getMethod());
+                    if (entry.getMethod() == JarEntry.STORED) {
+                        newEntry.setSize(entry.getSize());
+                        newEntry.setCompressedSize(entry.getCompressedSize());
+                        newEntry.setCrc(entry.getCrc());
+                    }
+                    newEntry.setTime(entry.getTime());
+
+                    jos.putNextEntry(newEntry);
+                    if (!entry.isDirectory()) {
+                        try (InputStream is = jf2.getInputStream(entry)) {
+                            int read;
+                            while ((read = is.read(buf)) >= 0) {
+                                jos.write(buf, 0, read);
+                            }
+                        }
+                    }
+                    jos.closeEntry();
+                }
+            }
+            return cached;
+        } catch (Exception e) {
+            // If we can't read the jar, return it as-is
+            return jar;
         }
     }
 
@@ -1324,6 +1551,47 @@ public class MinecraftLauncher {
      * Fabric, Forge, NeoForge, etc. use custom main classes (e.g., KnotClient)
      * instead of the vanilla net.minecraft.client.main.Main.
      */
+    /**
+     * Reads the required Java major version from version.json.
+     * E.g., for Minecraft 26.x it returns 26, for 1.21.x it returns 21.
+     * Returns -1 if not found.
+     */
+    private int getRequiredJavaVersion(String gameDir, String version) {
+        File versionJson = new File(gameDir + File.separator + "versions"
+                + File.separator + version + File.separator + version + ".json");
+        if (versionJson.exists()) {
+            try {
+                String content = new String(java.nio.file.Files.readAllBytes(versionJson.toPath()));
+                // Look for "javaVersion" object with "majorVersion" field
+                int javaVersionIdx = content.indexOf("\"javaVersion\"");
+                if (javaVersionIdx >= 0) {
+                    int objStart = content.indexOf('{', javaVersionIdx);
+                    if (objStart >= 0 && objStart < javaVersionIdx + 100) {
+                        int majorIdx = content.indexOf("\"majorVersion\"", objStart);
+                        if (majorIdx >= 0) {
+                            int colonIdx = content.indexOf(':', majorIdx);
+                            if (colonIdx >= 0) {
+                                // Read the number after the colon
+                                int numStart = colonIdx + 1;
+                                while (numStart < content.length() && content.charAt(numStart) == ' ') numStart++;
+                                int numEnd = numStart;
+                                while (numEnd < content.length() && Character.isDigit(content.charAt(numEnd))) numEnd++;
+                                if (numEnd > numStart) {
+                                    int ver = Integer.parseInt(content.substring(numStart, numEnd));
+                                    System.out.println("[PowerLaunch] version.json requires Java " + ver + "+");
+                                    return ver;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("[PowerLaunch] Failed to read version JSON for javaVersion: " + e.getMessage());
+            }
+        }
+        return -1;
+    }
+
     private String getMainClass(String gameDir, String version) {
         File versionJson = new File(gameDir + File.separator + "versions"
                 + File.separator + version + File.separator + version + ".json");

@@ -49,14 +49,14 @@ public class InstallerMain extends Application {
         checkInstallationStatus();
 
         Scene scene = new Scene(root, 600, 480);
-        stage.setTitle("Установка PowerLaunch");
+        stage.setTitle("PowerLaunch Installer");
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
     }
 
     private void findThisJar() {
-        // Method 0: getResource() — САМЫЙ НАДЁЖНЫЙ. Работает всегда, когда класс загружен из JAR.
+        // Method 0: getResource() — MOST RELIABLE. Работает всегда, когда класс загружен из JAR.
         // Parse jar:file:/path/to/jar!/com/...class → /path/to/jar
         try {
             URL resource = InstallerMain.class.getResource("InstallerMain.class");
@@ -77,7 +77,7 @@ public class InstallerMain extends Application {
             System.err.println("Method 0 (getResource) failed: " + e.getMessage());
         }
 
-        // Method 1: getCodeSource() — работает в app-image
+        // Method 1: getCodeSource() — works in app-image
         try {
             URL location = InstallerMain.class.getProtectionDomain().getCodeSource().getLocation();
             if (location != null) {
@@ -92,7 +92,7 @@ public class InstallerMain extends Application {
             System.err.println("Method 1 (getCodeSource) failed: " + e.getMessage());
         }
 
-        // Method 2: java.class.path — парсим classpath, ищем .jar
+        // Method 2: java.class.path — parse classpath, look for .jar
         String classPath = System.getProperty("java.class.path", "");
         if (!classPath.isEmpty()) {
             for (String entry : classPath.split(File.pathSeparator)) {
@@ -105,7 +105,7 @@ public class InstallerMain extends Application {
             }
         }
 
-        // Method 3: ищем в user.dir и стандартных dev-путях
+        // Method 3: search user.dir and standard dev paths
         String userDir = System.getProperty("user.dir", "");
         String[] patterns = {
             "build/libs/PowerLaunchInstaller-1.0.0.jar",
@@ -127,7 +127,7 @@ public class InstallerMain extends Application {
             }
         }
 
-        // Method 4: powerlaunch.home (из jpackage -Dpowerlaunch.home=...)
+        // Method 4: powerlaunch.home (from jpackage -Dpowerlaunch.home=...)
         String home = System.getProperty("powerlaunch.home", "");
         if (!home.isEmpty()) {
             String[] homePatterns = {
@@ -146,7 +146,7 @@ public class InstallerMain extends Application {
             }
         }
 
-        // Method 5: ищем любой .jar с PowerLaunch в названии рядом
+        // Method 5: search for any .jar with PowerLaunch in name nearby
         if (!userDir.isEmpty()) {
             try {
                 Path base = Paths.get(userDir);
@@ -182,7 +182,7 @@ public class InstallerMain extends Application {
         title.setFont(Font.font("System", FontWeight.BOLD, 32));
         title.setFill(Color.WHITE);
 
-        Text subtitle = new Text("Установщик Minecraft лаунчера");
+        Text subtitle = new Text("Minecraft Launcher Installer");
         subtitle.setFont(Font.font("System", 14));
         subtitle.setFill(Color.rgb(180, 180, 200));
 
@@ -201,12 +201,12 @@ public class InstallerMain extends Application {
         );
 
         Text statusText = new Text(isInstalled
-                ? "✓ PowerLaunch установлен"
-                : "PowerLaunch не установлен");
+                ? "✓ PowerLaunch installed"
+                : "PowerLaunch is not installed");
         statusText.setFont(Font.font("System", FontWeight.BOLD, 18));
         statusText.setFill(isInstalled ? Color.web("#4ade80") : Color.rgb(200, 200, 200));
 
-        Text pathText = new Text("Путь: " + selectedPath.toAbsolutePath());
+        Text pathText = new Text("Path: " + selectedPath.toAbsolutePath());
         pathText.setFont(Font.font("System", 12));
         pathText.setFill(Color.rgb(150, 150, 180));
 
@@ -218,17 +218,17 @@ public class InstallerMain extends Application {
         buttonBox.setPadding(new Insets(10, 0, 0, 0));
 
         if (isInstalled) {
-            Button launchBtn = createButton("🚀 Запустить PowerLaunch", "#10b981", e -> launchLauncher());
-            Button reinstallBtn = createButton("🔄 Переустановить", "#3b82f6", e -> showInstallScreen());
-            Button changePathBtn = createButton("📁 Изменить путь", "rgba(255,255,255,0.08)", e -> chooseDirectory());
+            Button launchBtn = createButton("🚀 Launch PowerLaunch", "#10b981", e -> launchLauncher());
+            Button reinstallBtn = createButton("🔄 Reinstall", "#3b82f6", e -> showInstallScreen());
+            Button changePathBtn = createButton("📁 Change Path", "rgba(255,255,255,0.08)", e -> chooseDirectory());
             buttonBox.getChildren().addAll(launchBtn, reinstallBtn, changePathBtn);
         } else {
-            Button installBtn = createButton("📥 Установить", "#e94560", e -> showInstallScreen());
-            Button changePathBtn = createButton("📁 Выбрать папку", "rgba(255,255,255,0.08)", e -> chooseDirectory());
+            Button installBtn = createButton("📥 Install", "#e94560", e -> showInstallScreen());
+            Button changePathBtn = createButton("📁 Choose Folder", "rgba(255,255,255,0.08)", e -> chooseDirectory());
             buttonBox.getChildren().addAll(installBtn, changePathBtn);
         }
 
-        Button exitBtn = createButton("✕ Выйти", "rgba(255,255,255,0.05)", e -> stage.close());
+        Button exitBtn = createButton("✕ Exit", "rgba(255,255,255,0.05)", e -> stage.close());
         exitBtn.setTextFill(Color.rgb(150, 150, 180));
 
         mainBox.getChildren().addAll(titleBox, statusCard, buttonBox, exitBtn);
@@ -240,7 +240,7 @@ public class InstallerMain extends Application {
         installBox.setAlignment(Pos.CENTER);
         installBox.setPadding(new Insets(40));
 
-        Text title = new Text("📥 Установка PowerLaunch");
+        Text title = new Text("📥 PowerLaunch Installer");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
 
@@ -255,7 +255,7 @@ public class InstallerMain extends Application {
                 "-fx-border-radius: 12;"
         );
 
-        Text dirLabel = new Text("Папка установки:");
+        Text dirLabel = new Text("Install Directory:");
         dirLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         dirLabel.setFill(Color.WHITE);
 
@@ -298,18 +298,18 @@ public class InstallerMain extends Application {
                         }
                     }
                     if (hasOtherFiles) {
-                        dirStatus.setText("⚠ В этой папке есть другие файлы. Выберите другую.");
+                        dirStatus.setText("⚠ This folder contains other files. Please choose another.");
                         dirStatus.setTextFill(Color.web("#ef4444"));
                     } else {
-                        dirStatus.setText("✓ Папка подходит для установки");
+                        dirStatus.setText("✓ Folder is ready for installation");
                         dirStatus.setTextFill(Color.web("#4ade80"));
                     }
                 } else {
-                    dirStatus.setText("✓ Папка будет создана");
+                    dirStatus.setText("✓ Folder will be created");
                     dirStatus.setTextFill(Color.web("#3b82f6"));
                 }
             } catch (IOException ex) {
-                dirStatus.setText("✗ Ошибка проверки папки");
+                dirStatus.setText("✗ Failed to check folder");
                 dirStatus.setTextFill(Color.web("#ef4444"));
             }
         };
@@ -317,7 +317,7 @@ public class InstallerMain extends Application {
 
         browseBtn.setOnAction(e -> {
             DirectoryChooser dc = new DirectoryChooser();
-            dc.setTitle("Выберите папку для установки");
+            dc.setTitle("Choose install directory");
             dc.setInitialDirectory(selectedPath.toFile());
             File dir = dc.showDialog(stage);
             if (dir != null) {
@@ -341,21 +341,21 @@ public class InstallerMain extends Application {
                 "-fx-border-radius: 12;"
         );
 
-        Text optionsLabel = new Text("Дополнительно:");
+        Text optionsLabel = new Text("Options:");
         optionsLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         optionsLabel.setFill(Color.WHITE);
 
-        CheckBox shortcutDesktop = new CheckBox("Создать ярлык на рабочем столе");
+        CheckBox shortcutDesktop = new CheckBox("Create desktop shortcut");
         shortcutDesktop.setSelected(true);
         shortcutDesktop.setTextFill(Color.rgb(200, 200, 220));
         shortcutDesktop.setStyle("-fx-font-size: 13;");
 
-        CheckBox shortcutStartMenu = new CheckBox("Добавить в меню Пуск");
+        CheckBox shortcutStartMenu = new CheckBox("Add to Start Menu");
         shortcutStartMenu.setSelected(true);
         shortcutStartMenu.setTextFill(Color.rgb(200, 200, 220));
         shortcutStartMenu.setStyle("-fx-font-size: 13;");
 
-        CheckBox launchAfterInstall = new CheckBox("Запустить PowerLaunch после установки");
+        CheckBox launchAfterInstall = new CheckBox("Launch PowerLaunch after install");
         launchAfterInstall.setSelected(true);
         launchAfterInstall.setTextFill(Color.rgb(200, 200, 220));
         launchAfterInstall.setStyle("-fx-font-size: 13;");
@@ -363,15 +363,15 @@ public class InstallerMain extends Application {
         optionsCard.getChildren().addAll(optionsLabel, shortcutDesktop, shortcutStartMenu, launchAfterInstall);
 
         // Install button
-        Button installBtn = createButton("✅ Установить", "#10b981", e -> {
+        Button installBtn = createButton("✅ Install", "#10b981", e -> {
             try {
                 performInstall(selectedPath, shortcutDesktop.isSelected(), shortcutStartMenu.isSelected(), launchAfterInstall.isSelected());
             } catch (Exception ex) {
-                showError("Ошибка установки: " + ex.getMessage());
+                showError("Installation error: " + ex.getMessage());
             }
         });
 
-        Button backBtn = createButton("◀ Назад", "rgba(255,255,255,0.08)", e -> showMainScreen());
+        Button backBtn = createButton("◀ Back", "rgba(255,255,255,0.08)", e -> showMainScreen());
         backBtn.setTextFill(Color.rgb(200, 200, 220));
 
         installBox.getChildren().addAll(title, dirCard, optionsCard, installBtn, backBtn);
@@ -404,10 +404,10 @@ public class InstallerMain extends Application {
         Path targetJar = targetPath.resolve(JAR_NAME);
 
         if (sourceJar != null && Files.exists(sourceJar)) {
-            // JAR найден — копируем как есть
+            // JAR found — copy as-is
             Files.copy(sourceJar, targetJar, StandardCopyOption.REPLACE_EXISTING);
         } else {
-            // JAR не найден — создаём новый из classpath на месте
+            // JAR not found — create new from classpath
             createJarFromClasspath(targetJar);
         }
 
@@ -463,17 +463,17 @@ public class InstallerMain extends Application {
                 "echo [%date% %time%] ERROR: Java with JavaFX not found >> \"%LOG%\"\r\n" +
                 "echo.\r\n" +
                 "echo ============================================\r\n" +
-                "echo   Java с JavaFX не найдена!\r\n" +
+                "echo   Java with JavaFX not found!\r\n" +
                 "echo ============================================\r\n" +
                 "echo.\r\n" +
-                "echo PowerLaunch требует Java с JavaFX.\r\n" +
-                "echo Подробнее: %LOG%\r\n" +
+                "echo PowerLaunch requires Java with JavaFX.\r\n" +
+                "echo Details: %LOG%\r\n" +
                 "echo.\r\n" +
-                "echo Варианты:\r\n" +
-                "echo 1. Запустите PowerLaunch Setup.exe один раз\r\n" +
-                "echo 2. Скопируйте папку runtime/ рядом с .bat\r\n" +
+                "echo Options:\r\n" +
+                "echo 1. Run PowerLaunch Setup.exe once\r\n" +
+                "echo 2. Copy the runtime/ folder next to the .bat\r\n" +
                 "echo.\r\n" +
-                "echo Нажмите любую клавишу...\r\n" +
+                "echo Press any key...\r\n" +
                 "pause >nul\r\n" +
                 "exit /b 1\r\n" +
                 "\r\n" +
@@ -502,9 +502,9 @@ public class InstallerMain extends Application {
         // Show success
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Установка завершена");
-            alert.setHeaderText("✅ PowerLaunch установлен!");
-            alert.setContentText("Лаунчер установлен в:\r\n" + targetPath.toAbsolutePath());
+            alert.setTitle("Installation Complete");
+            alert.setHeaderText("✅ PowerLaunch installed!");
+            alert.setContentText("Launcher installed to:\r\n" + targetPath.toAbsolutePath());
             styleAlert(alert);
             alert.showAndWait();
         });
@@ -562,7 +562,7 @@ public class InstallerMain extends Application {
         Path jarPath = installPath.resolve(JAR_NAME);
 
         if (!Files.exists(jarPath)) {
-            showError("Файл лаунчера не найден: " + jarPath);
+            showError("Launcher file not found: " + jarPath);
             return;
         }
 
@@ -585,7 +585,7 @@ public class InstallerMain extends Application {
                 Platform.exit();
             });
         } catch (IOException e) {
-            showError("Не удалось запустить лаунчер: " + e.getMessage());
+            showError("Failed to launch launcher: " + e.getMessage());
         }
     }
 
@@ -608,7 +608,7 @@ public class InstallerMain extends Application {
                     if (!Files.exists(p)) continue;
 
                     if (Files.isDirectory(p)) {
-                        // Сopy .class, .properties, .css, .fxml, .png, .jpg etc.
+                        // Copy .class, .properties, .css, .fxml, .png, .jpg etc.
                         Files.walk(p)
                             .filter(f -> Files.isRegularFile(f)
                                     && (f.toString().endsWith(".class")
@@ -628,14 +628,14 @@ public class InstallerMain extends Application {
                                 }
                             });
                     } else if (p.toString().endsWith(".jar") && Files.exists(p)) {
-                        // Только из наших JAR-ов, не из JDK
+                        // Only from our JARs, not from JDK
                         if (!p.getFileName().toString().contains("PowerLaunch")) continue;
                         // Copy entries from JAR files
                         try (JarInputStream jis = new JarInputStream(new FileInputStream(p.toFile()))) {
                             JarEntry jarIn;
                             while ((jarIn = jis.getNextJarEntry()) != null) {
                                 if (jarIn.isDirectory()) continue;
-                                // Исключаем подписи — они не совпадут в новом JAR-е
+                                // Exclude signatures — they won't match in the new JAR
                                 String name = jarIn.getName();
                                 if (name.startsWith("META-INF/") &&
                                     (name.endsWith(".SF") || name.endsWith(".DSA") || name.endsWith(".RSA")))
@@ -687,7 +687,7 @@ public class InstallerMain extends Application {
 
     private void chooseDirectory() {
         DirectoryChooser dc = new DirectoryChooser();
-        dc.setTitle("Выберите папку для установки");
+        dc.setTitle("Choose install directory");
         dc.setInitialDirectory(selectedPath.toFile());
         File dir = dc.showDialog(stage);
         if (dir != null) {
@@ -699,8 +699,8 @@ public class InstallerMain extends Application {
     private void showError(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("⚠ Произошла ошибка");
+            alert.setTitle("Error");
+            alert.setHeaderText("⚠ An error occurred");
             alert.setContentText(message);
             styleAlert(alert);
             alert.showAndWait();

@@ -18,26 +18,26 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        // 1. IPv4 only: Java по умолчанию предпочитает IPv6. На многих системах DNS
-        //    отвечает AAAA (IPv6), но реального IPv6-роутинга до серверов нет → таймаут.
+        // 1. IPv4 only: Java prefers IPv6 by default. On many systems DNS
+        //    responds with AAAA (IPv6), but there's no real IPv6 routing to servers → timeout.
         System.setProperty("java.net.preferIPv4Stack", "true");
 
-        // 2. Явно НЕ включаем java.net.useSystemProxies! На Windows без настроенного
-        //    прокси этот флаг может прочитать мусор из реестра и направить трафик
-        //    в никуда. Java HttpClient сам по себе нормально работает без прокси.
-        //    Если нужен прокси — укажите в Windows/IE настройках, HttpClient
-        //    автоматически их подхватит через ProxySelector.getDefault().
+        // 2. We explicitly do NOT enable java.net.useSystemProxies! On Windows without
+        //    a proxy this flag can read garbage from the registry and redirect traffic
+        //    to nowhere. Java HttpClient works fine without a proxy.
+        //    If you need a proxy — set it in Windows/IE settings, HttpClient
+        //    will automatically pick them up via ProxySelector.getDefault().
 
         primaryStage = stage;
         rootContainer = new StackPane();
 
-        // Тест соединения с серверами (выводит диагностику в консоль)
+        // Test server connectivity (outputs diagnostics to console)
         NetworkDiagnostics.runAllTests();
 
-        // Инициализация БД (будет открыта в TabManager.getInstance())
+        // Initialize DB (will be opened in TabManager.getInstance())
         SettingsManager.getInstance().load();
 
-        // Регистрируем shutdown hook для гарантированного сохранения всех данных при выходе
+        // Register shutdown hook to guarantee all data is saved on exit
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             saveAllData();
         }));
@@ -57,7 +57,7 @@ public class Main extends Application {
         stage.centerOnScreen();
         stage.setResizable(true);
 
-        // Обработчик закрытия окна — сохраняем всё перед выходом
+        // Window close handler — save all before exit
         stage.setOnCloseRequest(e -> {
             saveAllData();
             Platform.exit();
@@ -68,8 +68,8 @@ public class Main extends Application {
     }
 
     /**
-     * Сохраняет ВСЕ данные лаунчера на диск: таблицы, настройки, логи.
-     * Вызывается при закрытии окна и через shutdown hook.
+     * Saves ALL launcher data to disk: tables, settings, logs.
+     * Called on window close and via shutdown hook.
      */
     public static void saveAllData() {
         if (isShuttingDown) return;
@@ -77,17 +77,17 @@ public class Main extends Application {
         try {
             System.out.println("[PowerLaunch] Saving all data before exit...");
 
-            // Сохраняем настройки активного таба в БД
+            // Save active tab settings to DB
             TabManager tabManager = TabManager.getInstance();
             tabManager.updateActiveTabFromSettings();
 
-            // Сохраняем глобальные настройки лаунчера
+            // Save global launcher settings
             SettingsManager.getInstance().save();
 
-            // Закрываем файл лога консоли (если активен)
+            // Close console log file (if active)
             FileLogManager.getInstance().disable();
 
-            // Закрываем SQLite БД
+            // Close SQLite DB
             TabDatabase.getInstance().close();
 
             System.out.println("[PowerLaunch] All data saved successfully.");
@@ -115,9 +115,9 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        // Принудительно только IPv4
+        // Force IPv4 only
         System.setProperty("java.net.preferIPv4Stack", "true");
-        // НЕ включаем java.net.useSystemProxies — может ломать HTTP на Windows без прокси
+        // Do NOT enable java.net.useSystemProxies — may break HTTP on Windows without proxy
 
         // Check for CLI mode (launch Minecraft without GUI)
         if (args.length > 0 && "cli".equalsIgnoreCase(args[0])) {
