@@ -1,6 +1,6 @@
 # PowerLaunch
 
-![Development status](https://img.shields.io/badge/status-Beta-orange)
+![Development status](https://img.shields.io/badge/Status-Stable-green)
 
 A feature-rich Minecraft launcher built with JavaFX. Manage multiple Minecraft versions, modpacks, and accounts with a modern desktop interface.
 
