@@ -17,6 +17,32 @@ settings.json
 config.json
 servers.json
 powerlaunch.db*
+.migrated.marker
+profiles/
+
+### Build tools & temp files ###
+javafx-jmods/
+javafx-jmods.zip
+wix-binaries.zip
+wix314.exe
+wix-toolset/
+LauncherExe/
+add_missing_methods.js
+apply_slider_only.js
+delete_account_slider_fix.js
+fix_all_issues.js
+fix_dup_createbtn.js
+fix_errors.js
+fix_network_backslashes.js
+fix_sensors.js
+fix_sensors.ps1
+fix_sensors.sh
+remove_dead_method.js
+restore_all.js
+restore_final.js
+restore_pt1_fields.js
+restore_pt2.js
+cli_output.log
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

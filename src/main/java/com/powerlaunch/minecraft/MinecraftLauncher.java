@@ -1733,7 +1733,13 @@ public class MinecraftLauncher {
 
     public void stopMinecraft() {
         if (minecraftProcess != null && minecraftProcess.isAlive()) {
-            minecraftProcess.destroyForcibly();
+            minecraftProcess.destroy();
+            try {
+                minecraftProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException ignored) {}
+            if (minecraftProcess.isAlive()) {
+                minecraftProcess.destroyForcibly();
+            }
             running = false;
             minecraftProcess = null;
         }

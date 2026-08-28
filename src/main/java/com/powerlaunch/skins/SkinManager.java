@@ -1,5 +1,7 @@
 package com.powerlaunch.skins;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -111,7 +113,8 @@ public class SkinManager {
                 // Step 1: Get UUID from Mojang API
                 String uuidUrl = "https://api.mojang.com/users/profiles/minecraft/" + username;
                 String uuidResponse = httpGetString(uuidUrl, 5);
-                String uuid = uuidResponse.replaceAll(".*\\\"id\\\":\\\"([^\\\"]+)\\\".*", "$1");
+                JsonObject json = JsonParser.parseString(uuidResponse).getAsJsonObject();
+                String uuid = json.get("id").getAsString();
 
                 // Step 2: Download skin from crafatar
                 String skinUrl = "https://crafatar.com/skins/" + uuid;

@@ -2283,7 +2283,6 @@ public class MainController {
             var result = launcher.launchMinecraft(selectedVersion, "vanilla", exitCode -> {
                 // Close console log when Minecraft exits
                 FileLogManager.getInstance().disable();
-                FileLogManager.getInstance().disable();
                 Platform.runLater(() -> {
                     if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
                     if (exitCode != 0) {
@@ -2599,8 +2598,8 @@ public class MainController {
             Process p = new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", psCmd)
                     .redirectErrorStream(true)
                     .start();
-            String out = new String(p.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
             boolean done = p.waitFor(5, TimeUnit.SECONDS);
+            String out = new String(p.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
             p.destroyForcibly();
             if (done && !out.isEmpty()) {
                 // Убираем всё кроме цифр и запятой (на случай если echo добавила лишнего)
@@ -2622,8 +2621,8 @@ public class MainController {
 
         // Способ 2: netstat -e — родная команда Windows, вывод ВСЕГДА на английском
         Process p2 = new ProcessBuilder("netstat", "-e").redirectErrorStream(true).start();
-        String out2 = new String(p2.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         boolean done2 = p2.waitFor(5, TimeUnit.SECONDS);
+        String out2 = new String(p2.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         p2.destroyForcibly();
         if (!done2) {
             throw new java.io.IOException("netstat -e timeout");

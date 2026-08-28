@@ -349,13 +349,7 @@ public class TabManager {
         if (existing != null && !existing.isEmpty()) return;
 
         // Check for old JSON tabs
-        String os = System.getProperty("os.name").toLowerCase();
-        java.nio.file.Path configDir;
-        if (os.contains("win")) {
-            configDir = java.nio.file.Paths.get(System.getenv("APPDATA"), "PowerLaunch");
-        } else {
-            configDir = java.nio.file.Paths.get(System.getProperty("user.home"), ".config", "PowerLaunch");
-        }
+        java.nio.file.Path configDir = com.powerlaunch.launcher.LauncherHomeProvider.getLauncherHome();
 
         File tabsDir = configDir.resolve("tabs").toFile();
         if (!tabsDir.exists() || !tabsDir.isDirectory()) return;

@@ -36,16 +36,7 @@ public class VersionManager {
     }
 
     private Path getConfigDir() {
-        String os = System.getProperty("os.name").toLowerCase();
-        Path basePath;
-        if (os.contains("win")) {
-            basePath = Paths.get(System.getenv("APPDATA"));
-        } else if (os.contains("mac")) {
-            basePath = Paths.get(System.getProperty("user.home"), "Library", "Application Support");
-        } else {
-            basePath = Paths.get(System.getProperty("user.home"), ".config");
-        }
-        return basePath.resolve("PowerLaunch");
+        return com.powerlaunch.launcher.LauncherHomeProvider.getLauncherHome();
     }
 
     private Path getGameDir() {

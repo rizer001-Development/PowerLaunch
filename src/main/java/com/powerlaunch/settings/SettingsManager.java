@@ -74,7 +74,9 @@ public class SettingsManager {
     public void save() {
         try {
             Files.createDirectories(configPath.getParent());
-            Files.writeString(configPath, gson.toJson(settings));
+            Path tempPath = configPath.resolveSibling(configPath.getFileName() + ".tmp");
+            Files.writeString(tempPath, gson.toJson(settings));
+            Files.move(tempPath, configPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.err.println("Failed to save config: " + e.getMessage());
         }

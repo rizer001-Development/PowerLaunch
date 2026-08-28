@@ -31,8 +31,8 @@ public class Main extends Application {
         primaryStage = stage;
         rootContainer = new StackPane();
 
-        // Test server connectivity (outputs diagnostics to console)
-        NetworkDiagnostics.runAllTests();
+        // Test server connectivity in background — don't block UI startup
+        new Thread(() -> NetworkDiagnostics.runAllTests(), "NetDiag").start();
 
         // Initialize DB (will be opened in TabManager.getInstance())
         SettingsManager.getInstance().load();

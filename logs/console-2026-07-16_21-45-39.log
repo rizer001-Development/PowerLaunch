@@ -1,4 +1,0 @@
-[Log] === Console log started at 2026-07-16T21:45:39.372322400 ===
-[MC] [Minecraft] Error: Could not find or load main class C:\.minecraft\versions\26.2\26.2.jar
-[MC] [Minecraft] Caused by: java.lang.ClassNotFoundException: C:\.minecraft\versions\26.2\26.2.jar
-[Log] === Console log closed at 2026-07-16T21:45:45.884531700 ===
