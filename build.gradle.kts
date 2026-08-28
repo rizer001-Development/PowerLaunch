@@ -100,7 +100,7 @@ tasks.register<Exec>("jlinkJre") {
     commandLine(
         "jlink",
         "--module-path", javafxJmods,
-        "--add-modules", "javafx.controls,javafx.fxml,java.management,java.sql,java.naming,java.scripting,java.rmi,java.compiler,java.instrument,java.security.jgss,jdk.unsupported,jdk.charsets,jdk.zipfs",
+        "--add-modules", "javafx.controls,javafx.fxml,java.management,java.sql,java.naming,java.scripting,java.rmi,java.compiler,java.instrument,java.security.jgss,jdk.unsupported,jdk.charsets,jdk.zipfs,java.net.http,jdk.crypto.ec,java.desktop,java.logging,java.xml,java.transaction.xa,java.security.sasl,java.naming",
         "--output", customJre,
         "--no-header-files",
         "--no-man-pages"
