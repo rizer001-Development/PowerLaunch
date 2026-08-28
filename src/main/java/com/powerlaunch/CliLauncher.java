@@ -129,7 +129,6 @@ public class CliLauncher {
         // Initialize managers
         System.out.println("  [1/5] Initializing settings...");
         SettingsManager settings = SettingsManager.getInstance();
-        settings.load();
 
         // Set game directory (verify it's being applied)
         if (gameDir != null && !gameDir.isEmpty()) {

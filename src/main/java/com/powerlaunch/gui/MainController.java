@@ -2,7 +2,7 @@ package com.powerlaunch.gui;
 
 import com.powerlaunch.Main;
 import com.powerlaunch.auth.AccountManager;
-import com.powerlaunch.auth.AccountManager.Account;
+import com.powerlaunch.storage.AppDatabase.Account;
 import com.powerlaunch.auth.AuthManager;
 import com.powerlaunch.minecraft.MinecraftLauncher;
 import com.powerlaunch.minecraft.ServerManager;
@@ -2250,7 +2250,7 @@ public class MainController {
 
         // Включаем запись логов консоли в файл (если включено в настройках)
         if (settings.getBoolean("saveConsoleLog", true)) {
-            FileLogManager.getInstance().enable();
+            FileLogManager.getInstance().enableGame();
         }
 
         updateStatusIndicator("starting");

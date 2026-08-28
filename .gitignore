@@ -19,6 +19,7 @@ servers.json
 powerlaunch.db*
 .migrated.marker
 profiles/
+versions.json
 
 ### Build tools & temp files ###
 javafx-jmods/

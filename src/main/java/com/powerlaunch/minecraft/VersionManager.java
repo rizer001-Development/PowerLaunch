@@ -1,126 +1,98 @@
 package com.powerlaunch.minecraft;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.powerlaunch.storage.AppDatabase;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Version list — stored in SQLite via {@link AppDatabase}.
+ * On each load also scans the game directory for newly installed versions.
+ */
 public class VersionManager {
     private static VersionManager instance;
-    private static final String VERSIONS_FILE = "versions.json";
-    private final Path versionsPath;
-    private final Gson gson;
+    private final AppDatabase db;
     private List<String> installedVersions;
     private String currentVersion;
 
     private VersionManager() {
-        gson = new GsonBuilder().setPrettyPrinting().create();
-        versionsPath = getConfigDir().resolve(VERSIONS_FILE);
+        db = AppDatabase.getInstance();
         installedVersions = new ArrayList<>();
         currentVersion = "";
         load();
     }
 
     public static synchronized VersionManager getInstance() {
-        if (instance == null) {
-            instance = new VersionManager();
-        }
+        if (instance == null) instance = new VersionManager();
         return instance;
     }
 
-    private Path getConfigDir() {
-        return com.powerlaunch.launcher.LauncherHomeProvider.getLauncherHome();
-    }
-
     private Path getGameDir() {
-        String customDir = com.powerlaunch.settings.SettingsManager.getInstance().getString("gameDirectory", "");
-        if (!customDir.isEmpty()) {
-            return Paths.get(customDir, "versions");
-        }
+        String customDir = com.powerlaunch.settings.SettingsManager.getInstance()
+                .getString("gameDirectory", "");
+        if (!customDir.isEmpty()) return Paths.get(customDir, "versions");
         String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) {
+        if (os.contains("win"))
             return Paths.get(System.getenv("APPDATA"), ".powerlaunch", "versions");
-        } else if (os.contains("mac")) {
-            return Paths.get(System.getProperty("user.home"), "Library", "Application Support", ".powerlaunch", "versions");
-        }
+        if (os.contains("mac"))
+            return Paths.get(System.getProperty("user.home"),
+                    "Library", "Application Support", ".powerlaunch", "versions");
         return Paths.get(System.getProperty("user.home"), ".powerlaunch", "versions");
     }
 
-    public void load() {
-        try {
-            // Load saved versions list
-            if (Files.exists(versionsPath)) {
-                String content = Files.readString(versionsPath);
-                Type type = new TypeToken<List<String>>() {}.getType();
-                List<String> loaded = gson.fromJson(content, type);
-                if (loaded != null) {
-                    installedVersions = loaded;
-                }
-            }
+    private void load() {
+        // Load from DB
+        installedVersions = db.getAllVersions();
 
-            // Scan game directory for installed versions
-            Path gameVersionsDir = getGameDir();
-            if (Files.exists(gameVersionsDir)) {
-                try (var stream = Files.list(gameVersionsDir)) {
-                    stream.filter(Files::isDirectory)
-                            .map(p -> p.getFileName().toString())
-                            .filter(v -> !installedVersions.contains(v))
-                            .forEach(installedVersions::add);
-                }
-            }
-
-            // Set current version from settings
-            String savedVersion = com.powerlaunch.settings.SettingsManager.getInstance().getString("selectedVersion", "");
-            if (!savedVersion.isEmpty() && installedVersions.contains(savedVersion)) {
-                currentVersion = savedVersion;
-            } else if (currentVersion.isEmpty() && !installedVersions.isEmpty()) {
-                currentVersion = installedVersions.get(0);
-            }
-
-            save();
-        } catch (IOException e) {
-            System.err.println("Failed to load versions: " + e.getMessage());
+        // Scan disk for new versions
+        Path gameVersionsDir = getGameDir();
+        if (Files.exists(gameVersionsDir)) {
+            try (var stream = Files.list(gameVersionsDir)) {
+                stream.filter(Files::isDirectory)
+                        .map(p -> p.getFileName().toString())
+                        .filter(v -> !installedVersions.contains(v))
+                        .forEach(installedVersions::add);
+            } catch (IOException ignored) {}
         }
+
+        // Restore current version
+        String saved = com.powerlaunch.settings.SettingsManager.getInstance()
+                .getString("selectedVersion", "");
+        if (!saved.isEmpty() && installedVersions.contains(saved)) {
+            currentVersion = saved;
+        } else if (currentVersion.isEmpty() && !installedVersions.isEmpty()) {
+            currentVersion = installedVersions.get(0);
+        }
+        syncToDb();
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(versionsPath.getParent());
-            Files.writeString(versionsPath, gson.toJson(installedVersions));
-        } catch (IOException e) {
-            System.err.println("Failed to save versions: " + e.getMessage());
-        }
+    private void syncToDb() {
+        db.replaceAllVersions(installedVersions);
     }
 
-    public void addVersion(String versionId) {
-        if (!installedVersions.contains(versionId)) {
-            installedVersions.add(versionId);
-            save();
-        }
+    public void addVersion(String v) {
+        if (!installedVersions.contains(v)) { installedVersions.add(v); syncToDb(); }
     }
 
-    public boolean removeVersion(String versionId) {
-        boolean removed = installedVersions.remove(versionId);
+    public boolean removeVersion(String v) {
+        boolean removed = installedVersions.remove(v);
         if (removed) {
-            if (currentVersion.equals(versionId)) {
+            if (currentVersion.equals(v))
                 currentVersion = installedVersions.isEmpty() ? "" : installedVersions.get(0);
-            }
-            save();
+            syncToDb();
         }
         return removed;
     }
 
-    public boolean selectVersion(String versionId) {
-        if (installedVersions.contains(versionId)) {
-            currentVersion = versionId;
-            com.powerlaunch.settings.SettingsManager.getInstance().set("selectedVersion", versionId);
+    public boolean selectVersion(String v) {
+        if (installedVersions.contains(v)) {
+            currentVersion = v;
+            com.powerlaunch.settings.SettingsManager.getInstance()
+                    .set("selectedVersion", v);
             return true;
         }
         return false;
@@ -129,21 +101,7 @@ public class VersionManager {
     public void reload() {
         installedVersions.clear();
         currentVersion = "";
-        Path gameVersionsDir = getGameDir();
-        if (Files.exists(gameVersionsDir)) {
-            try (var stream = Files.list(gameVersionsDir)) {
-                stream.filter(Files::isDirectory)
-                        .map(p -> p.getFileName().toString())
-                        .forEach(installedVersions::add);
-            } catch (IOException ignored) {}
-        }
-        String savedVersion = com.powerlaunch.settings.SettingsManager.getInstance().getString("selectedVersion", "");
-        if (!savedVersion.isEmpty() && installedVersions.contains(savedVersion)) {
-            currentVersion = savedVersion;
-        } else if (!installedVersions.isEmpty()) {
-            currentVersion = installedVersions.get(0);
-        }
-        save();
+        load();
     }
 
     public void scanForVersions() {
@@ -156,26 +114,16 @@ public class VersionManager {
                         .forEach(installedVersions::add);
             } catch (IOException ignored) {}
         }
-        save();
+        syncToDb();
     }
 
-    public List<String> getInstalledVersions() {
-        return new ArrayList<>(installedVersions);
-    }
-
-    public String getCurrentVersion() {
-        return currentVersion;
-    }
-
-    public boolean hasVersions() {
-        return !installedVersions.isEmpty();
-    }
+    public List<String> getInstalledVersions() { return new ArrayList<>(installedVersions); }
+    public String       getCurrentVersion()    { return currentVersion; }
+    public boolean      hasVersions()          { return !installedVersions.isEmpty(); }
 
     public Path getGameDirectory() {
-        String customDir = com.powerlaunch.settings.SettingsManager.getInstance().getString("gameDirectory", "");
-        if (!customDir.isEmpty()) {
-            return Paths.get(customDir);
-        }
-        return getGameDir().getParent();
+        String custom = com.powerlaunch.settings.SettingsManager.getInstance()
+                .getString("gameDirectory", "");
+        return custom.isEmpty() ? getGameDir().getParent() : Paths.get(custom);
     }
 }

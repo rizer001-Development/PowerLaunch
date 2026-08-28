@@ -1,121 +1,103 @@
 package com.powerlaunch.settings;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.powerlaunch.storage.AppDatabase;
 
-import java.io.*;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Launcher settings — now backed by SQLite via {@link AppDatabase}.
+ * Keeps a fast in-memory cache; each {@link #set()} writes through to DB.
+ */
 public class SettingsManager {
     private static SettingsManager instance;
-    private final Path configPath;
-    private final Gson gson;
-    private final Map<String, Object> settings;
+    private final AppDatabase db;
+    private final Map<String, Object> cache;
 
     private SettingsManager() {
-        gson = new GsonBuilder().setPrettyPrinting().create();
-        configPath = com.powerlaunch.launcher.LauncherHomeProvider.getConfigFile();
-        settings = new HashMap<>();
+        db = AppDatabase.getInstance();
+        cache = new HashMap<>();
         loadDefaults();
-        load();
+        loadFromDb();
     }
 
     public static synchronized SettingsManager getInstance() {
-        if (instance == null) {
-            instance = new SettingsManager();
-        }
+        if (instance == null) instance = new SettingsManager();
         return instance;
     }
 
-    public void loadDefaults() {
-        settings.clear();
-        settings.put("username", "");
-        settings.put("ram", 4096);
-        settings.put("gameWidth", 854);
-        settings.put("gameHeight", 480);
-        settings.put("javaArgs", "");
-        settings.put("selectedVersion", "latest");
-        settings.put("selectedModpack", "vanilla");
-        settings.put("gameDirectory", "");
-        settings.put("javaPath", "");
-        settings.put("javaChoice", "auto");
-        settings.put("gpuChoice", "auto");
-        settings.put("useCustomResolution", false);
-        settings.put("enableSkins", true);
-        settings.put("serverIp", "");
-        settings.put("autoLogin", false);
-        settings.put("autoConnect", false);
-        settings.put("connectServerIp", "");
-        settings.put("theme", "dark");
-        settings.put("showNews", true);
-        settings.put("saveConsoleLog", true);
+    // ── defaults ──────────────────────────────────────────────
+
+    void loadDefaults() {
+        put("username", "");
+        put("ram", 4096);
+        put("gameWidth", 854);
+        put("gameHeight", 480);
+        put("javaArgs", "");
+        put("selectedVersion", "latest");
+        put("selectedModpack", "vanilla");
+        put("gameDirectory", "");
+        put("javaPath", "");
+        put("javaChoice", "auto");
+        put("gpuChoice", "auto");
+        put("useCustomResolution", false);
+        put("enableSkins", true);
+        put("serverIp", "");
+        put("autoLogin", false);
+        put("autoConnect", false);
+        put("connectServerIp", "");
+        put("theme", "dark");
+        put("showNews", true);
+        put("saveConsoleLog", true);
     }
 
-    public void load() {
-        try {
-            if (Files.exists(configPath)) {
-                String content = Files.readString(configPath);
-                Type type = new TypeToken<Map<String, Object>>() {}.getType();
-                Map<String, Object> loaded = gson.fromJson(content, type);
-                if (loaded != null) {
-                    settings.putAll(loaded);
-                }
+    private void loadFromDb() {
+        for (Map.Entry<String, Object> d : new HashMap<>(cache).entrySet()) {
+            String key = d.getKey();
+            Object def = d.getValue();
+            if (def instanceof Boolean) {
+                cache.put(key, db.getBoolean(key, (Boolean) def));
+            } else if (def instanceof Number) {
+                cache.put(key, db.getInt(key, ((Number) def).intValue()));
+            } else {
+                cache.put(key, db.getString(key, (String) def));
             }
-        } catch (IOException e) {
-            System.err.println("Failed to load config: " + e.getMessage());
         }
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(configPath.getParent());
-            Path tempPath = configPath.resolveSibling(configPath.getFileName() + ".tmp");
-            Files.writeString(tempPath, gson.toJson(settings));
-            Files.move(tempPath, configPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            System.err.println("Failed to save config: " + e.getMessage());
-        }
+    // ── public API (same signatures as before) ────────────────
+
+    public String getString(String key, String def) {
+        Object v = cache.get(key);
+        return v instanceof String s ? s : def;
     }
 
-    public String getString(String key, String defaultValue) {
-        Object val = settings.get(key);
-        return val instanceof String ? (String) val : defaultValue;
+    public int getInt(String key, int def) {
+        Object v = cache.get(key);
+        return v instanceof Number n ? n.intValue() : def;
     }
 
-    public int getInt(String key, int defaultValue) {
-        Object val = settings.get(key);
-        if (val instanceof Number) {
-            return ((Number) val).intValue();
-        }
-        return defaultValue;
-    }
-
-    public boolean getBoolean(String key, boolean defaultValue) {
-        Object val = settings.get(key);
-        if (val instanceof Boolean) {
-            return (Boolean) val;
-        }
-        return defaultValue;
+    public boolean getBoolean(String key, boolean def) {
+        Object v = cache.get(key);
+        return v instanceof Boolean b ? b : def;
     }
 
     public void set(String key, Object value) {
-        settings.put(key, value);
-        save();
+        cache.put(key, value);
+        // write-through to DB
+        if (value instanceof Boolean b) db.setBoolean(key, b);
+        else if (value instanceof Number n) db.setInt(key, n.intValue());
+        else db.set(key, value != null ? value.toString() : "");
     }
 
-    public void loadFromMap(Map<String, Object> newSettings) {
-        if (newSettings != null) {
-            settings.clear();
-            settings.putAll(newSettings);
-        }
+    /** Bulk-load from a map (used by ProfileManager). Does NOT persist. */
+    public void loadFromMap(Map<String, Object> m) {
+        if (m != null) { cache.clear(); cache.putAll(m); }
     }
 
-    public Map<String, Object> getAll() {
-        return new HashMap<>(settings);
-    }
+    public Map<String, Object> getAll() { return new HashMap<>(cache); }
+
+    public void save() { /* no-op: set() already writes through */ }
+
+    private void put(String k, Object v) { cache.put(k, v); }
 }
