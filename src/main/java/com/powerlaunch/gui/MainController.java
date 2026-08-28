@@ -1188,7 +1188,11 @@ public class MainController {
         dirField.setPromptText("e.g.: C:\\Users\\Name\\AppData\\Roaming\\.powerlaunch");
         dirField.setPrefWidth(400);
         dirField.setStyle(settingsInputStyle());
-        dirField.textProperty().addListener((obs, old, val) -> settings.set("gameDirectory", val));
+        // Save on focus loss / Enter, then rescan installed versions
+        dirField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) { settings.set("gameDirectory", dirField.getText().trim()); versionManager.reload(); }
+        });
+        dirField.setOnAction(e -> { settings.set("gameDirectory", dirField.getText().trim()); versionManager.reload(); });
 
         Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Browse folder");
         dirBrowseBtn.setOnAction(e -> {
@@ -1199,7 +1203,11 @@ public class MainController {
             }
             File dir = dc.showDialog(view.getScene().getWindow());
             if (dir != null) {
+                settings.set("gameDirectory", dir.getAbsolutePath());
                 dirField.setText(dir.getAbsolutePath());
+                // Rescan versions immediately and refresh the version button
+                versionManager.reload();
+                if (versionButton != null) updateVersionButton(versionButton);
             }
         });
 
@@ -3150,12 +3158,22 @@ public class MainController {
             });
         });
 
+        Button scanBtn = new Button("🔍 Scan");
+        styleSettingsButton(scanBtn, "#3b82f6", "#2563eb");
+        scanBtn.setOnAction(e -> {
+            versionManager.reload();
+            versionList.getItems().setAll(versionManager.getInstalledVersions());
+            if (versionManager.getCurrentVersion() != null)
+                selectedVersion = versionManager.getCurrentVersion();
+            setStatus("✓ Scanned: " + versionManager.getInstalledVersions().size() + " version(s) found");
+        });
+
         Button backBtn = new Button("◀ Back");
         styleSettingsButton(backBtn, "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)");
         backBtn.setTextFill(Color.rgb(200, 200, 220));
         backBtn.setOnAction(e -> showMainPage());
 
-        buttons.getChildren().addAll(deleteBtn, backBtn);
+        buttons.getChildren().addAll(scanBtn, deleteBtn, backBtn);
         page.setBottom(buttons);
 
         ScrollPane scrollPane = new ScrollPane(versionList);
