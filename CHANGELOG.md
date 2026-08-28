@@ -1,28 +1,28 @@
 # Changelog
 
-Все существенные изменения проекта PowerLaunch. Формат — [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), версии по [SemVer](https://semver.org/).
+All notable changes to the PowerLaunch project. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
 ### Fixed
-- Fabric-моды требовали `java.net.http.HttpClient`, которого не было в кастомной JRE → `ClassNotFoundException` при запуске Майнкрафта. Добавлены недостающие JDK-модули (`java.net.http`, `java.desktop`, `java.logging`, `java.xml` и др.) в jlink.
-- Выбор версии: список не пересканировался после смены game directory. Теперь сканируются несколько папок (корень, `versions/`, `.minecraft/versions`, дефолтная), а UI пересканирует и обновляет список при смене папки + добавлена кнопка «Scan».
-- Portable-сборка падала с `UnsupportedClassVersionError`: JAR компилировался под Java 26, а встроенная JRE — Java 25. Toolchain сведён к Java 25.
-- `build.gradle.kts` использовал хардкод абсолютных путей (`C:\PowerLaunch\...`) → заменено на `${projectDir}`, сборка теперь переносимая.
+- Fabric mods required `java.net.http.HttpClient`, which was missing from the bundled custom JRE → `ClassNotFoundException` when launching Minecraft. Added the missing JDK modules (`java.net.http`, `java.desktop`, `java.logging`, `java.xml`, etc.) to jlink.
+- Version selection: the list did not rescan after changing the game directory. Now multiple candidate folders are scanned (root, `versions/`, `.minecraft/versions`, default), and the UI rescans/refreshes when the folder changes, plus a "Scan" button was added.
+- Portable build crashed with `UnsupportedClassVersionError`: the JAR was compiled for Java 26 while the bundled JRE was Java 25. Toolchain pinned to Java 25.
+- `build.gradle.kts` hardcoded absolute paths (`C:\PowerLaunch\...`) → replaced with `${projectDir}`, making the build portable.
 
 ## [1.0.0] — 2026-08-29
 
 ### Added
-- Единая SQLite БД (`powerlaunch.db`) для всех данных лаунчера: настройки, аккаунты, серверы, версии, вкладки, нумерация логов.
-- Логи с монотонно растущим номером в `logs/`: `logs/launcher-N.log` (на запуск лаунчера) и `logs/game-N.log` (на каждый запуск игры — даже краш через 1 секунду создаёт свой файл).
-- Унифицированный менеджер БД `storage.AppDatabase` (все таблицы в одном файле).
+- Unified SQLite database (`powerlaunch.db`) for all launcher data: settings, accounts, servers, versions, tabs, log numbering.
+- Logs with a monotonically growing number in `logs/`: `logs/launcher-N.log` (per launcher session) and `logs/game-N.log` (per game launch — even a 1-second crash gets its own file).
+- Central `storage.AppDatabase` manager (all tables in a single file).
 
 ### Fixed
-- Репозиторий: удалены из git runtime-данные (`accounts.json`, `config.json`, `servers.json`, `powerlaunch.db`, `profiles/`, `logs/`), мёртвый `org/example/Main.java`.
-- `VersionManager` / `TabManager` использовали хардкод `%APPDATA%` вместо `LauncherHomeProvider` — сломан portable-режим.
-- `SettingsManager.save()` — атомарная запись (temp + rename), защита от повреждения при краше.
-- Дублированный вызов `FileLogManager.disable()` в `handleConsoleStart`.
-- Deadlock в сетевом сенсоре: `readAllBytes()` вызывался до `waitFor()`.
-- `NetworkDiagnostics.runAllTests()` блокировал показ окна лаунчера — запущен в фоновом потоке.
-- `MinecraftLauncher.stopMinecraft()` — graceful `destroy()` с таймаутом перед `destroyForcibly()` (защита сохранения мира).
-- `SkinManager` парсит UUID через Gson вместо хрупкой регулярки.
+- Repository: removed runtime data from git (`accounts.json`, `config.json`, `servers.json`, `powerlaunch.db`, `profiles/`, `logs/`), removed dead `org/example/Main.java`.
+- `VersionManager` / `TabManager` hardcoded `%APPDATA%` instead of `LauncherHomeProvider` — broke portable mode.
+- `SettingsManager.save()` — atomic write (temp + rename), protected against corruption on crash.
+- Duplicate `FileLogManager.disable()` call in `handleConsoleStart`.
+- Deadlock in the network sensor: `readAllBytes()` called before `waitFor()`.
+- `NetworkDiagnostics.runAllTests()` blocked the launcher window from showing — moved to a background thread.
+- `MinecraftLauncher.stopMinecraft()` — graceful `destroy()` with timeout before `destroyForcibly()` (protects world save).
+- `SkinManager` parses UUID with Gson instead of a fragile regex.
