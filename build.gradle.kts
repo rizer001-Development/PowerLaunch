@@ -59,9 +59,9 @@ tasks.withType<JavaCompile> {
 }
 
 // === Shared jpackage config ===
-val javafxJmods = "C:\\PowerLaunch\\javafx-jmods\\javafx-jmods-24"
+val javafxJmods = "${projectDir.absolutePath}\\javafx-jmods\\javafx-jmods-24"
 val customJre = "${layout.buildDirectory.get().asFile.absolutePath}\\custom-jre"
-val wixPath = "C:\\PowerLaunch\\wix-toolset"
+val wixPath = "${projectDir.absolutePath}\\wix-toolset"
 
 // === Task: Build installer JAR (self-contained, all classes + deps) ===
 tasks.register<Jar>("installerJar") {
