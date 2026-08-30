@@ -42,6 +42,8 @@ public class Main extends Application {
         if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 
         stage.setTitle("PowerLaunch");
+        var iconUrl = getClass().getResource("/com/powerlaunch/icons/app-icon.png");
+        if (iconUrl != null) stage.getIcons().add(new javafx.scene.image.Image(iconUrl.toExternalForm()));
         stage.setScene(scene);
         stage.setMinWidth(1100);
         stage.setMinHeight(700);
