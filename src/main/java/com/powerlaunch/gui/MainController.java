@@ -3449,25 +3449,25 @@ public class MainController {
         // Tab 1: Basic Settings
         Tab basicTab = new Tab("Основные");
         basicTab.setClosable(false);
-        basicTab.setContent(createBasicSettingsTab());
+        basicTab.setContent(wrapSettingsTab(createBasicSettingsTab()));
         tabPane.getTabs().add(basicTab);
 
         // Tab 2: Launcher Settings
         Tab launcherTab = new Tab("Лаунчер");
         launcherTab.setClosable(false);
-        launcherTab.setContent(createLauncherSettingsTab());
+        launcherTab.setContent(wrapSettingsTab(createLauncherSettingsTab()));
         tabPane.getTabs().add(launcherTab);
 
         // Tab 3: Graphics Settings
         Tab graphicsTab = new Tab("Графика");
         graphicsTab.setClosable(false);
-        graphicsTab.setContent(createGraphicsSettingsTab());
+        graphicsTab.setContent(wrapSettingsTab(createGraphicsSettingsTab()));
         tabPane.getTabs().add(graphicsTab);
 
         // Tab 4: Design Settings
         Tab designTab = new Tab("Дизайн");
         designTab.setClosable(false);
-        designTab.setContent(createDesignSettingsTab());
+        designTab.setContent(wrapSettingsTab(createDesignSettingsTab()));
         tabPane.getTabs().add(designTab);
 
         // Set initial selection based on current settings or previous selection
@@ -3495,8 +3495,19 @@ public class MainController {
         page.setCenter(contentWrapper);
 
         // Set this as the current page
-        mainContent.getChildren().set(0, page);
+        mainContent.getChildren().setAll(page);
         currentPage = "settings-with-tabs";
+    }
+
+    /**
+     * Wraps settings tab content in a ScrollPane so tall tabs can be scrolled.
+     */
+    private ScrollPane wrapSettingsTab(Node content) {
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        return scrollPane;
     }
 
     private VBox createBasicSettingsTab() {
@@ -3964,6 +3975,7 @@ public class MainController {
             
             themeBtn.setOnAction(e -> {
                 settings.set("theme", themeName);
+                Main.applyTheme();
                 // Update border for selected theme
                 for (Node child : themeGrid.getChildren()) {
                     if (child instanceof Button btn) {
@@ -4080,6 +4092,7 @@ public class MainController {
                 (int)(color.getRed() * 255), 
                 (int)(color.getGreen() * 255), 
                 (int)(color.getBlue() * 255)));
+            Main.applyTheme();
         });
         
         bgColorRow.getChildren().addAll(bgColorLabel, bgColorPicker);
@@ -4145,6 +4158,7 @@ public class MainController {
         gradientToggle.setText(gradientEnabled ? "🟢 Вкл" : "🔴 Выкл");
         gradientToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("gradientEnabled", val);
+            Main.applyTheme();
             updateToggleStyle(gradientToggle);
             gradientToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
         });

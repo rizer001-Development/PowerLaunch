@@ -53,6 +53,7 @@ public class Main extends Application {
         stage.setResizable(true);
         stage.setOnCloseRequest(e -> { saveAllData(); Platform.exit(); System.exit(0); });
         stage.show();
+        applyTheme();
     }
 
     public static void applyTheme() {
@@ -60,6 +61,8 @@ public class Main extends Application {
             try {
                 var settings = SettingsManager.getInstance();
                 String theme = settings.getString("theme", "Dark");
+                boolean gradientEnabled = settings.getBoolean("gradientEnabled", false);
+                String backgroundColor = settings.getString("backgroundColor", "#0f172a");
                 
                 Scene scene = primaryStage.getScene();
                 if (scene != null) {
@@ -67,27 +70,32 @@ public class Main extends Application {
                     scene.getRoot().getStyleClass().removeIf(className -> 
                         className.startsWith("gradient-"));
                     
-                    // Add new theme class
-                    switch (theme.toLowerCase()) {
-                        case "light":
-                            scene.getRoot().getStyleClass().add("gradient-light");
-                            break;
-                        case "gradient":
-                            scene.getRoot().getStyleClass().add("gradient-vibrant");
-                            break;
-                        case "vibrant":
-                            scene.getRoot().getStyleClass().add("gradient-vibrant");
-                            break;
-                        case "ocean":
-                            scene.getRoot().getStyleClass().add("gradient-ocean");
-                            break;
-                        case "cyberpunk":
-                            scene.getRoot().getStyleClass().add("gradient-cyberpunk");
-                            break;
-                        case "dark":
-                        default:
-                            scene.getRoot().getStyleClass().add("gradient-dark");
-                            break;
+                    if (gradientEnabled) {
+                        // Clear the inline background so the CSS gradient class wins
+                        scene.getRoot().setStyle(null);
+                        // Add new theme class
+                        switch (theme.toLowerCase()) {
+                            case "light":
+                                scene.getRoot().getStyleClass().add("gradient-light");
+                                break;
+                            case "gradient":
+                            case "vibrant":
+                                scene.getRoot().getStyleClass().add("gradient-vibrant");
+                                break;
+                            case "ocean":
+                                scene.getRoot().getStyleClass().add("gradient-ocean");
+                                break;
+                            case "cyberpunk":
+                                scene.getRoot().getStyleClass().add("gradient-cyberpunk");
+                                break;
+                            case "dark":
+                            default:
+                                scene.getRoot().getStyleClass().add("gradient-dark");
+                                break;
+                        }
+                    } else {
+                        // Solid background from the color picker
+                        scene.getRoot().setStyle("-fx-background-color: " + backgroundColor + ";");
                     }
                 }
             } catch (Exception e) {
