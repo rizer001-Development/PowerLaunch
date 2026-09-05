@@ -73,6 +73,10 @@ public class Updater {
 
                     if (versionsArray != null) {
                         for (int i = 0; i < versionsArray.size(); i++) {
+                            // Defensive: check element is not null and is an object
+                            if (versionsArray.get(i) == null || !versionsArray.get(i).isJsonObject()) {
+                                continue;
+                            }
                             JsonObject ver = versionsArray.get(i).getAsJsonObject();
                             String id = getJsonString(ver, "id");
                             String type = getJsonString(ver, "type");

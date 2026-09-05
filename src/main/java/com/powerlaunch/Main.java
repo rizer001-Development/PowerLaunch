@@ -39,7 +39,9 @@ public class Main extends Application {
 
         Scene scene = new Scene(rootContainer, 1200, 800);
         var cssUrl = getClass().getResource("/com/powerlaunch/gui/styles/main.css");
+        var enhancedCssUrl = getClass().getResource("/com/powerlaunch/gui/styles/enhanced.css");
         if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+        if (enhancedCssUrl != null) scene.getStylesheets().add(enhancedCssUrl.toExternalForm());
 
         stage.setTitle("PowerLaunch");
         var iconUrl = getClass().getResource("/com/powerlaunch/icons/app-icon.png");
@@ -51,6 +53,47 @@ public class Main extends Application {
         stage.setResizable(true);
         stage.setOnCloseRequest(e -> { saveAllData(); Platform.exit(); System.exit(0); });
         stage.show();
+    }
+
+    public static void applyTheme() {
+        Platform.runLater(() -> {
+            try {
+                var settings = SettingsManager.getInstance();
+                String theme = settings.getString("theme", "Dark");
+                
+                Scene scene = primaryStage.getScene();
+                if (scene != null) {
+                    // Remove existing theme classes
+                    scene.getRoot().getStyleClass().removeIf(className -> 
+                        className.startsWith("gradient-"));
+                    
+                    // Add new theme class
+                    switch (theme.toLowerCase()) {
+                        case "light":
+                            scene.getRoot().getStyleClass().add("gradient-light");
+                            break;
+                        case "gradient":
+                            scene.getRoot().getStyleClass().add("gradient-vibrant");
+                            break;
+                        case "vibrant":
+                            scene.getRoot().getStyleClass().add("gradient-vibrant");
+                            break;
+                        case "ocean":
+                            scene.getRoot().getStyleClass().add("gradient-ocean");
+                            break;
+                        case "cyberpunk":
+                            scene.getRoot().getStyleClass().add("gradient-cyberpunk");
+                            break;
+                        case "dark":
+                        default:
+                            scene.getRoot().getStyleClass().add("gradient-dark");
+                            break;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("[PowerLaunch] Failed to apply theme: " + e.getMessage());
+            }
+        });
     }
 
     public static void saveAllData() {

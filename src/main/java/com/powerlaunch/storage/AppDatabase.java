@@ -136,7 +136,9 @@ public final class AppDatabase {
 
     public synchronized int getInt(String key, int def) {
         String v = getString(key, null);
-        if (v != null) { try { return Integer.parseInt(v); } catch (NumberFormatException ignored) {} }
+        if (v != null) { try { return Integer.parseInt(v); } catch (NumberFormatException e) {
+            System.err.println("[AppDatabase] Invalid integer value for key " + key + ": '" + v + "'");
+        } }
         return def;
     }
 
@@ -214,7 +216,7 @@ public final class AppDatabase {
             }
             conn.commit();
         } catch (SQLException e) { dbErr("replaceAllServers", e); }
-        finally { try { conn.setAutoCommit(true); } catch (SQLException ignored) {} }
+        finally { try { conn.setAutoCommit(true); } catch (SQLException e) { System.err.println("[AppDatabase] Failed to set auto-commit (replaceAllServers): " + e.getMessage()); } }
     }
 
     // ── Versions ──────────────────────────────────────────────
@@ -237,7 +239,7 @@ public final class AppDatabase {
             }
             conn.commit();
         } catch (SQLException e) { dbErr("replaceAllVersions", e); }
-        finally { try { conn.setAutoCommit(true); } catch (SQLException ignored) {} }
+        finally { try { conn.setAutoCommit(true); } catch (SQLException e) { System.err.println("[AppDatabase] Failed to set auto-commit (replaceAllVersions): " + e.getMessage()); } }
     }
 
     // ── Log Numbering ─────────────────────────────────────────

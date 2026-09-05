@@ -87,7 +87,9 @@ public class TabDatabase {
         try (ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT COALESCE(MAX(sort_order),-1)+1 FROM tabs")) {
             if (rs.next()) nextOrder = rs.getInt(1);
-        } catch (SQLException ignored) {}
+        } catch (SQLException e) {
+            System.err.println("[PowerLaunch][TabDatabase] Failed to get max sort_order: " + e.getMessage());
+        }
 
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO tabs(sort_order,name,version,game_directory,java_path,java_args,"

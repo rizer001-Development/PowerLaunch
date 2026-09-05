@@ -345,7 +345,9 @@ public class MinecraftLauncher {
                             onConsoleLine.accept(logLine);
                         }
                     }
-                } catch (IOException ignored) {}
+                } catch (IOException e) {
+                    System.err.println("[PowerLaunch] Console reader error: " + e.getMessage());
+                }
             }, "Minecraft-Console").start();
 
             // Monitor process in background
@@ -354,7 +356,7 @@ public class MinecraftLauncher {
                     int exitCode = minecraftProcess.waitFor();
                     // Small delay to let the console reader thread finish reading all output
                     // Fixes instant crash where callback fires before logs are captured
-                    try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                    try { Thread.sleep(300); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                     if (callback != null) {
                         callback.onExit(exitCode);
                     }
@@ -413,14 +415,18 @@ public class MinecraftLauncher {
                             String major = line.substring(quoteStart + 1, dotIdx);
                             try {
                                 return Integer.parseInt(major);
-                            } catch (NumberFormatException ignored) {}
+                            } catch (NumberFormatException e) {
+                                System.err.println("[PowerLaunch] Invalid Java version format: " + major);
+                            }
                         }
                     }
                 }
             }
             p.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
             p.destroy();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("[PowerLaunch] Failed to get Java version: " + e.getMessage());
+        }
         return 0;
     }
 

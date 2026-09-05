@@ -27,12 +27,16 @@ public class AccountManager {
         if (currentAccount == null && !accounts.isEmpty()) currentAccount = accounts.get(0);
     }
 
-    public static synchronized AccountManager getInstance() {
-        if (instance == null) instance = new AccountManager();
+    public static AccountManager getInstance() {
+        if (instance == null) {
+            synchronized (AccountManager.class) {
+                if (instance == null) instance = new AccountManager();
+            }
+        }
         return instance;
     }
 
-    public Account createAccount(String username) {
+    public synchronized Account createAccount(String username) {
         username = username.trim();
         for (Account a : accounts) {
             if (a.username().equalsIgnoreCase(username)) {
@@ -50,7 +54,7 @@ public class AccountManager {
         return currentAccount;
     }
 
-    public boolean removeAccount(String username) {
+    public synchronized boolean removeAccount(String username) {
         db.deleteAccount(username);
         List<Account> fresh = db.getAllAccounts();
         boolean removed = fresh.size() < accounts.size();
@@ -61,7 +65,7 @@ public class AccountManager {
         return removed;
     }
 
-    public boolean selectAccount(String username) {
+    public synchronized boolean selectAccount(String username) {
         for (Account a : accounts) {
             if (a.username().equals(username)) {
                 currentAccount = a;
@@ -73,8 +77,8 @@ public class AccountManager {
         return false;
     }
 
-    public List<Account> getAccounts()              { return new ArrayList<>(accounts); }
-    public Account      getCurrentAccount()         { return currentAccount; }
-    public boolean      hasAccounts()               { return !accounts.isEmpty(); }
-    public int          getAccountCount()           { return accounts.size(); }
+    public synchronized List<Account> getAccounts()              { return new ArrayList<>(accounts); }
+    public synchronized Account      getCurrentAccount()         { return currentAccount; }
+    public synchronized boolean      hasAccounts()               { return !accounts.isEmpty(); }
+    public synchronized int          getAccountCount()           { return accounts.size(); }
 }

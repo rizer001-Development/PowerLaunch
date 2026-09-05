@@ -679,11 +679,15 @@ public class MainController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        // Settings button
+        Button settingsBtn = createSettingsButton();
+        HBox.setMargin(settingsBtn, new Insets(0, 0, 0, 10));
+
         // Account button
         Button accountBtn = createAccountButton();
         HBox.setMargin(accountBtn, new Insets(0, 0, 0, 10));
 
-        bar.getChildren().addAll(logo, spacer, accountBtn);
+        bar.getChildren().addAll(logo, spacer, settingsBtn, accountBtn);
         return bar;
     }
 
@@ -696,8 +700,21 @@ public class MainController {
     private void updateAccountButton(Button btn) {
         if (accountManager.hasAccounts()) {
             Account current = accountManager.getCurrentAccount();
-            String name = (current != null) ? current.getUsername() : accountManager.getAccounts().get(0).getUsername();
-            btn.setText("👤 " + name + "  ▾");
+            String name = null;
+            if (current != null) {
+                name = current.getUsername();
+            } else {
+                // Defensive: check if accounts list is not empty
+                var accounts = accountManager.getAccounts();
+                if (!accounts.isEmpty()) {
+                    name = accounts.get(0).getUsername();
+                }
+            }
+            if (name != null) {
+                btn.setText("👤 " + name + "  ▾");
+            } else {
+                btn.setText("👤 Create Account  ▾");
+            }
         } else {
             btn.setText("👤 Create Account  ▾");
         }
@@ -786,6 +803,59 @@ public class MainController {
         menu.getItems().add(settingsItem);
 
         menu.show(btn, javafx.geometry.Side.BOTTOM, 0, 4);
+    }
+
+    private Button createSettingsButton() {
+        Button btn = new Button("⚙️ Настройки");
+        btn.setStyle(
+                "-fx-background-color: rgba(59, 130, 246, 0.12);" +
+                "-fx-text-fill: #60a5fa;" +
+                "-fx-border-color: rgba(59, 130, 246, 0.3);" +
+                "-fx-border-radius: 8;" +
+                "-fx-background-radius: 8;" +
+                "-fx-padding: 7 16;" +
+                "-fx-font-size: 13;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;" +
+                "-fx-transition: all 0.3s ease;"
+        );
+        btn.setOnMouseEntered(e -> btn.setStyle(
+                "-fx-background-color: rgba(59, 130, 246, 0.2);" +
+                "-fx-text-fill: #93c5fd;" +
+                "-fx-border-color: rgba(59, 130, 246, 0.5);" +
+                "-fx-border-radius: 8;" +
+                "-fx-background-radius: 8;" +
+                "-fx-padding: 7 16;" +
+                "-fx-font-size: 13;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;" +
+                "-fx-transition: all 0.3s ease;"
+        ));
+        btn.setOnMouseExited(e -> btn.setStyle(
+                "-fx-background-color: rgba(59, 130, 246, 0.12);" +
+                "-fx-text-fill: #60a5fa;" +
+                "-fx-border-color: rgba(59, 130, 246, 0.3);" +
+                "-fx-border-radius: 8;" +
+                "-fx-background-radius: 8;" +
+                "-fx-padding: 7 16;" +
+                "-fx-font-size: 13;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;" +
+                "-fx-transition: all 0.3s ease;"
+        ));
+
+        btn.setOnAction(e -> showSettingsWithTabs());
+
+        // Add animation if enabled
+        if (settings.getBoolean("animationsEnabled", true)) {
+            FadeTransition fade = new FadeTransition(Duration.millis(400), btn);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.setDelay(Duration.millis(200));
+            fade.play();
+        }
+
+        return btn;
     }
 
     // ==================== CONTROL BAR ====================
@@ -1155,8 +1225,9 @@ public class MainController {
             case "main" -> showMainPage();
             case "account-settings" -> showAccountSettingsPage();
             case "version-settings" -> showVersionSettingsPage();
-            case "launcher-settings" -> showLauncherSettingsPage();
+            case "launcher-settings" -> showSettingsWithTabs();
             case "console" -> showConsolePanel();
+            case "settings-with-tabs" -> showSettingsWithTabs();
         }
     }
 
@@ -1263,7 +1334,9 @@ public class MainController {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("[PowerLaunch] Failed to scan Java installations: " + e.getMessage());
+        }
 
         String savedJavaChoice = settings.getString("javaChoice", "auto");
         if (savedJavaChoice.equals("auto")) {
@@ -1361,7 +1434,9 @@ public class MainController {
             } finally {
                 process.destroy();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("[PowerLaunch] Failed to scan GPU information: " + e.getMessage());
+        }
 
         // Fallback if no GPUs detected
         if (gpuChoice.getItems().size() <= 1) {
@@ -1604,19 +1679,29 @@ public class MainController {
 
     private VBox createSettingsCard(String title, String desc) {
         VBox card = new VBox(10);
-        card.setPadding(new Insets(18));
-        card.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.04);" +
-                "-fx-background-radius: 12;" +
-                "-fx-border-color: rgba(255,255,255,0.06);" +
-                "-fx-border-radius: 12;"
-        );
+        card.setPadding(new Insets(20));
+        card.getStyleClass().add("card");
+        card.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 16;");
+        
         Text titleText = new Text(title);
-        titleText.setFont(Font.font("System", FontWeight.BOLD, 15));
+        titleText.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
         titleText.setFill(Color.WHITE);
+        titleText.getStyleClass().add("label-subtitle");
+        
         Text descText = new Text(desc);
-        descText.setFont(Font.font("System", 12));
+        descText.setFont(Font.font("Segoe UI", 13));
         descText.setFill(Color.rgb(160, 160, 185));
+        descText.getStyleClass().add("label-body");
+        
+        // Add animation if enabled
+        if (settings.getBoolean("animationsEnabled", true)) {
+            FadeTransition fade = new FadeTransition(Duration.millis(400), card);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.setDelay(Duration.millis(50));
+            fade.play();
+        }
+        
         card.getChildren().addAll(titleText, descText);
         return card;
     }
@@ -1675,25 +1760,28 @@ public class MainController {
     }
 
     private String settingsInputStyle() {
-        return "-fx-background-color: rgba(255,255,255,0.06);" +
-                "-fx-text-fill: white;" +
-                "-fx-prompt-text-fill: rgba(255,255,255,0.3);" +
+        return "-fx-background-color: rgba(255,255,255,0.05);" +
+                "-fx-text-fill: #f8fafc;" +
+                "-fx-prompt-text-fill: #94a3b8;" +
                 "-fx-border-color: rgba(255,255,255,0.1);" +
-                "-fx-border-radius: 8;" +
-                "-fx-background-radius: 8;" +
-                "-fx-padding: 9 14;" +
-                "-fx-font-size: 13;" +
-                "-fx-font-family: 'Consolas', 'Courier New', monospace;";
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 14;" +
+                "-fx-font-size: 14;" +
+                "-fx-font-family: 'Segoe UI', sans-serif;" +
+                "-fx-transition: all 0.3s ease;";
     }
 
     private String settingsComboStyle() {
-        return "-fx-background-color: rgba(255,255,255,0.06);" +
-                "-fx-text-fill: white;" +
-                "-fx-background-radius: 8;" +
+        return "-fx-background-color: rgba(255,255,255,0.05);" +
+                "-fx-text-fill: #f8fafc;" +
+                "-fx-background-radius: 10;" +
                 "-fx-border-color: rgba(255,255,255,0.1);" +
-                "-fx-border-radius: 8;" +
-                "-fx-padding: 4 8;" +
-                "-fx-font-size: 13;";
+                "-fx-border-radius: 10;" +
+                "-fx-padding: 8 14;" +
+                "-fx-font-size: 14;" +
+                "-fx-font-family: 'Segoe UI', sans-serif;" +
+                "-fx-transition: all 0.3s ease;";
     }
 
     private void showMainPage() {
@@ -2329,7 +2417,7 @@ public class MainController {
             updateStatusIndicator("off");
             setStatus("🔄 Restarting...");
             new Thread(() -> {
-                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 if (!accountManager.hasAccounts() || selectedVersion == null) {
                     Platform.runLater(() -> setStatus("✗ Cannot restart")); return;
                 }
@@ -3340,4 +3428,775 @@ public class MainController {
     }
 
 
+    private void showSettingsWithTabs() {
+        // Create main container with tabs
+        BorderPane page = new BorderPane();
+        page.setPadding(new Insets(20, 30, 25, 30));
+        page.setStyle("-fx-background-color: transparent;");
+
+        // Title
+        Text title = new Text("⚙️ Launcher Settings");
+        title.setFont(Font.font("System", FontWeight.BOLD, 24));
+        title.setFill(Color.WHITE);
+        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
+        page.setTop(title);
+
+        // Create TabPane for settings
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPane.setStyle("-fx-background-color: transparent; -fx-tab-min-width: 90;");
+
+        // Tab 1: Basic Settings
+        Tab basicTab = new Tab("Основные");
+        basicTab.setClosable(false);
+        basicTab.setContent(createBasicSettingsTab());
+        tabPane.getTabs().add(basicTab);
+
+        // Tab 2: Launcher Settings
+        Tab launcherTab = new Tab("Лаунчер");
+        launcherTab.setClosable(false);
+        launcherTab.setContent(createLauncherSettingsTab());
+        tabPane.getTabs().add(launcherTab);
+
+        // Tab 3: Graphics Settings
+        Tab graphicsTab = new Tab("Графика");
+        graphicsTab.setClosable(false);
+        graphicsTab.setContent(createGraphicsSettingsTab());
+        tabPane.getTabs().add(graphicsTab);
+
+        // Tab 4: Design Settings
+        Tab designTab = new Tab("Дизайн");
+        designTab.setClosable(false);
+        designTab.setContent(createDesignSettingsTab());
+        tabPane.getTabs().add(designTab);
+
+        // Set initial selection based on current settings or previous selection
+        String lastTab = settings.getString("settingsLastTab", "Основные");
+        for (Tab tab : tabPane.getTabs()) {
+            if (tab.getText().equals(lastTab)) {
+                tabPane.getSelectionModel().select(tab);
+                break;
+            }
+        }
+
+        // Save last selected tab
+        tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            if (newTab != null) {
+                settings.set("settingsLastTab", newTab.getText());
+            }
+        });
+
+        // Wrap tab pane in a VBox for better spacing
+        VBox contentWrapper = new VBox();
+        contentWrapper.setStyle("-fx-background-color: rgba(255,255,255,0.02); -fx-background-radius: 12;");
+        contentWrapper.setPadding(new Insets(20));
+        contentWrapper.getChildren().add(tabPane);
+
+        page.setCenter(contentWrapper);
+
+        // Set this as the current page
+        mainContent.getChildren().set(0, page);
+        currentPage = "settings-with-tabs";
+    }
+
+    private VBox createBasicSettingsTab() {
+        VBox form = new VBox(16);
+        form.setPadding(new Insets(15, 0, 15, 0));
+
+        // === 1. Account Settings ===
+        VBox accountCard = createSettingsCard("Аккаунты", "Управление аккаунтами и сессиями");
+        
+        Label accountInfo = new Label("Текущий аккаунт: " + 
+            (accountManager.getCurrentAccount() != null ? 
+             accountManager.getCurrentAccount().getUsername() : "Не выбран"));
+        accountInfo.setTextFill(Color.rgb(220, 220, 240));
+        accountInfo.setStyle("-fx-font-size: 14;");
+        
+        Button manageAccountsBtn = new Button("Управление аккаунтами");
+        manageAccountsBtn.setStyle(
+            "-fx-background-color: rgba(59, 130, 246, 0.5);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8;" +
+            "-fx-padding: 8 16;" +
+            "-fx-cursor: hand;"
+        );
+        manageAccountsBtn.setOnAction(e -> showAccountSettingsPage());
+        
+        VBox accountContent = new VBox(10);
+        accountContent.getChildren().addAll(accountInfo, manageAccountsBtn);
+        accountCard.getChildren().add(accountContent);
+        form.getChildren().add(accountCard);
+
+        // === 2. Version Management ===
+        VBox versionCard = createSettingsCard("Версии Minecraft", "Управление версиями игры");
+        
+        Button manageVersionsBtn = new Button("Управление версиями");
+        manageVersionsBtn.setStyle(
+            "-fx-background-color: rgba(59, 130, 246, 0.5);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8;" +
+            "-fx-padding: 8 16;" +
+            "-fx-cursor: hand;"
+        );
+        manageVersionsBtn.setOnAction(e -> showVersionSettingsPage());
+        
+        versionCard.getChildren().add(manageVersionsBtn);
+        form.getChildren().add(versionCard);
+
+        // === 3. General Settings ===
+        VBox generalCard = createSettingsCard("Основные настройки", "Основные параметры лаунчера");
+        
+        // Auto-login toggle
+        HBox autoLoginRow = new HBox(12);
+        autoLoginRow.setAlignment(Pos.CENTER_LEFT);
+        
+        ToggleButton autoLoginToggle = new ToggleButton();
+        boolean autoLogin = settings.getBoolean("autoLogin", false);
+        autoLoginToggle.setSelected(autoLogin);
+        updateToggleStyle(autoLoginToggle);
+        autoLoginToggle.setText(autoLogin ? "🟢 Вкл" : "🔴 Выкл");
+        autoLoginToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("autoLogin", val);
+            updateToggleStyle(autoLoginToggle);
+            autoLoginToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+        
+        Label autoLoginLabel = new Label("Автовход:");
+        autoLoginLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        autoLoginRow.getChildren().addAll(autoLoginLabel, autoLoginToggle);
+        generalCard.getChildren().add(autoLoginRow);
+        
+        // Console log saving toggle
+        HBox consoleLogRow = new HBox(12);
+        consoleLogRow.setAlignment(Pos.CENTER_LEFT);
+        consoleLogRow.setPadding(new Insets(5, 0, 0, 0));
+        
+        ToggleButton consoleLogToggle = new ToggleButton();
+        boolean saveConsoleLog = settings.getBoolean("saveConsoleLog", true);
+        consoleLogToggle.setSelected(saveConsoleLog);
+        updateToggleStyle(consoleLogToggle);
+        consoleLogToggle.setText(saveConsoleLog ? "🟢 Вкл" : "🔴 Выкл");
+        consoleLogToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("saveConsoleLog", val);
+            updateToggleStyle(consoleLogToggle);
+            consoleLogToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+        
+        Label consoleLogLabel = new Label("Сохранять лог консоли:");
+        consoleLogLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        consoleLogRow.getChildren().addAll(consoleLogLabel, consoleLogToggle);
+        generalCard.getChildren().add(consoleLogRow);
+        
+        form.getChildren().add(generalCard);
+
+        return form;
+    }
+
+    private VBox createLauncherSettingsTab() {
+        VBox form = new VBox(16);
+        form.setPadding(new Insets(15, 0, 15, 0));
+
+        // === 1. Game Directory ===
+        VBox gameDirCard = createSettingsCard("Папка игры", "Путь к файлам Minecraft");
+        HBox dirRow = new HBox(10);
+        dirRow.setAlignment(Pos.CENTER_LEFT);
+
+        TextField dirField = new TextField(settings.getString("gameDirectory", ""));
+        dirField.setPromptText("Например: C:\\Users\\Имя\\AppData\\Roaming\\.powerlaunch");
+        dirField.setPrefWidth(400);
+        dirField.setStyle(settingsInputStyle());
+        // Save on focus loss / Enter, then rescan installed versions
+        dirField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) { settings.set("gameDirectory", dirField.getText().trim()); versionManager.reload(); }
+        });
+        dirField.setOnAction(e -> { settings.set("gameDirectory", dirField.getText().trim()); versionManager.reload(); });
+
+        Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать папку");
+        dirBrowseBtn.setOnAction(e -> {
+            DirectoryChooser dc = new DirectoryChooser();
+            dc.setTitle("Выберите папку игры");
+            if (!dirField.getText().isEmpty()) {
+                dc.setInitialDirectory(new File(dirField.getText()));
+            }
+            File dir = dc.showDialog(view.getScene().getWindow());
+            if (dir != null) {
+                settings.set("gameDirectory", dir.getAbsolutePath());
+                dirField.setText(dir.getAbsolutePath());
+                versionManager.reload();
+                if (versionButton != null) updateVersionButton(versionButton);
+            }
+        });
+
+        dirRow.getChildren().addAll(dirField, dirBrowseBtn);
+        gameDirCard.getChildren().add(dirRow);
+        form.getChildren().add(gameDirCard);
+
+        // === 2. Java Selection ===
+        VBox javaCard = createSettingsCard("Настройки Java", "Выбор версии и пути к Java");
+        
+        // Java choice dropdown
+        HBox javaChoiceRow = new HBox(10);
+        javaChoiceRow.setAlignment(Pos.CENTER_LEFT);
+
+        ComboBox<String> javaChoice = new ComboBox<>();
+        javaChoice.setPrefWidth(300);
+
+        // Auto-detect Java versions
+        String currentJavaHome = System.getProperty("java.home");
+        String currentJavaVersion = System.getProperty("java.version");
+        String autoLabel = "Автоопределение (Java " + currentJavaVersion + ")";
+        javaChoice.getItems().add(autoLabel);
+        javaChoice.getItems().add("Только текущая");
+
+        // Try to find other Java installations
+        try {
+            String javas = System.getProperty("java.ext.dirs", "");
+            File[] roots = File.listRoots();
+            String[] possiblePaths = {
+                    "C:\\Program Files\\Java",
+                    "C:\\Program Files\\Eclipse Adoptium",
+                    "C:\\Program Files\\Microsoft",
+                    "C:\\Program Files\\Amazon Corretto",
+                    System.getProperty("user.home") + "\\.jdks",
+                    System.getenv("JAVA_HOME") != null ? System.getenv("JAVA_HOME") : ""
+            };
+            for (String basePath : possiblePaths) {
+                if (basePath.isEmpty()) continue;
+                File base = new File(basePath);
+                if (base.exists() && base.isDirectory()) {
+                    File[] dirs = base.listFiles();
+                    if (dirs != null) {
+                        for (File dir : dirs) {
+                            if (dir.isDirectory()) {
+                                String name = dir.getName();
+                                if (name.toLowerCase().contains("java") || name.toLowerCase().contains("jdk") || name.toLowerCase().contains("jre")) {
+                                    javaChoice.getItems().add(name + " (" + dir.getAbsolutePath() + ")");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[PowerLaunch] Failed to scan Java installations: " + e.getMessage());
+        }
+
+        String savedJavaChoice = settings.getString("javaChoice", "auto");
+        if (savedJavaChoice.equals("auto")) {
+            javaChoice.setValue(autoLabel);
+        } else {
+            javaChoice.setValue(savedJavaChoice);
+        }
+        javaChoice.setStyle(settingsComboStyle());
+        javaChoice.setOnAction(e -> {
+            String val = javaChoice.getValue();
+            settings.set("javaChoice", val != null && val.equals(autoLabel) ? "auto" : val);
+        });
+
+        Label javaChoiceLabel = new Label("Версия:");
+        javaChoiceLabel.setTextFill(Color.rgb(200, 200, 220));
+        javaChoiceRow.getChildren().add(javaChoiceLabel);
+        javaChoiceRow.getChildren().add(javaChoice);
+        javaCard.getChildren().add(javaChoiceRow);
+
+        // Custom Java path
+        HBox javaPathRow = new HBox(10);
+        javaPathRow.setAlignment(Pos.CENTER_LEFT);
+        javaPathRow.setPadding(new Insets(8, 0, 0, 0));
+
+        TextField javaPathField = new TextField(settings.getString("javaPath", ""));
+        javaPathField.setPromptText("Путь к javaw.exe / java");
+        javaPathField.setPrefWidth(400);
+        javaPathField.setStyle(settingsInputStyle());
+        javaPathField.textProperty().addListener((obs, old, val) -> settings.set("javaPath", val));
+
+        Button javaBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать java/javaw.exe");
+        javaBrowseBtn.setOnAction(e -> {
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Выберите java/javaw.exe");
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java Executable", "*.exe", "*"));
+            if (!javaPathField.getText().isEmpty()) {
+                fc.setInitialDirectory(new File(javaPathField.getText()).getParentFile());
+            }
+            File file = fc.showOpenDialog(view.getScene().getWindow());
+            if (file != null) {
+                javaPathField.setText(file.getAbsolutePath());
+            }
+        });
+
+        Label javaPathLabel = new Label("Путь:");
+        javaPathLabel.setTextFill(Color.rgb(200, 200, 220));
+        javaPathRow.getChildren().add(javaPathLabel);
+        javaPathRow.getChildren().add(javaPathField);
+        javaPathRow.getChildren().add(javaBrowseBtn);
+        javaCard.getChildren().add(javaPathRow);
+
+        form.getChildren().add(javaCard);
+
+        // === 3. JVM Arguments ===
+        VBox jvmCard = createSettingsCard("Аргументы JVM", "Параметры виртуальной машины Java");
+        jvmCard.setPrefHeight(120);
+
+        TextField jvmField = new TextField();
+        String savedArgs = settings.getString("javaArgs", "");
+        if (savedArgs.isEmpty()) {
+            jvmField.setText("-Xmx4096M -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200");
+        } else {
+            jvmField.setText(savedArgs);
+        }
+        jvmField.setPrefWidth(600);
+        jvmField.setStyle(settingsInputStyle());
+        jvmField.textProperty().addListener((obs, old, val) -> settings.set("javaArgs", val));
+
+        jvmCard.getChildren().add(jvmField);
+        form.getChildren().add(jvmCard);
+
+        return form;
+    }
+
+    private VBox createGraphicsSettingsTab() {
+        VBox form = new VBox(16);
+        form.setPadding(new Insets(15, 0, 15, 0));
+
+        // === 1. GPU Selection ===
+        VBox gpuCard = createSettingsCard("Настройки графики", "Выбор GPU и разрешения");
+        
+        // GPU selection
+        HBox gpuRow = new HBox(10);
+        gpuRow.setAlignment(Pos.CENTER_LEFT);
+
+        ComboBox<String> gpuChoice = new ComboBox<>();
+        gpuChoice.setPrefWidth(400);
+        gpuChoice.getItems().add("Авто (система)");
+
+        // Try to detect available GPUs
+        try {
+            Process process = Runtime.getRuntime().exec("wmic path win32_VideoController get name");
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.isEmpty() && !line.equalsIgnoreCase("Name") && !line.toLowerCase().contains("name")) {
+                        gpuChoice.getItems().add(line);
+                    }
+                }
+                process.waitFor();
+            } finally {
+                process.destroy();
+            }
+        } catch (Exception e) {
+            System.err.println("[PowerLaunch] Failed to scan GPU information: " + e.getMessage());
+        }
+
+        // Fallback if no GPUs detected
+        if (gpuChoice.getItems().size() <= 1) {
+            gpuChoice.getItems().add("Интегрированная");
+            gpuChoice.getItems().add("Дискретная (высокая производительность)");
+        }
+
+        String savedGpu = settings.getString("gpuChoice", "auto");
+        if (savedGpu.equals("auto")) {
+            gpuChoice.setValue("Авто (система)");
+        } else {
+            gpuChoice.setValue(savedGpu);
+        }
+        gpuChoice.setStyle(settingsComboStyle());
+        gpuChoice.setOnAction(e -> {
+            String val = gpuChoice.getValue();
+            settings.set("gpuChoice", val != null && val.equals("Авто (система)") ? "auto" : val);
+        });
+
+        Label gpuLabel = new Label("Видеокарта:");
+        gpuLabel.setTextFill(Color.rgb(200, 200, 220));
+        gpuRow.getChildren().add(gpuLabel);
+        gpuRow.getChildren().add(gpuChoice);
+        gpuCard.getChildren().add(gpuRow);
+
+        // === 2. Resolution Settings ===
+        HBox resolutionRow = new HBox(12);
+        resolutionRow.setAlignment(Pos.CENTER_LEFT);
+        resolutionRow.setPadding(new Insets(10, 0, 0, 0));
+
+        ToggleButton customResToggle = new ToggleButton();
+        boolean customRes = settings.getBoolean("useCustomResolution", false);
+        customResToggle.setSelected(customRes);
+        updateToggleStyle(customResToggle);
+        customResToggle.setText(customRes ? "🟢 Вкл" : "🔴 Выкл");
+        customResToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("useCustomResolution", val);
+            updateToggleStyle(customResToggle);
+            customResToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+
+        Label customResLabel = new Label("Кастомное разрешение:");
+        customResLabel.setTextFill(Color.rgb(200, 200, 220));
+
+        HBox resolutionInputs = new HBox(8);
+        resolutionInputs.setAlignment(Pos.CENTER_LEFT);
+        resolutionInputs.setDisable(!customRes);
+        
+        Label widthLabel = new Label("Ширина:");
+        widthLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        TextField widthField = new TextField(String.valueOf(settings.getInt("gameWidth", 854)));
+        widthField.setPrefWidth(80);
+        widthField.setStyle(settingsInputStyle());
+        widthField.textProperty().addListener((obs, old, val) -> {
+            try {
+                int width = Integer.parseInt(val);
+                if (width > 0) settings.set("gameWidth", width);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        });
+        
+        Label heightLabel = new Label("Высота:");
+        heightLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        TextField heightField = new TextField(String.valueOf(settings.getInt("gameHeight", 480)));
+        heightField.setPrefWidth(80);
+        heightField.setStyle(settingsInputStyle());
+        heightField.textProperty().addListener((obs, old, val) -> {
+            try {
+                int height = Integer.parseInt(val);
+                if (height > 0) settings.set("gameHeight", height);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        });
+        
+        resolutionInputs.getChildren().addAll(widthLabel, widthField, heightLabel, heightField);
+        
+        // Enable/disable resolution inputs based on toggle
+        customResToggle.selectedProperty().addListener((obs, old, val) -> {
+            resolutionInputs.setDisable(!val);
+        });
+
+        resolutionRow.getChildren().addAll(customResLabel, customResToggle, resolutionInputs);
+        gpuCard.getChildren().add(resolutionRow);
+
+        form.getChildren().add(gpuCard);
+
+        // === 3. Server Auto-connect ===
+        VBox serverCard = createSettingsCard("Настройки сервера", "Автоподключение к серверу");
+        
+        // Auto-connect toggle
+        HBox autoConnectRow = new HBox(12);
+        autoConnectRow.setAlignment(Pos.CENTER_LEFT);
+
+        ToggleButton autoConnectToggle = new ToggleButton();
+        boolean autoConnect = settings.getBoolean("autoConnect", false);
+        autoConnectToggle.setSelected(autoConnect);
+        updateToggleStyle(autoConnectToggle);
+        autoConnectToggle.setText(autoConnect ? "🟢 Вкл" : "🔴 Выкл");
+        autoConnectToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("autoConnect", val);
+            updateToggleStyle(autoConnectToggle);
+            autoConnectToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+
+        Label autoConnectLabel = new Label("Подключение при запуске:");
+        autoConnectLabel.setTextFill(Color.rgb(200, 200, 220));
+
+        autoConnectRow.getChildren().addAll(autoConnectLabel, autoConnectToggle);
+        serverCard.getChildren().add(autoConnectRow);
+
+        // Server IP field
+        HBox serverIpRow = new HBox(10);
+        serverIpRow.setAlignment(Pos.CENTER_LEFT);
+        serverIpRow.setPadding(new Insets(5, 0, 0, 0));
+
+        Label ipLabel = new Label("IP сервера:");
+        ipLabel.setTextFill(Color.rgb(200, 200, 220));
+
+        TextField serverIpField = new TextField(settings.getString("connectServerIp", ""));
+        serverIpField.setPromptText("например: play.example.com:25565");
+        serverIpField.setPrefWidth(300);
+        serverIpField.setStyle(settingsInputStyle());
+        serverIpField.textProperty().addListener((obs, old, val) -> settings.set("connectServerIp", val));
+
+        serverIpRow.getChildren().addAll(ipLabel, serverIpField);
+        serverCard.getChildren().add(serverIpRow);
+
+        form.getChildren().add(serverCard);
+
+        return form;
+    }
+
+    private VBox createDesignSettingsTab() {
+        VBox form = new VBox(16);
+        form.setPadding(new Insets(15, 0, 15, 0));
+
+        // === 1. Theme Selection ===
+        VBox themeCard = createSettingsCard("Тема оформления", "Выбор цветовой темы лаунчера");
+        
+        // Theme selection buttons in a grid
+        GridPane themeGrid = new GridPane();
+        themeGrid.setHgap(15);
+        themeGrid.setVgap(15);
+        themeGrid.setPadding(new Insets(10, 0, 0, 0));
+        
+        String[] themeNames = {"Dark", "Light", "Gradient", "Vibrant", "Cyberpunk", "Ocean"};
+        String[] themeColors = {"#1e293b", "#f8fafc", "#4f46e5", "#ec4899", "#7c3aed", "#06b6d4"};
+        
+        String currentTheme = settings.getString("theme", "Dark");
+        
+        for (int i = 0; i < themeNames.length; i++) {
+            String themeName = themeNames[i];
+            String themeColor = themeColors[i];
+            
+            Button themeBtn = new Button(themeName);
+            themeBtn.setPrefWidth(140);
+            themeBtn.setPrefHeight(80);
+            themeBtn.setStyle(
+                "-fx-background-color: " + themeColor + ";" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 12;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 14;" +
+                "-fx-cursor: hand;" +
+                "-fx-border-color: " + (currentTheme.equals(themeName) ? "white" : "transparent") + ";" +
+                "-fx-border-width: 2;" +
+                "-fx-border-radius: 12;"
+            );
+            
+            themeBtn.setOnAction(e -> {
+                settings.set("theme", themeName);
+                // Update border for selected theme
+                for (Node child : themeGrid.getChildren()) {
+                    if (child instanceof Button btn) {
+                        btn.setStyle(btn.getStyle().replace(
+                            "-fx-border-color: white;", 
+                            "-fx-border-color: transparent;"
+                        ));
+                    }
+                }
+                themeBtn.setStyle(themeBtn.getStyle().replace(
+                    "-fx-border-color: transparent;", 
+                    "-fx-border-color: white;"
+                ));
+            });
+            
+            int row = i / 3;
+            int col = i % 3;
+            themeGrid.add(themeBtn, col, row);
+        }
+        
+        themeCard.getChildren().add(themeGrid);
+        form.getChildren().add(themeCard);
+
+        // === 2. Animation Settings ===
+        VBox animationCard = createSettingsCard("Настройки анимаций", "Управление анимациями интерфейса");
+        
+        // Animation enable/disable toggle
+        HBox animationToggleRow = new HBox(12);
+        animationToggleRow.setAlignment(Pos.CENTER_LEFT);
+        
+        ToggleButton animationToggle = new ToggleButton();
+        boolean animationsEnabled = settings.getBoolean("animationsEnabled", true);
+        animationToggle.setSelected(animationsEnabled);
+        updateToggleStyle(animationToggle);
+        animationToggle.setText(animationsEnabled ? "🟢 Вкл" : "🔴 Выкл");
+        animationToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("animationsEnabled", val);
+            updateToggleStyle(animationToggle);
+            animationToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+        
+        Label animationLabel = new Label("Анимации интерфейса:");
+        animationLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        animationToggleRow.getChildren().addAll(animationLabel, animationToggle);
+        animationCard.getChildren().add(animationToggleRow);
+        
+        // Animation speed slider
+        HBox speedRow = new HBox(12);
+        speedRow.setAlignment(Pos.CENTER_LEFT);
+        speedRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label speedLabel = new Label("Скорость анимаций:");
+        speedLabel.setTextFill(Color.rgb(200, 200, 220));
+        speedLabel.setPrefWidth(180);
+        
+        Slider speedSlider = new Slider(0.5, 2.0, settings.getDouble("animationSpeed", 1.0));
+        speedSlider.setPrefWidth(200);
+        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickMarks(true);
+        speedSlider.setMajorTickUnit(0.5);
+        speedSlider.setMinorTickCount(4);
+        speedSlider.setStyle("-fx-control-inner-background: #1e293b;");
+        
+        Label speedValue = new Label(String.format("%.1fx", speedSlider.getValue()));
+        speedValue.setTextFill(Color.rgb(200, 200, 220));
+        
+        speedSlider.valueProperty().addListener((obs, old, val) -> {
+            settings.set("animationSpeed", val.doubleValue());
+            speedValue.setText(String.format("%.1fx", val));
+        });
+        
+        speedRow.getChildren().addAll(speedLabel, speedSlider, speedValue);
+        animationCard.getChildren().add(speedRow);
+        
+        // Animation type selection
+        HBox typeRow = new HBox(12);
+        typeRow.setAlignment(Pos.CENTER_LEFT);
+        typeRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label typeLabel = new Label("Тип анимаций:");
+        typeLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ComboBox<String> animationType = new ComboBox<>();
+        animationType.getItems().addAll("Плавные", "Пружинные", "Быстрые", "Минимальные");
+        animationType.setValue(settings.getString("animationType", "Плавные"));
+        animationType.setPrefWidth(180);
+        animationType.setStyle(settingsComboStyle());
+        animationType.setOnAction(e -> {
+            settings.set("animationType", animationType.getValue());
+        });
+        
+        typeRow.getChildren().addAll(typeLabel, animationType);
+        animationCard.getChildren().add(typeRow);
+        
+        form.getChildren().add(animationCard);
+
+        // === 3. Color Customization ===
+        VBox colorCard = createSettingsCard("Цветовая палитра", "Настройка цветов интерфейса");
+        
+        // Background color picker
+        HBox bgColorRow = new HBox(12);
+        bgColorRow.setAlignment(Pos.CENTER_LEFT);
+        
+        Label bgColorLabel = new Label("Фоновый цвет:");
+        bgColorLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ColorPicker bgColorPicker = new ColorPicker(Color.web(settings.getString("backgroundColor", "#0f172a")));
+        bgColorPicker.setStyle("-fx-background-color: #1e293b; -fx-color-label-visible: false;");
+        
+        bgColorPicker.setOnAction(e -> {
+            Color color = bgColorPicker.getValue();
+            settings.set("backgroundColor", String.format("#%02x%02x%02x", 
+                (int)(color.getRed() * 255), 
+                (int)(color.getGreen() * 255), 
+                (int)(color.getBlue() * 255)));
+        });
+        
+        bgColorRow.getChildren().addAll(bgColorLabel, bgColorPicker);
+        colorCard.getChildren().add(bgColorRow);
+        
+        // Accent color picker
+        HBox accentColorRow = new HBox(12);
+        accentColorRow.setAlignment(Pos.CENTER_LEFT);
+        accentColorRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label accentColorLabel = new Label("Акцентный цвет:");
+        accentColorLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ColorPicker accentColorPicker = new ColorPicker(Color.web(settings.getString("accentColor", "#3b82f6")));
+        accentColorPicker.setStyle("-fx-background-color: #1e293b; -fx-color-label-visible: false;");
+        
+        accentColorPicker.setOnAction(e -> {
+            Color color = accentColorPicker.getValue();
+            settings.set("accentColor", String.format("#%02x%02x%02x", 
+                (int)(color.getRed() * 255), 
+                (int)(color.getGreen() * 255), 
+                (int)(color.getBlue() * 255)));
+        });
+        
+        accentColorRow.getChildren().addAll(accentColorLabel, accentColorPicker);
+        colorCard.getChildren().add(accentColorRow);
+        
+        // Text color picker
+        HBox textColorRow = new HBox(12);
+        textColorRow.setAlignment(Pos.CENTER_LEFT);
+        textColorRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label textColorLabel = new Label("Цвет текста:");
+        textColorLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ColorPicker textColorPicker = new ColorPicker(Color.web(settings.getString("textColor", "#f8fafc")));
+        textColorPicker.setStyle("-fx-background-color: #1e293b; -fx-color-label-visible: false;");
+        
+        textColorPicker.setOnAction(e -> {
+            Color color = textColorPicker.getValue();
+            settings.set("textColor", String.format("#%02x%02x%02x", 
+                (int)(color.getRed() * 255), 
+                (int)(color.getGreen() * 255), 
+                (int)(color.getBlue() * 255)));
+        });
+        
+        textColorRow.getChildren().addAll(textColorLabel, textColorPicker);
+        colorCard.getChildren().add(textColorRow);
+        
+        form.getChildren().add(colorCard);
+
+        // === 4. Gradient Settings ===
+        VBox gradientCard = createSettingsCard("Градиенты", "Настройка градиентного оформления");
+        
+        // Gradient enable toggle
+        HBox gradientToggleRow = new HBox(12);
+        gradientToggleRow.setAlignment(Pos.CENTER_LEFT);
+        
+        ToggleButton gradientToggle = new ToggleButton();
+        boolean gradientEnabled = settings.getBoolean("gradientEnabled", false);
+        gradientToggle.setSelected(gradientEnabled);
+        updateToggleStyle(gradientToggle);
+        gradientToggle.setText(gradientEnabled ? "🟢 Вкл" : "🔴 Выкл");
+        gradientToggle.selectedProperty().addListener((obs, old, val) -> {
+            settings.set("gradientEnabled", val);
+            updateToggleStyle(gradientToggle);
+            gradientToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+        });
+        
+        Label gradientLabel = new Label("Градиенты:");
+        gradientLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        gradientToggleRow.getChildren().addAll(gradientLabel, gradientToggle);
+        gradientCard.getChildren().add(gradientToggleRow);
+        
+        // Gradient type selection
+        HBox gradientTypeRow = new HBox(12);
+        gradientTypeRow.setAlignment(Pos.CENTER_LEFT);
+        gradientTypeRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label gradientTypeLabel = new Label("Тип градиента:");
+        gradientTypeLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ComboBox<String> gradientType = new ComboBox<>();
+        gradientType.getItems().addAll("Линейный", "Радиальный", "Угловой", "Отраженный");
+        gradientType.setValue(settings.getString("gradientType", "Линейный"));
+        gradientType.setPrefWidth(150);
+        gradientType.setStyle(settingsComboStyle());
+        gradientType.setOnAction(e -> {
+            settings.set("gradientType", gradientType.getValue());
+        });
+        
+        gradientTypeRow.getChildren().addAll(gradientTypeLabel, gradientType);
+        gradientCard.getChildren().add(gradientTypeRow);
+        
+        // Gradient direction
+        HBox gradientDirRow = new HBox(12);
+        gradientDirRow.setAlignment(Pos.CENTER_LEFT);
+        gradientDirRow.setPadding(new Insets(10, 0, 0, 0));
+        
+        Label gradientDirLabel = new Label("Направление:");
+        gradientDirLabel.setTextFill(Color.rgb(200, 200, 220));
+        
+        ComboBox<String> gradientDirection = new ComboBox<>();
+        gradientDirection.getItems().addAll("Сверху вниз", "Снизу вверх", "Слева направо", "Справа налево", "Диагональ");
+        gradientDirection.setValue(settings.getString("gradientDirection", "Сверху вниз"));
+        gradientDirection.setPrefWidth(150);
+        gradientDirection.setStyle(settingsComboStyle());
+        gradientDirection.setOnAction(e -> {
+            settings.set("gradientDirection", gradientDirection.getValue());
+        });
+        
+        gradientDirRow.getChildren().addAll(gradientDirLabel, gradientDirection);
+        gradientCard.getChildren().add(gradientDirRow);
+        
+        form.getChildren().add(gradientCard);
+
+        return form;
+    }
 }

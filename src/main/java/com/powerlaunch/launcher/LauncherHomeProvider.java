@@ -44,7 +44,8 @@ public final class LauncherHomeProvider {
             try {
                 Files.createDirectories(cachedHome);
                 migrateLegacyData(cachedHome);
-            } catch (Exception ignored) {/* permission errors surface later when managers try to write */}
+            } catch (Exception e) {
+                System.err.println("[PowerLaunch] LauncherHome migration failed: " + e.getMessage() + " (will try to continue)"); }
             System.out.println("[PowerLaunch] LauncherHome = " + cachedHome);
             return cachedHome;
         }
@@ -95,7 +96,9 @@ public final class LauncherHomeProvider {
                 }
                 return ancestor.resolve("build").resolve(DEV_LAUNCHER_HOME_NAME);
             }
-        } catch (URISyntaxException ignored) { /* safe fallback below */ }
+        } catch (URISyntaxException e) {
+            System.err.println("[PowerLaunch] LauncherHome URI syntax error: " + e.getMessage() + " (falling back to user home)");
+        }
 
         // 4. Legacy fallback (Wix installer installation on Windows / .config / Application Support).
         return legacyHome();
@@ -137,7 +140,8 @@ public final class LauncherHomeProvider {
             if (Files.exists(marker)) return;
             Path legacy = legacyHome();
             if (legacy.equals(newHome) || !Files.exists(legacy)) {
-                try { Files.createFile(marker); } catch (Exception ignored) {}
+                try { Files.createFile(marker); } catch (Exception e) {
+                    System.err.println("[PowerLaunch] Failed to create migration marker: " + e.getMessage()); }
                 return;
             }
             System.out.println("[PowerLaunch] Migrating legacy data \u2192 " + newHome);
@@ -147,7 +151,8 @@ public final class LauncherHomeProvider {
             copyIfExists(legacy.resolve("powerlaunch.db"), newHome.resolve("powerlaunch.db"));
             copyDirIfExists(legacy.resolve("profiles"),   newHome.resolve("profiles"));
             copyDirIfExists(legacy.resolve("skins"),      newHome.resolve("skins"));
-            try { Files.createFile(marker); } catch (Exception ignored) {}
+            try { Files.createFile(marker); } catch (Exception e) {
+                System.err.println("[PowerLaunch] Failed to create migration marker (2): " + e.getMessage()); }
         } catch (Exception e) {
             System.err.println("[PowerLaunch] Migration error: " + e.getMessage());
         }

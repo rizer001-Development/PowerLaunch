@@ -114,6 +114,12 @@ public class SkinManager {
                 String uuidUrl = "https://api.mojang.com/users/profiles/minecraft/" + username;
                 String uuidResponse = httpGetString(uuidUrl, 5);
                 JsonObject json = JsonParser.parseString(uuidResponse).getAsJsonObject();
+                
+                // Validate JSON has required "id" key
+                if (json == null || !json.has("id") || json.get("id").isJsonNull()) {
+                    System.err.println("[PowerLaunch][Skin] Invalid response from Mojang API for " + username + ": missing 'id' field");
+                    return false;
+                }
                 String uuid = json.get("id").getAsString();
 
                 // Step 2: Download skin from crafatar
