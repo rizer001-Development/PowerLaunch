@@ -84,7 +84,7 @@ public class MainController {
     private int cpuRamErrorCount = 0;
     private long prevDiskTime = 0;
     private volatile long lastDiskSize = -1;
-    // Network traffic rate tracking (cumulative counters — compute rate via delta)
+    // Network traffic rate tracking (cumulative counters вЂ” compute rate via delta)
     private volatile long prevRxBytes = 0, prevTxBytes = 0;
 
     // Launcher status indicator
@@ -221,7 +221,7 @@ public class MainController {
                 "-fx-border-width: 0 0 1 0;"
         );
 
-        // Right-click on tab bar background → context menu
+        // Right-click on tab bar background в†’ context menu
         tabBar.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
                 showTabBarContextMenu(e.getScreenX(), e.getScreenY());
@@ -297,7 +297,7 @@ public class MainController {
         node.setStyle(isActive ? TAB_ACTIVE_STYLE : TAB_INACTIVE_STYLE);
 
         // Tab icon (small circle indicator)
-        Label dot = new Label(isActive ? "●" : "○");
+        Label dot = new Label(isActive ? "в—Џ" : "в—‹");
         dot.setStyle(
                 "-fx-font-size: 8;" +
                 "-fx-text-fill: " + (isActive ? "#e94560" : "rgba(255,255,255,0.2)") + ";" +
@@ -314,7 +314,7 @@ public class MainController {
         );
 
         // Close button (X) - only show on hover
-        Button closeBtn = new Button("×");
+        Button closeBtn = new Button("Г—");
         closeBtn.setStyle(
                 "-fx-background-color: transparent;" +
                 "-fx-text-fill: " + (isActive ? "rgba(233,69,96,0.5)" : "rgba(255,255,255,0.15)") + ";" +
@@ -418,7 +418,7 @@ public class MainController {
         }
 
         String tabName = active != null ? active.getName() : "?";
-        setStatus("✓ Switched to tab: " + tabName);
+        setStatus("вњ“ Switched to tab: " + tabName);
     }
 
     /**
@@ -475,7 +475,7 @@ public class MainController {
                 TabData active = tabManager.getActiveTab();
                 if (active != null) selectedVersion = active.getVersion();
                 if ("main".equals(currentPage)) showMainPage();
-                setStatus("✓ Tab created: " + name.trim());
+                setStatus("вњ“ Tab created: " + name.trim());
             }
         });
     }
@@ -511,14 +511,14 @@ public class MainController {
                 tabManager.renameTab(index, newName.trim());
                 rebuildTabBar();
                 if ("main".equals(currentPage)) showMainPage();
-                setStatus("✓ Tab renamed to: " + newName.trim());
+                setStatus("вњ“ Tab renamed to: " + newName.trim());
             }
         });
     }
 
     private void deleteTab(int index) {
         if (tabManager.getTabCount() <= 1) {
-            setStatus("✗ Cannot delete the last tab");
+            setStatus("вњ— Cannot delete the last tab");
             return;
         }
 
@@ -552,7 +552,7 @@ public class MainController {
             TabData active = tabManager.getActiveTab();
             if (active != null) selectedVersion = active.getVersion();
             if ("main".equals(currentPage)) showMainPage();
-            setStatus("✓ Tab \"" + tabName + "\" deleted");
+            setStatus("вњ“ Tab \"" + tabName + "\" deleted");
         }
     }
 
@@ -569,11 +569,11 @@ public class MainController {
                 "-fx-padding: 4;"
         );
 
-        MenuItem renameItem = new MenuItem("✏️  Rename");
+        MenuItem renameItem = new MenuItem("вњЏпёЏ  Rename");
         renameItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         renameItem.setOnAction(e -> showRenameTabDialog(index));
 
-        MenuItem duplicateItem = new MenuItem("📋  Duplicate");
+        MenuItem duplicateItem = new MenuItem("рџ“‹  Duplicate");
         duplicateItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         duplicateItem.setOnAction(e -> {
             tabManager.updateActiveTabFromSettings();
@@ -583,10 +583,10 @@ public class MainController {
             TabData active = tabManager.getActiveTab();
             if (active != null) selectedVersion = active.getVersion();
             if ("main".equals(currentPage)) showMainPage();
-            setStatus("✓ Tab duplicated");
+            setStatus("вњ“ Tab duplicated");
         });
 
-        MenuItem exportItem = new MenuItem("📤  Export...");
+        MenuItem exportItem = new MenuItem("рџ“¤  Export...");
         exportItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         exportItem.setOnAction(e -> {
             FileChooser fc = new FileChooser();
@@ -596,9 +596,9 @@ public class MainController {
             File file = fc.showSaveDialog(view.getScene().getWindow());
             if (file != null) {
                 if (tabManager.exportTab(index, file)) {
-                    setStatus("✓ Tab exported: " + file.getName());
+                    setStatus("вњ“ Tab exported: " + file.getName());
                 } else {
-                    setStatus("✗ Tab export failed");
+                    setStatus("вњ— Tab export failed");
                 }
             }
         });
@@ -607,7 +607,7 @@ public class MainController {
             menu.getItems().addAll(renameItem, duplicateItem, exportItem);
             menu.getItems().add(new SeparatorMenuItem());
 
-            MenuItem deleteItem = new MenuItem("🗑️  Delete");
+            MenuItem deleteItem = new MenuItem("рџ—‘пёЏ  Delete");
             deleteItem.setStyle("-fx-text-fill: #ef4444; -fx-padding: 6 20;");
             deleteItem.setOnAction(e -> deleteTab(index));
             menu.getItems().add(deleteItem);
@@ -628,11 +628,11 @@ public class MainController {
                 "-fx-padding: 4;"
         );
 
-        MenuItem createItem = new MenuItem("➕  Create Tab");
+        MenuItem createItem = new MenuItem("вћ•  Create Tab");
         createItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         createItem.setOnAction(e -> showCreateTabDialog());
 
-        MenuItem importItem = new MenuItem("📥  Import Tab...");
+        MenuItem importItem = new MenuItem("рџ“Ґ  Import Tab...");
         importItem.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-padding: 6 20;");
         importItem.setOnAction(e -> {
             FileChooser fc = new FileChooser();
@@ -648,9 +648,9 @@ public class MainController {
                     TabData active = tabManager.getActiveTab();
                     if (active != null) selectedVersion = active.getVersion();
                     if ("main".equals(currentPage)) showMainPage();
-                    setStatus("✓ Imported tab: " + imported.getName());
+                    setStatus("вњ“ Imported tab: " + imported.getName());
                 } else {
-                    setStatus("✗ Tab import failed");
+                    setStatus("вњ— Tab import failed");
                 }
             }
         });
@@ -672,7 +672,7 @@ public class MainController {
                 "-fx-border-width: 0 0 1 0;"
         );
 
-        Text logo = new Text("⚡ PowerLaunch");
+        Text logo = new Text("вљЎ PowerLaunch");
         logo.setFont(Font.font("System", FontWeight.BOLD, 17));
         logo.setFill(Color.WHITE);
 
@@ -711,12 +711,12 @@ public class MainController {
                 }
             }
             if (name != null) {
-                btn.setText("👤 " + name + "  ▾");
+                btn.setText("рџ‘¤ " + name + "  в–ѕ");
             } else {
-                btn.setText("👤 Create Account  ▾");
+                btn.setText("рџ‘¤ Create Account  в–ѕ");
             }
         } else {
-            btn.setText("👤 Create Account  ▾");
+            btn.setText("рџ‘¤ Create Account  в–ѕ");
         }
         btn.setStyle(
                 "-fx-background-color: rgba(233,69,96,0.12);" +
@@ -780,7 +780,7 @@ public class MainController {
             String name = acc.getUsername();
             boolean isCurrent = accountManager.getCurrentAccount() != null
                     && accountManager.getCurrentAccount().getUsername().equals(name);
-            MenuItem item = new MenuItem((isCurrent ? "✓ " : "   ") + name);
+            MenuItem item = new MenuItem((isCurrent ? "вњ“ " : "   ") + name);
             item.setStyle(
                     "-fx-text-fill: " + (isCurrent ? "#e94560" : "white") + ";" +
                     "-fx-font-weight: " + (isCurrent ? "bold" : "normal") + ";" +
@@ -790,14 +790,14 @@ public class MainController {
                 accountManager.selectAccount(name);
                 auth.loginOffline(name);
                 updateAccountButton(btn);
-                setStatus("✓ Account: " + name);
+                setStatus("вњ“ Account: " + name);
             });
             menu.getItems().add(item);
         }
 
         menu.getItems().add(new SeparatorMenuItem());
 
-        MenuItem settingsItem = new MenuItem("⚙️ Account Settings");
+        MenuItem settingsItem = new MenuItem("вљ™пёЏ Account Settings");
         settingsItem.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-padding: 6 20;");
         settingsItem.setOnAction(e -> showAccountSettings());
         menu.getItems().add(settingsItem);
@@ -806,7 +806,7 @@ public class MainController {
     }
 
     private Button createSettingsButton() {
-        Button btn = new Button("⚙️ Настройки");
+        Button btn = new Button("вљ™пёЏ РќР°СЃС‚СЂРѕР№РєРё");
         btn.setStyle(
                 "-fx-background-color: rgba(59, 130, 246, 0.12);" +
                 "-fx-text-fill: #60a5fa;" +
@@ -881,20 +881,20 @@ public class MainController {
         HBox controlGroup = new HBox(10);
         controlGroup.setAlignment(Pos.CENTER);
 
-        Button startBtn = createStyledButton("▶  Start", "#10b981");
-        Button restartBtn = createStyledButton("🔄  Restart", "#f59e0b");
-        Button stopBtn = createStyledButton("⏹  Stop", "#e94560");
-        Button killBtn = createStyledButton("💀  Kill", "#ef4444");
+        Button startBtn = createStyledButton("в–¶  Start", "#10b981");
+        Button restartBtn = createStyledButton("рџ”„  Restart", "#f59e0b");
+        Button stopBtn = createStyledButton("вЏ№  Stop", "#e94560");
+        Button killBtn = createStyledButton("рџ’Ђ  Kill", "#ef4444");
 
         startBtn.setOnAction(e -> {
             if (!accountManager.hasAccounts()) {
                 flashButton(startBtn);
-                setStatus("✗ Please create an account first");
+                setStatus("вњ— Please create an account first");
                 return;
             }
             if (selectedVersion == null || selectedVersion.isEmpty()) {
                 flashButton(startBtn);
-                setStatus("✗ Please select a version first");
+                setStatus("вњ— Please select a version first");
                 return;
             }
             handleConsoleStart();
@@ -921,17 +921,17 @@ public class MainController {
                 String path = versionManager.getGameDirectory().toAbsolutePath().toString();
                 Runtime.getRuntime().exec("explorer.exe " + path);
             } catch (Exception ex) {
-                setStatus("✗ Failed to open directory");
+                setStatus("вњ— Failed to open directory");
             }
         });
 
-        Button settingsBtn = createSvgIconButton(createGearSvg(), "Launcher Settings");
-        settingsBtn.setOnAction(e -> showLauncherSettings());
+        Button settingsBtn = createSettingsButton();
+        settingsBtn.setOnAction(e -> showSettingsWithTabs());
 
         Button consoleBtn = createConsoleButton();
         utilGroup.getChildren().addAll(folderBtn, consoleBtn, settingsBtn);
         // Add status indicator
-        Label statusInd = new Label("●  Off");
+        Label statusInd = new Label("в—Џ  Off");
         statusInd.setFont(Font.font("System", 12));
         statusInd.setTextFill(Color.web("#ef4444"));
         statusInd.setAlignment(Pos.CENTER);
@@ -1095,7 +1095,7 @@ public class MainController {
 
     private void updateVersionButton(Button btn) {
         String version = selectedVersion.isEmpty() ? "none selected" : selectedVersion;
-        btn.setText("📦 Version: " + version + "  ▾");
+        btn.setText("рџ“¦ Version: " + version + "  в–ѕ");
         btn.setStyle(
                 "-fx-background-color: rgba(59,130,246,0.12);" +
                 "-fx-text-fill: #3b82f6;" +
@@ -1153,7 +1153,7 @@ public class MainController {
         } else {
             for (String v : versions) {
                 boolean isCurrent = v.equals(selectedVersion);
-                MenuItem item = new MenuItem((isCurrent ? "✓ " : "   ") + v);
+                MenuItem item = new MenuItem((isCurrent ? "вњ“ " : "   ") + v);
                 item.setStyle(
                         "-fx-text-fill: " + (isCurrent ? "#3b82f6" : "white") + ";" +
                         "-fx-font-weight: " + (isCurrent ? "bold" : "normal") + ";" +
@@ -1165,14 +1165,14 @@ public class MainController {
                     updateVersionButton(btn);
                     // Save to active tab
                     tabManager.updateActiveTabFromSettings();
-                    setStatus("✓ Version: " + v);
+                    setStatus("вњ“ Version: " + v);
                 });
                 menu.getItems().add(item);
             }
         }
 
         menu.getItems().add(new SeparatorMenuItem());
-        MenuItem manageItem = new MenuItem("⚙️ Manage Versions");
+        MenuItem manageItem = new MenuItem("вљ™пёЏ Manage Versions");
         manageItem.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-padding: 6 20;");
         manageItem.setOnAction(e -> showVersionSettings());
         menu.getItems().add(manageItem);
@@ -1192,7 +1192,7 @@ public class MainController {
         );
         bar.setAlignment(Pos.CENTER_LEFT);
 
-        Label status = new Label("✓ Ready to launch");
+        Label status = new Label("вњ“ Ready to launch");
         status.setFont(Font.font("System", 13));
         status.setTextFill(Color.rgb(200, 200, 230));
 
@@ -1203,7 +1203,7 @@ public class MainController {
     }
 
     private PauseTransition statusTimeout;
-    private static final String DEFAULT_STATUS = "✓ Ready to launch";
+    private static final String DEFAULT_STATUS = "вњ“ Ready to launch";
 
     private void setStatus(String text) {
         Platform.runLater(() -> {
@@ -1240,7 +1240,7 @@ public class MainController {
         page.setPadding(new Insets(25, 30, 25, 30));
         page.setStyle("-fx-background-color: transparent;");
 
-        Text title = new Text("⚙️ Launcher Settings");
+        Text title = new Text("вљ™пёЏ Launcher Settings");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
@@ -1472,11 +1472,11 @@ public class MainController {
         boolean autoConnect = settings.getBoolean("autoConnect", false);
         autoConnectToggle.setSelected(autoConnect);
         updateToggleStyle(autoConnectToggle);
-        autoConnectToggle.setText(autoConnect ? "🟢 On" : "🔴 Off");
+        autoConnectToggle.setText(autoConnect ? "рџџў On" : "рџ”ґ Off");
         autoConnectToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("autoConnect", val);
             updateToggleStyle(autoConnectToggle);
-            autoConnectToggle.setText(val ? "🟢 On" : "🔴 Off");
+            autoConnectToggle.setText(val ? "рџџў On" : "рџ”ґ Off");
         });
 
         Label autoConnectLabel = new Label("Connect on launch:");
@@ -1558,32 +1558,32 @@ public class MainController {
         serverBtnRow.setAlignment(Pos.CENTER_LEFT);
         serverBtnRow.setPadding(new Insets(8, 0, 0, 0));
 
-        Button addServerBtn = new Button("➕ Add");
+        Button addServerBtn = new Button("вћ• Add");
         styleSettingsButton(addServerBtn, "#10b981", "#059669");
         addServerBtn.setOnAction(e -> showAddServerDialog(serverListView));
 
-        Button editServerBtn = new Button("✏️ Edit");
+        Button editServerBtn = new Button("вњЏпёЏ Edit");
         styleSettingsButton(editServerBtn, "#3b82f6", "#2563eb");
         editServerBtn.setOnAction(e -> {
             int idx = serverListView.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
-                setStatus("✗ Select a server from the list");
+                setStatus("вњ— Select a server from the list");
                 return;
             }
             showEditServerDialog(serverListView, idx);
         });
 
-        Button removeServerBtn = new Button("🗑️ Delete");
+        Button removeServerBtn = new Button("рџ—‘пёЏ Delete");
         styleSettingsButton(removeServerBtn, "#ef4444", "#dc2626");
         removeServerBtn.setOnAction(e -> {
             int idx = serverListView.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
-                setStatus("✗ Select a server from the list");
+                setStatus("вњ— Select a server from the list");
                 return;
             }
             serverManager.removeServer(idx);
             refreshServerList(serverListView);
-            setStatus("✓ Server deleted");
+            setStatus("вњ“ Server deleted");
         });
 
         serverBtnRow.getChildren().addAll(addServerBtn, editServerBtn, removeServerBtn);
@@ -1595,7 +1595,7 @@ public class MainController {
         buttonRow.setAlignment(Pos.CENTER);
         buttonRow.setPadding(new Insets(10, 0, 0, 0));
 
-        Button saveBtn = new Button("💾 Save & return to menu");
+        Button saveBtn = new Button("рџ’ѕ Save & return to menu");
         saveBtn.setPrefHeight(44);
         saveBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #e94560, #c23152);" +
@@ -1626,11 +1626,11 @@ public class MainController {
         ));
         saveBtn.setOnAction(e -> {
             settings.save();
-            setStatus("✓ Settings saved");
+            setStatus("вњ“ Settings saved");
             showMainPage();
         });
 
-        Button cancelBtn = new Button("◀ Back without saving");
+        Button cancelBtn = new Button("в—Ђ Back without saving");
         cancelBtn.setPrefHeight(44);
         cancelBtn.setStyle(
                 "-fx-background-color: transparent;" +
@@ -1800,7 +1800,7 @@ public class MainController {
                 : "No account selected";
         String versionInfo = selectedVersion.isEmpty() ? "Version none selected" : selectedVersion;
 
-        Text infoText = new Text(accountInfo + "  ·  " + versionInfo);
+        Text infoText = new Text(accountInfo + "  В·  " + versionInfo);
         infoText.setFont(Font.font("System", 14));
         infoText.setFill(Color.rgb(180, 180, 200));
 
@@ -1809,10 +1809,10 @@ public class MainController {
         infoCards.setAlignment(Pos.CENTER);
         infoCards.setPadding(new Insets(30, 0, 0, 0));
 
-        infoCards.getChildren().add(createInfoCard("👤",
+        infoCards.getChildren().add(createInfoCard("рџ‘¤",
                 accountManager.hasAccounts() ? accountManager.getCurrentAccount().getUsername() : "No account",
                 "Click the account above"));
-        infoCards.getChildren().add(createInfoCard("📦",
+        infoCards.getChildren().add(createInfoCard("рџ“¦",
                 selectedVersion.isEmpty() ? "None selected" : selectedVersion,
                 "Choose a version below"));
         page.getChildren().addAll(welcomeText, infoText, infoCards);
@@ -1865,7 +1865,7 @@ public class MainController {
         page.setStyle("-fx-background-color: transparent;");
 
         // Title
-        Text title = new Text("⚙️ Account Settings");
+        Text title = new Text("вљ™пёЏ Account Settings");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 15, 0));
@@ -1893,7 +1893,7 @@ public class MainController {
                     cell.setAlignment(Pos.CENTER_LEFT);
                     cell.setPadding(new Insets(8, 12, 8, 12));
 
-                    Label nameLabel = new Label((isCurrent ? "✓ " : "   ") + acc.getUsername());
+                    Label nameLabel = new Label((isCurrent ? "вњ“ " : "   ") + acc.getUsername());
                     nameLabel.setFont(Font.font("System", isCurrent ? FontWeight.BOLD : FontWeight.NORMAL, 14));
                     nameLabel.setTextFill(isCurrent ? Color.web("#e94560") : Color.WHITE);
 
@@ -1938,14 +1938,14 @@ public class MainController {
         HBox topBtnRow = new HBox(10);
         topBtnRow.setAlignment(Pos.CENTER);
 
-        Button createBtn = new Button("➕ Create new account");
+        Button createBtn = new Button("вћ• Create new account");
         styleSettingsButton(createBtn, "#10b981", "#059669");
         createBtn.setOnAction(e -> showCreateAccountDialog(() -> {
             accountList.getItems().setAll(accountManager.getAccounts());
             showAccountSettingsPage();
         }));
 
-        Button backBtn = new Button("◀ Back");
+        Button backBtn = new Button("в—Ђ Back");
         styleSettingsButton(backBtn, "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)");
         backBtn.setTextFill(Color.rgb(200, 200, 220));
         backBtn.setOnAction(e -> showMainPage());
@@ -1978,7 +1978,7 @@ public class MainController {
                 "-fx-padding: 0;"
         );
 
-        Label deleteLabel = new Label("→  Slide to delete");
+        Label deleteLabel = new Label("в†’  Slide to delete");
         deleteLabel.setFont(Font.font("System", 13));
         deleteLabel.setTextFill(Color.rgb(160, 160, 180));
         deleteLabel.setMouseTransparent(true);
@@ -2027,7 +2027,7 @@ public class MainController {
                         "-fx-cursor: hand;" +
                         "-fx-effect: dropshadow(gaussian, rgba(239,68,68,0.4), 12, 0, 0, 4);"
                 );
-                deleteLabel.setText("✓  Подтверждено — нажмите «Delete»");
+                deleteLabel.setText("вњ“  РџРѕРґС‚РІРµСЂР¶РґРµРЅРѕ вЂ” РЅР°Р¶РјРёС‚Рµ В«DeleteВ»");
                 deleteLabel.setTextFill(Color.web("#10b981"));
             } else {
                 deleteBtn.setDisable(true);
@@ -2039,7 +2039,7 @@ public class MainController {
                         "-fx-background-radius: 21;" +
                         "-fx-padding: 8 24;"
                 );
-                deleteLabel.setText("→  Slide to delete");
+                deleteLabel.setText("в†’  Slide to delete");
                 deleteLabel.setTextFill(Color.rgb(160, 160, 180));
             }
         });
@@ -2058,7 +2058,7 @@ public class MainController {
 
         deleteBtn.setOnAction(e -> {
             if (selectedAccount == null) {
-                setStatus("✗ Select an account from the list");
+                setStatus("вњ— Select an account from the list");
                 deleteSlider.setValue(0);
                 return;
             }
@@ -2071,7 +2071,7 @@ public class MainController {
                 auth.logout();
             }
 
-            setStatus("✓ Аккаунт \"" + name + "\" deleted");
+            setStatus("вњ“ РђРєРєР°СѓРЅС‚ \"" + name + "\" deleted");
 
             deleteSlider.setValue(0);
             deleteProgress.setProgress(0);
@@ -2084,7 +2084,7 @@ public class MainController {
                     "-fx-background-radius: 21;" +
                     "-fx-padding: 8 24;"
             );
-            deleteLabel.setText("→  Slide to delete");
+            deleteLabel.setText("в†’  Slide to delete");
             deleteLabel.setTextFill(Color.rgb(160, 160, 180));
 
             accountList.getItems().setAll(accountManager.getAccounts());
@@ -2174,7 +2174,7 @@ public class MainController {
         consoleArea.setScrollTop(Double.MAX_VALUE);
 
         // Note: setOnConsoleLine is already set in handleConsoleStart()
-        // Do NOT re-set it here — it would overwrite the launch callback
+        // Do NOT re-set it here вЂ” it would overwrite the launch callback
 
         stopSensors();
 
@@ -2186,7 +2186,7 @@ public class MainController {
         HBox topBar = new HBox(10);
         topBar.setAlignment(Pos.CENTER_LEFT);
 
-        Text title = new Text("🖥  Console");
+        Text title = new Text("рџ–Ґ  Console");
         title.setFont(Font.font("System", FontWeight.BOLD, 20));
         title.setFill(Color.WHITE);
 
@@ -2219,7 +2219,7 @@ public class MainController {
         }
         offMode.setOnAction(e -> consoleMode = "off");
         errorsMode.setOnAction(e -> consoleMode = "errors");
-        Tooltip allWarn = new Tooltip("⚠ May cause additional system load");
+        Tooltip allWarn = new Tooltip("вљ  May cause additional system load");
         allWarn.setStyle("-fx-background-color: #16213e; -fx-text-fill: #f59e0b; -fx-font-size: 11; -fx-background-radius: 4; -fx-padding: 4 8;");
         Tooltip.install(allMode, allWarn);
         allMode.setOnAction(e -> consoleMode = "all");
@@ -2253,19 +2253,19 @@ public class MainController {
 
         HBox ctrlRow = new HBox(8);
         ctrlRow.setAlignment(Pos.CENTER_LEFT);
-        Button startBtn = createStyledButton("▶  Start", "#10b981");
-        Button restartBtn = createStyledButton("🔄  Restart", "#f59e0b");
-        Button stopBtn = createStyledButton("⏹  Stop", "#e94560");
-        Button killBtn = createStyledButton("💀  Kill", "#ef4444");
+        Button startBtn = createStyledButton("в–¶  Start", "#10b981");
+        Button restartBtn = createStyledButton("рџ”„  Restart", "#f59e0b");
+        Button stopBtn = createStyledButton("вЏ№  Stop", "#e94560");
+        Button killBtn = createStyledButton("рџ’Ђ  Kill", "#ef4444");
         startBtn.setOnAction(e -> {
             if (!accountManager.hasAccounts()) {
                 flashButton(startBtn);
-                setStatus("✗ Please create an account first");
+                setStatus("вњ— Please create an account first");
                 return;
             }
             if (selectedVersion == null || selectedVersion.isEmpty()) {
                 flashButton(startBtn);
-                setStatus("✗ Please select a version first");
+                setStatus("вњ— Please select a version first");
                 return;
             }
             handleConsoleStart();
@@ -2278,14 +2278,14 @@ public class MainController {
         HBox actionRow = new HBox(8);
         actionRow.setAlignment(Pos.CENTER_RIGHT);
 
-        Button clearBtn = new Button("🗑  Clear");
+        Button clearBtn = new Button("рџ—‘  Clear");
         clearBtn.setPrefHeight(36);
         clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;");
         clearBtn.setOnMouseEntered(e -> clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.14); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
         clearBtn.setOnMouseExited(e -> clearBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
-        clearBtn.setOnAction(e -> { consoleArea.clear(); setStatus("✓ Console cleared"); });
+        clearBtn.setOnAction(e -> { consoleArea.clear(); setStatus("вњ“ Console cleared"); });
 
-        Button exportBtn = new Button("📥  Export");
+        Button exportBtn = new Button("рџ“Ґ  Export");
         exportBtn.setPrefHeight(36);
         exportBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;");
         exportBtn.setOnMouseEntered(e -> exportBtn.setStyle("-fx-background-color: rgba(255,255,255,0.14); -fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 6 14; -fx-cursor: hand;"));
@@ -2333,24 +2333,24 @@ public class MainController {
 
     private void handleConsoleStart() {
         if (!accountManager.hasAccounts()) {
-            setStatus("✗ Please create an account first"); return;
+            setStatus("вњ— Please create an account first"); return;
         }
         if (selectedVersion == null || selectedVersion.isEmpty()) {
-            setStatus("✗ Please select a version first"); return;
+            setStatus("вњ— Please select a version first"); return;
         }
         if (launcher.isRunning()) {
-            setStatus("✗ Minecraft is already running"); return;
+            setStatus("вњ— Minecraft is already running"); return;
         }
         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
         timeoutReached = false;
 
-        // Включаем запись логов консоли в файл (если включено в настройках)
+        // Р’РєР»СЋС‡Р°РµРј Р·Р°РїРёСЃСЊ Р»РѕРіРѕРІ РєРѕРЅСЃРѕР»Рё РІ С„Р°Р№Р» (РµСЃР»Рё РІРєР»СЋС‡РµРЅРѕ РІ РЅР°СЃС‚СЂРѕР№РєР°С…)
         if (settings.getBoolean("saveConsoleLog", true)) {
             FileLogManager.getInstance().enableGame();
         }
 
         updateStatusIndicator("starting");
-        setStatus("▶ Launching Minecraft " + selectedVersion + "...");
+        setStatus("в–¶ Launching Minecraft " + selectedVersion + "...");
 
         // Auto-enable console output when game starts (if currently off)
         if ("off".equals(consoleMode)) {
@@ -2389,7 +2389,7 @@ public class MainController {
             });
             Platform.runLater(() -> {
                 if (result.isSuccess()) {
-                    setStatus("✓ " + result.getMessage());
+                    setStatus("вњ“ " + result.getMessage());
                     int timeoutSec = 30;
                     if (timeoutSec > 0) {
                         Timer t = new Timer("LaunchTimeout");
@@ -2403,7 +2403,7 @@ public class MainController {
                 } else {
                     if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
                     updateStatusIndicator("error");
-                    setStatus("✗ " + result.getMessage());
+                    setStatus("вњ— " + result.getMessage());
                 }
             });
         }).start();
@@ -2415,11 +2415,11 @@ public class MainController {
             if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
             timeoutReached = false;
             updateStatusIndicator("off");
-            setStatus("🔄 Restarting...");
+            setStatus("рџ”„ Restarting...");
             new Thread(() -> {
                 try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 if (!accountManager.hasAccounts() || selectedVersion == null) {
-                    Platform.runLater(() -> setStatus("✗ Cannot restart")); return;
+                    Platform.runLater(() -> setStatus("вњ— Cannot restart")); return;
                 }
                 Platform.runLater(() -> updateStatusIndicator("starting"));
                 // Re-set console callback for restart
@@ -2445,7 +2445,7 @@ public class MainController {
                 });
                 Platform.runLater(() -> {
                     if (result.isSuccess()) {
-                        setStatus("✓ " + result.getMessage());
+                        setStatus("вњ“ " + result.getMessage());
                         int timeoutSec = 30;
                         if (timeoutSec > 0) {
                             Timer t = new Timer("LaunchTimeout");
@@ -2459,11 +2459,11 @@ public class MainController {
                     } else {
                         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
                         updateStatusIndicator("error");
-                        setStatus("✗ " + result.getMessage());
+                        setStatus("вњ— " + result.getMessage());
                     }
                 });
             }).start();
-        } else { setStatus("✗ Minecraft is not running"); }
+        } else { setStatus("вњ— Minecraft is not running"); }
     }
 
     private void handleConsoleStop() {
@@ -2471,9 +2471,9 @@ public class MainController {
             launcher.stopMinecraft();
             if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
             updateStatusIndicator("off");
-            setStatus("✗ Minecraft stopped");
-        } else { setStatus("✗ Minecraft is not running"); }
-        // Закрываем файл лога консоли
+            setStatus("вњ— Minecraft stopped");
+        } else { setStatus("вњ— Minecraft is not running"); }
+        // Р—Р°РєСЂС‹РІР°РµРј С„Р°Р№Р» Р»РѕРіР° РєРѕРЅСЃРѕР»Рё
         FileLogManager.getInstance().disable();
     }
 
@@ -2481,8 +2481,8 @@ public class MainController {
         launcher.stopMinecraft();
         if (timeoutTimer != null) { timeoutTimer.cancel(); timeoutTimer = null; }
         updateStatusIndicator("off");
-        setStatus("💀 Process killed");
-        // Закрываем файл лога консоли
+        setStatus("рџ’Ђ Process killed");
+        // Р—Р°РєСЂС‹РІР°РµРј С„Р°Р№Р» Р»РѕРіР° РєРѕРЅСЃРѕР»Рё
         FileLogManager.getInstance().disable();
     }
 
@@ -2499,28 +2499,28 @@ public class MainController {
         sensorTitle.setFill(Color.rgb(160, 160, 185));
 
         VBox cpuCard = createSensorCard();
-        Text cpuIcon = new Text("⚡"); cpuIcon.setFont(Font.font("System", 16));
-        cpuLabel = new Label("CPU: —"); cpuLabel.setTextFill(Color.rgb(200, 200, 220)); cpuLabel.setFont(Font.font("System", 13));
+        Text cpuIcon = new Text("вљЎ"); cpuIcon.setFont(Font.font("System", 16));
+        cpuLabel = new Label("CPU: вЂ”"); cpuLabel.setTextFill(Color.rgb(200, 200, 220)); cpuLabel.setFont(Font.font("System", 13));
         cpuCard.getChildren().add(new HBox(6, cpuIcon, cpuLabel));
 
         VBox ramCard = createSensorCard();
-        Text ramIcon = new Text("💾"); ramIcon.setFont(Font.font("System", 16));
-        ramLabel = new Label("RAM: —"); ramLabel.setTextFill(Color.rgb(200, 200, 220)); ramLabel.setFont(Font.font("System", 13));
+        Text ramIcon = new Text("рџ’ѕ"); ramIcon.setFont(Font.font("System", 16));
+        ramLabel = new Label("RAM: вЂ”"); ramLabel.setTextFill(Color.rgb(200, 200, 220)); ramLabel.setFont(Font.font("System", 13));
         ramCard.getChildren().add(new HBox(6, ramIcon, ramLabel));
 
         VBox netDownCard = createSensorCard();
-        Text netDownIcon = new Text("📥"); netDownIcon.setFont(Font.font("System", 16));
-        netDownLabel = new Label("↓ —"); netDownLabel.setTextFill(Color.rgb(200, 200, 220)); netDownLabel.setFont(Font.font("System", 13));
+        Text netDownIcon = new Text("рџ“Ґ"); netDownIcon.setFont(Font.font("System", 16));
+        netDownLabel = new Label("в†“ вЂ”"); netDownLabel.setTextFill(Color.rgb(200, 200, 220)); netDownLabel.setFont(Font.font("System", 13));
         netDownCard.getChildren().add(new HBox(6, netDownIcon, netDownLabel));
 
         VBox netUpCard = createSensorCard();
-        Text netUpIcon = new Text("📤"); netUpIcon.setFont(Font.font("System", 16));
-        netUpLabel = new Label("↑ —"); netUpLabel.setTextFill(Color.rgb(200, 200, 220)); netUpLabel.setFont(Font.font("System", 13));
+        Text netUpIcon = new Text("рџ“¤"); netUpIcon.setFont(Font.font("System", 16));
+        netUpLabel = new Label("в†‘ вЂ”"); netUpLabel.setTextFill(Color.rgb(200, 200, 220)); netUpLabel.setFont(Font.font("System", 13));
         netUpCard.getChildren().add(new HBox(6, netUpIcon, netUpLabel));
 
     VBox diskCard = createSensorCard();
-    Text diskIcon = new Text("💾"); diskIcon.setFont(Font.font("System", 16));
-    diskLabel = new Label("SSD: —"); diskLabel.setTextFill(Color.rgb(200, 200, 220)); diskLabel.setFont(Font.font("System", 13));
+    Text diskIcon = new Text("рџ’ѕ"); diskIcon.setFont(Font.font("System", 16));
+    diskLabel = new Label("SSD: вЂ”"); diskLabel.setTextFill(Color.rgb(200, 200, 220)); diskLabel.setFont(Font.font("System", 13));
     diskCard.getChildren().add(new HBox(6, diskIcon, diskLabel));
 
         panel.getChildren().addAll(sensorTitle, cpuCard, ramCard, netDownCard, netUpCard, diskCard);
@@ -2547,8 +2547,8 @@ public class MainController {
                 updateCpuAndRam(pid);
             } else {
                 Platform.runLater(() -> {
-                    if (cpuLabel != null) cpuLabel.setText("CPU: —");
-                    if (ramLabel != null) ramLabel.setText("RAM: —");
+                    if (cpuLabel != null) cpuLabel.setText("CPU: вЂ”");
+                    if (ramLabel != null) ramLabel.setText("RAM: вЂ”");
                 });
             }
         }, 0, 1, TimeUnit.SECONDS);
@@ -2578,7 +2578,7 @@ public class MainController {
             Process p = new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", psCmd)
                     .redirectErrorStream(true)
                     .start();
-            // FIX 4: waitFor() BEFORE readAllBytes() — was the deadlock source (inverse order froze the scheduler on first PS hang).
+            // FIX 4: waitFor() BEFORE readAllBytes() вЂ” was the deadlock source (inverse order froze the scheduler on first PS hang).
             boolean finished = p.waitFor(5, TimeUnit.SECONDS);
             if (!finished) {
                 p.destroyForcibly();
@@ -2601,29 +2601,29 @@ public class MainController {
             long ramBytes = Long.parseLong(parts[1]);
             long now = System.currentTimeMillis();
 
-            // FIX 6: CPU update on every iteration. First tick shows "CPU: …" instead of staying at "—".
-            // Idle process (Ticks don't grow) is reported honestly as "CPU: 0/X%" — never get stuck on "…".
+            // FIX 6: CPU update on every iteration. First tick shows "CPU: вЂ¦" instead of staying at "вЂ”".
+            // Idle process (Ticks don't grow) is reported honestly as "CPU: 0/X%" вЂ” never get stuck on "вЂ¦".
             if (prevSensorTime > 0) {
-                long deltaTicks = Math.max(0L, totalTicks - prevCpuKernel);  // idle → 0
+                long deltaTicks = Math.max(0L, totalTicks - prevCpuKernel);  // idle в†’ 0
                 long deltaTime = now - prevSensorTime;
                 if (deltaTime > 0) {
-                    // Правильная формула: Ticks = 100ns. 10 000 000 ticks = 1 CPU-second.
-                    // deltaTime в ms. CPU% (суммарный по всем ядрам) = deltaTicks / 100 / deltaTime.
-                    // Пример: 50M ticks за 1000ms = 50M/100/1000 = 500% (5 ядер по 100%).
+                    // РџСЂР°РІРёР»СЊРЅР°СЏ С„РѕСЂРјСѓР»Р°: Ticks = 100ns. 10 000 000 ticks = 1 CPU-second.
+                    // deltaTime РІ ms. CPU% (СЃСѓРјРјР°СЂРЅС‹Р№ РїРѕ РІСЃРµРј СЏРґСЂР°Рј) = deltaTicks / 100 / deltaTime.
+                    // РџСЂРёРјРµСЂ: 50M ticks Р·Р° 1000ms = 50M/100/1000 = 500% (5 СЏРґРµСЂ РїРѕ 100%).
                     double cpuPercent = deltaTicks / 100.0 / deltaTime;
                     int cpuCores = Runtime.getRuntime().availableProcessors();
                     cpuPercent = Math.min(cpuPercent, 100.0 * cpuCores);
-                    // Формат: <суммарный %>/<макс суммарный %> — пример: CPU: 243/400%
+                    // Р¤РѕСЂРјР°С‚: <СЃСѓРјРјР°СЂРЅС‹Р№ %>/<РјР°РєСЃ СЃСѓРјРјР°СЂРЅС‹Р№ %> вЂ” РїСЂРёРјРµСЂ: CPU: 243/400%
                     String cpuStr = String.format("CPU: %.0f/%d%%", cpuPercent, cpuCores * 100);
                     Platform.runLater(() -> { if (cpuLabel != null) cpuLabel.setText(cpuStr); });
                 }
             } else {
-                // First successful sample: package as "CPU: …" so user knows it's loading.
-                Platform.runLater(() -> { if (cpuLabel != null) cpuLabel.setText("CPU: …"); });
+                // First successful sample: package as "CPU: вЂ¦" so user knows it's loading.
+                Platform.runLater(() -> { if (cpuLabel != null) cpuLabel.setText("CPU: вЂ¦"); });
             }
             prevCpuKernel = totalTicks;
             prevCpuUser = 0;
-            prevSensorTime = now;            // RAM — процесс + всего в системе
+            prevSensorTime = now;            // RAM вЂ” РїСЂРѕС†РµСЃСЃ + РІСЃРµРіРѕ РІ СЃРёСЃС‚РµРјРµ
             if (ramBytes > 0) {
                 long totalPhys = 0;
                 try {
@@ -2633,7 +2633,7 @@ public class MainController {
                 } catch (Throwable t) {
                     System.err.println("[PowerLaunch][ram] MXBean read failed: " + t.getMessage());
                 }
-                // Формат: <RAM процесса>/<всего RAM в системе>
+                // Р¤РѕСЂРјР°С‚: <RAM РїСЂРѕС†РµСЃСЃР°>/<РІСЃРµРіРѕ RAM РІ СЃРёСЃС‚РµРјРµ>
                 String procStr = (ramBytes > 1_073_741_824L) ? String.format("%.1f GB", ramBytes / 1_073_741_824.0)
                         : (ramBytes / 1_048_576) + " MB";
                 String totalStr = (totalPhys > 1_073_741_824L) ? String.format("%.1f GB", totalPhys / 1_073_741_824.0)
@@ -2642,7 +2642,7 @@ public class MainController {
                 Platform.runLater(() -> { if (ramLabel != null) ramLabel.setText("RAM: " + finalRamStr); });
             }
         } catch (Throwable ex) {
-            // FIX 7: never silently swallow (was: `catch (Exception ignored) {}`) —
+            // FIX 7: never silently swallow (was: `catch (Exception ignored) {}`) вЂ”
             // print WHY sensor is empty so user can debug. Throttle stack trace to avoid
             // log flooding on persistent failures (Defender block etc.): first 2 + every 30th.
             System.err.println("[PowerLaunch][cpu/ram] sensor failure for pid=" + pid + ": " + ex.getMessage());
@@ -2659,19 +2659,19 @@ public class MainController {
             long[] cumulative = readNetCumulativeWindows();
             long newRx = cumulative[0];
             long newTx = cumulative[1];
-            // Cumulative counters — compute rate as delta since last sample.
+            // Cumulative counters вЂ” compute rate as delta since last sample.
             if (prevRxBytes > 0) rxRate = Math.max(0, newRx - prevRxBytes);
             if (prevTxBytes > 0) txRate = Math.max(0, newTx - prevTxBytes);
             prevRxBytes = newRx;
             prevTxBytes = newTx;
         } catch (Exception ex) {
-            // Диагностика: раньше всё проглатывалось через `catch (Exception ignored) {}`
+            // Р”РёР°РіРЅРѕСЃС‚РёРєР°: СЂР°РЅСЊС€Рµ РІСЃС‘ РїСЂРѕРіР»Р°С‚С‹РІР°Р»РѕСЃСЊ С‡РµСЂРµР· `catch (Exception ignored) {}`
             System.err.println("[PowerLaunch][net] sensor failure: " + ex.getMessage());
         }
         String rxStr = formatSpeed(rxRate), txStr = formatSpeed(txRate);
         Platform.runLater(() -> {
-            if (netDownLabel != null) netDownLabel.setText("↓ " + rxStr + "/s");
-            if (netUpLabel != null) netUpLabel.setText("↑ " + txStr + "/s");
+            if (netDownLabel != null) netDownLabel.setText("в†“ " + rxStr + "/s");
+            if (netUpLabel != null) netUpLabel.setText("в†‘ " + txStr + "/s");
         });
     }
 
@@ -2684,11 +2684,11 @@ public class MainController {
     private long[] readNetCumulativeWindows() throws java.io.IOException, InterruptedException {
         long[] result = new long[2];
 
-        // Способ 1: PowerShell Get-NetAdapterStatistics (локаль-независимый [long] cast, безопасный для null)
+        // РЎРїРѕСЃРѕР± 1: PowerShell Get-NetAdapterStatistics (Р»РѕРєР°Р»СЊ-РЅРµР·Р°РІРёСЃРёРјС‹Р№ [long] cast, Р±РµР·РѕРїР°СЃРЅС‹Р№ РґР»СЏ null)
         try {
-            // Используем [long] cast для каждого адаптера, суммируем вручную (без Measure-Object -Sum
-            // который на русской локали падает с InvalidCastFromStringToDoubleOrSingle).
-            // Вывод: "<rx>,<tx>" — всегда инвариантная культура (без пробелов-разделителей тысяч).
+            // РСЃРїРѕР»СЊР·СѓРµРј [long] cast РґР»СЏ РєР°Р¶РґРѕРіРѕ Р°РґР°РїС‚РµСЂР°, СЃСѓРјРјРёСЂСѓРµРј РІСЂСѓС‡РЅСѓСЋ (Р±РµР· Measure-Object -Sum
+            // РєРѕС‚РѕСЂС‹Р№ РЅР° СЂСѓСЃСЃРєРѕР№ Р»РѕРєР°Р»Рё РїР°РґР°РµС‚ СЃ InvalidCastFromStringToDoubleOrSingle).
+            // Р’С‹РІРѕРґ: "<rx>,<tx>" вЂ” РІСЃРµРіРґР° РёРЅРІР°СЂРёР°РЅС‚РЅР°СЏ РєСѓР»СЊС‚СѓСЂР° (Р±РµР· РїСЂРѕР±РµР»РѕРІ-СЂР°Р·РґРµР»РёС‚РµР»РµР№ С‚С‹СЃСЏС‡).
             String psCmd =
                     "$r=0;$s=0;Get-NetAdapterStatistics|%{if($_.ReceivedBytes-ne$null){$r+=[long]$_.ReceivedBytes};if($_.SentBytes-ne$null){$s+=[long]$_.SentBytes}};echo \"$r,$s\"";
             Process p = new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", psCmd)
@@ -2698,11 +2698,11 @@ public class MainController {
             String out = new String(p.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
             p.destroyForcibly();
             if (done && !out.isEmpty()) {
-                // Убираем всё кроме цифр и запятой (на случай если echo добавила лишнего)
+                // РЈР±РёСЂР°РµРј РІСЃС‘ РєСЂРѕРјРµ С†РёС„СЂ Рё Р·Р°РїСЏС‚РѕР№ (РЅР° СЃР»СѓС‡Р°Р№ РµСЃР»Рё echo РґРѕР±Р°РІРёР»Р° Р»РёС€РЅРµРіРѕ)
                 String clean = out.replaceAll("[^0-9,]", "");
                 String[] parts = clean.split(",");
                 if (parts.length >= 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
-                    // Убираем возможную дробную часть (на всякий случай)
+                    // РЈР±РёСЂР°РµРј РІРѕР·РјРѕР¶РЅСѓСЋ РґСЂРѕР±РЅСѓСЋ С‡Р°СЃС‚СЊ (РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
                     String rxStr = parts[0].contains(".") ? parts[0].substring(0, parts[0].indexOf('.')) : parts[0];
                     String txStr = parts[1].contains(".") ? parts[1].substring(0, parts[1].indexOf('.')) : parts[1];
                     result[0] = Long.parseLong(rxStr);
@@ -2715,7 +2715,7 @@ public class MainController {
             System.err.println("[PowerLaunch][net] Get-NetAdapterStatistics failed: " + psEx.getMessage() + "; fallback to netstat -e");
         }
 
-        // Способ 2: netstat -e — родная команда Windows, вывод ВСЕГДА на английском
+        // РЎРїРѕСЃРѕР± 2: netstat -e вЂ” СЂРѕРґРЅР°СЏ РєРѕРјР°РЅРґР° Windows, РІС‹РІРѕРґ Р’РЎР•Р“Р”Рђ РЅР° Р°РЅРіР»РёР№СЃРєРѕРј
         Process p2 = new ProcessBuilder("netstat", "-e").redirectErrorStream(true).start();
         boolean done2 = p2.waitFor(5, TimeUnit.SECONDS);
         String out2 = new String(p2.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
@@ -2723,9 +2723,9 @@ public class MainController {
         if (!done2) {
             throw new java.io.IOException("netstat -e timeout");
         }
-        // Парсим строку с двумя большими числами — заголовок может быть "Bytes" (EN), "Байт" (RU), "Bytes" (DE) и т.д.
-        // Ищем любую строку, где есть два числа >= 4 цифр (это RX/TX bytes).
-        // Lockdown-friendly regex без Unicode, локаль-независимый.
+        // РџР°СЂСЃРёРј СЃС‚СЂРѕРєСѓ СЃ РґРІСѓРјСЏ Р±РѕР»СЊС€РёРјРё С‡РёСЃР»Р°РјРё вЂ” Р·Р°РіРѕР»РѕРІРѕРє РјРѕР¶РµС‚ Р±С‹С‚СЊ "Bytes" (EN), "Р‘Р°Р№С‚" (RU), "Bytes" (DE) Рё С‚.Рґ.
+        // РС‰РµРј Р»СЋР±СѓСЋ СЃС‚СЂРѕРєСѓ, РіРґРµ РµСЃС‚СЊ РґРІР° С‡РёСЃР»Р° >= 4 С†РёС„СЂ (СЌС‚Рѕ RX/TX bytes).
+        // Lockdown-friendly regex Р±РµР· Unicode, Р»РѕРєР°Р»СЊ-РЅРµР·Р°РІРёСЃРёРјС‹Р№.
         java.util.regex.Pattern bytesLine = java.util.regex.Pattern.compile(
                 "^[^\\d\\n]*\\b(\\d{4,})\\b[^\\d\\n]*\\b(\\d{4,})\\b[^\\d\\n]*$",
                 java.util.regex.Pattern.MULTILINE);
@@ -2793,9 +2793,9 @@ public class MainController {
                     sb.append(line).append("\r\n");
                 }
                 java.nio.file.Files.writeString(file.toPath(), sb.toString());
-                setStatus("✓ Logs exported: " + file.getName());
+                setStatus("вњ“ Logs exported: " + file.getName());
             } catch (java.io.IOException ex) {
-                setStatus("✗ Export error: " + ex.getMessage());
+                setStatus("вњ— Export error: " + ex.getMessage());
             }
         }
     }
@@ -2817,7 +2817,7 @@ public class MainController {
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Game Crash");
-        alert.setHeaderText("💥 Game crashed (exit code: " + exitCode + ")");
+        alert.setHeaderText("рџ’Ґ Game crashed (exit code: " + exitCode + ")");
 
         VBox content2 = new VBox(10);
         content2.setPadding(new Insets(5, 0, 5, 0));
@@ -2833,11 +2833,11 @@ public class MainController {
         pathField.setPrefWidth(400);
         pathField.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: rgb(180,180,210); -fx-font-size: 12; -fx-font-family: 'Consolas','Courier New',monospace; -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 10;");
 
-        Button openBtn = new Button("📂");
+        Button openBtn = new Button("рџ“‚");
         openBtn.setPrefSize(32, 32);
         openBtn.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 6; -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 6; -fx-cursor: hand; -fx-padding: 0;");
         Tooltip.install(openBtn, new Tooltip("Open crash reports folder"));
-        openBtn.setOnAction(ev -> { try { Runtime.getRuntime().exec("explorer.exe \"" + crashReportsDir + "\""); } catch (Exception ex) { setStatus("✗ Failed to open crash reports directory"); } });
+        openBtn.setOnAction(ev -> { try { Runtime.getRuntime().exec("explorer.exe \"" + crashReportsDir + "\""); } catch (Exception ex) { setStatus("вњ— Failed to open crash reports directory"); } });
 
         pathRow.getChildren().addAll(pathField, openBtn);
         content2.getChildren().addAll(info, pathRow);
@@ -2866,12 +2866,12 @@ public class MainController {
         Platform.runLater(() -> {
             if (statusIndicator == null) return;
             switch (status) {
-                case "off" -> { statusIndicator.setText("●  Off"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "starting" -> { statusIndicator.setText("●  Starting..."); statusIndicator.setTextFill(Color.web("#f59e0b")); }
-                case "running" -> { statusIndicator.setText("●  Running"); statusIndicator.setTextFill(Color.web("#10b981")); }
-                case "startup-error" -> { statusIndicator.setText("●  Launch error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "error" -> { statusIndicator.setText("●  Error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
-                case "timeout" -> { statusIndicator.setText("●  Timed out"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "off" -> { statusIndicator.setText("в—Џ  Off"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "starting" -> { statusIndicator.setText("в—Џ  Starting..."); statusIndicator.setTextFill(Color.web("#f59e0b")); }
+                case "running" -> { statusIndicator.setText("в—Џ  Running"); statusIndicator.setTextFill(Color.web("#10b981")); }
+                case "startup-error" -> { statusIndicator.setText("в—Џ  Launch error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "error" -> { statusIndicator.setText("в—Џ  Error"); statusIndicator.setTextFill(Color.web("#ef4444")); }
+                case "timeout" -> { statusIndicator.setText("в—Џ  Timed out"); statusIndicator.setTextFill(Color.web("#ef4444")); }
             }
         });
     }
@@ -2992,10 +2992,10 @@ public class MainController {
             if (authResult.isSuccess()) {
                 accountManager.createAccount(nick);
                 settings.set("username", nick);
-                setStatus("✓ Аккаунт \"" + nick + "\" created!");
+                setStatus("вњ“ РђРєРєР°СѓРЅС‚ \"" + nick + "\" created!");
                 if (onSuccess != null) onSuccess.run();
             } else {
-                setStatus("✗ " + authResult.getMessage());
+                setStatus("вњ— " + authResult.getMessage());
                 showCreateAccountDialog(onSuccess);
             }
         });
@@ -3015,7 +3015,7 @@ public class MainController {
                 if (response == ButtonType.OK) {
                     accountManager.removeAccount(username);
                     auth.logout();
-                    setStatus("✓ Аккаунт \"" + username + "\" deleted");
+                    setStatus("вњ“ РђРєРєР°СѓРЅС‚ \"" + username + "\" deleted");
                     if (onSuccess != null) onSuccess.run();
                 }
             });
@@ -3051,7 +3051,7 @@ public class MainController {
         confirmContent.setAlignment(Pos.CENTER);
         confirmContent.setPadding(new Insets(15, 10, 5, 10));
 
-        Label warningLabel = new Label("⚠ Account will be permanently deleted!");
+        Label warningLabel = new Label("вљ  Account will be permanently deleted!");
         warningLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         warningLabel.setTextFill(Color.web("#ef4444"));
         warningLabel.setAlignment(Pos.CENTER);
@@ -3074,7 +3074,7 @@ public class MainController {
         sliderLabel.setFont(Font.font("System", 12));
         sliderLabel.setTextFill(Color.rgb(200, 200, 220));
 
-        Button confirmDeleteBtn = new Button("🗑️ Confirm deletion");
+        Button confirmDeleteBtn = new Button("рџ—‘пёЏ Confirm deletion");
         confirmDeleteBtn.setDisable(true);
         confirmDeleteBtn.setPrefWidth(300);
         confirmDeleteBtn.setStyle(
@@ -3089,7 +3089,7 @@ public class MainController {
             boolean confirmed = val.doubleValue() >= 90;
             confirmDeleteBtn.setDisable(!confirmed);
             if (confirmed) {
-                sliderLabel.setText("✓ Confirmed");
+                sliderLabel.setText("вњ“ Confirmed");
                 sliderLabel.setTextFill(Color.web("#4ade80"));
                 confirmDeleteBtn.setStyle(
                         "-fx-background-color: #ef4444;" +
@@ -3134,7 +3134,7 @@ public class MainController {
         confirmDeleteBtn.setOnAction(e -> {
             accountManager.removeAccount(username);
             auth.logout();
-            setStatus("✓ Аккаунт \"" + username + "\" deleted");
+            setStatus("вњ“ РђРєРєР°СѓРЅС‚ \"" + username + "\" deleted");
             dialog.close();
             if (onSuccess != null) onSuccess.run();
         });
@@ -3155,7 +3155,7 @@ public class MainController {
         page.setPadding(new Insets(20));
         page.setStyle("-fx-background-color: transparent;");
 
-        Text title = new Text("⚙️ Manage Versions");
+        Text title = new Text("вљ™пёЏ Manage Versions");
         title.setFont(Font.font("System", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 15, 0));
@@ -3181,7 +3181,7 @@ public class MainController {
                     cell.setAlignment(Pos.CENTER_LEFT);
                     cell.setPadding(new Insets(8, 12, 8, 12));
 
-                    Label nameLabel = new Label((isCurrent ? "✓ " : "   ") + v);
+                    Label nameLabel = new Label((isCurrent ? "вњ“ " : "   ") + v);
                     nameLabel.setFont(Font.font("System", isCurrent ? FontWeight.BOLD : FontWeight.NORMAL, 14));
                     nameLabel.setTextFill(isCurrent ? Color.web("#3b82f6") : Color.WHITE);
 
@@ -3220,17 +3220,17 @@ public class MainController {
         buttons.setAlignment(Pos.CENTER);
         buttons.setPadding(new Insets(15, 0, 0, 0));
 
-        Button deleteBtn = new Button("🗑️ Delete версию");
+        Button deleteBtn = new Button("рџ—‘пёЏ Delete РІРµСЂСЃРёСЋ");
         styleSettingsButton(deleteBtn, "#ef4444", "#dc2626");
         deleteBtn.setOnAction(e -> {
             if (selectedVersion == null || selectedVersion.isEmpty()) {
-                setStatus("✗ Select a version from the list");
+                setStatus("вњ— Select a version from the list");
                 return;
             }
             // Confirm
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Delete Version");
-            alert.setHeaderText("Delete версию \"" + selectedVersion + "\"?");
+            alert.setHeaderText("Delete РІРµСЂСЃРёСЋ \"" + selectedVersion + "\"?");
             alert.setContentText("Version will be removed from the list. Files will remain in the folder.");
 
             DialogPane dp = alert.getDialogPane();
@@ -3240,23 +3240,23 @@ public class MainController {
                     String removed = selectedVersion;
                     versionManager.removeVersion(selectedVersion);
                     selectedVersion = versionManager.getCurrentVersion();
-                    setStatus("✓ Версия \"" + removed + "\" removed from list");
+                    setStatus("вњ“ Р’РµСЂСЃРёСЏ \"" + removed + "\" removed from list");
                     showVersionSettingsPage();
                 }
             });
         });
 
-        Button scanBtn = new Button("🔍 Scan");
+        Button scanBtn = new Button("рџ”Ќ Scan");
         styleSettingsButton(scanBtn, "#3b82f6", "#2563eb");
         scanBtn.setOnAction(e -> {
             versionManager.reload();
             versionList.getItems().setAll(versionManager.getInstalledVersions());
             if (versionManager.getCurrentVersion() != null)
                 selectedVersion = versionManager.getCurrentVersion();
-            setStatus("✓ Scanned: " + versionManager.getInstalledVersions().size() + " version(s) found");
+            setStatus("вњ“ Scanned: " + versionManager.getInstalledVersions().size() + " version(s) found");
         });
 
-        Button backBtn = new Button("◀ Back");
+        Button backBtn = new Button("в—Ђ Back");
         styleSettingsButton(backBtn, "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)");
         backBtn.setTextFill(Color.rgb(200, 200, 220));
         backBtn.setOnAction(e -> showMainPage());
@@ -3360,7 +3360,7 @@ public class MainController {
             if (result.size() >= 2 && !result.get(0).isEmpty() && !result.get(1).isEmpty()) {
                 serverManager.addServer(result.get(0), result.get(1), "");
                 refreshServerList(listView);
-                setStatus("✓ Сервер \"" + result.get(0) + "\" added");
+                setStatus("вњ“ РЎРµСЂРІРµСЂ \"" + result.get(0) + "\" added");
             }
         });
     }
@@ -3422,7 +3422,7 @@ public class MainController {
                 serverManager.removeServer(idx);
                 serverManager.addServer(result.get(0), result.get(1), "");
                 refreshServerList(listView);
-                setStatus("✓ Сервер \"" + result.get(0) + "\" updated");
+                setStatus("вњ“ РЎРµСЂРІРµСЂ \"" + result.get(0) + "\" updated");
             }
         });
     }
@@ -3435,7 +3435,7 @@ public class MainController {
         page.setStyle("-fx-background-color: transparent;");
 
         // Title
-        Text title = new Text("⚙️ Launcher Settings");
+        Text title = new Text("вљ™пёЏ Launcher Settings");
         title.setFont(Font.font("System", FontWeight.BOLD, 24));
         title.setFill(Color.WHITE);
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
@@ -3447,31 +3447,31 @@ public class MainController {
         tabPane.setStyle("-fx-background-color: transparent; -fx-tab-min-width: 90;");
 
         // Tab 1: Basic Settings
-        Tab basicTab = new Tab("Основные");
+        Tab basicTab = new Tab("РћСЃРЅРѕРІРЅС‹Рµ");
         basicTab.setClosable(false);
         basicTab.setContent(wrapSettingsTab(createBasicSettingsTab()));
         tabPane.getTabs().add(basicTab);
 
         // Tab 2: Launcher Settings
-        Tab launcherTab = new Tab("Лаунчер");
+        Tab launcherTab = new Tab("Р›Р°СѓРЅС‡РµСЂ");
         launcherTab.setClosable(false);
         launcherTab.setContent(wrapSettingsTab(createLauncherSettingsTab()));
         tabPane.getTabs().add(launcherTab);
 
         // Tab 3: Graphics Settings
-        Tab graphicsTab = new Tab("Графика");
+        Tab graphicsTab = new Tab("Р“СЂР°С„РёРєР°");
         graphicsTab.setClosable(false);
         graphicsTab.setContent(wrapSettingsTab(createGraphicsSettingsTab()));
         tabPane.getTabs().add(graphicsTab);
 
         // Tab 4: Design Settings
-        Tab designTab = new Tab("Дизайн");
+        Tab designTab = new Tab("Р”РёР·Р°Р№РЅ");
         designTab.setClosable(false);
         designTab.setContent(wrapSettingsTab(createDesignSettingsTab()));
         tabPane.getTabs().add(designTab);
 
         // Set initial selection based on current settings or previous selection
-        String lastTab = settings.getString("settingsLastTab", "Основные");
+        String lastTab = settings.getString("settingsLastTab", "РћСЃРЅРѕРІРЅС‹Рµ");
         for (Tab tab : tabPane.getTabs()) {
             if (tab.getText().equals(lastTab)) {
                 tabPane.getSelectionModel().select(tab);
@@ -3492,10 +3492,8 @@ public class MainController {
         contentWrapper.setPadding(new Insets(20));
         contentWrapper.getChildren().add(tabPane);
 
-        page.setCenter(contentWrapper);
-
         // Set this as the current page
-        mainContent.getChildren().setAll(page);
+        mainContent.getChildren().setAll(contentWrapper);
         currentPage = "settings-with-tabs";
     }
 
@@ -3515,15 +3513,15 @@ public class MainController {
         form.setPadding(new Insets(15, 0, 15, 0));
 
         // === 1. Account Settings ===
-        VBox accountCard = createSettingsCard("Аккаунты", "Управление аккаунтами и сессиями");
+        VBox accountCard = createSettingsCard("РђРєРєР°СѓРЅС‚С‹", "РЈРїСЂР°РІР»РµРЅРёРµ Р°РєРєР°СѓРЅС‚Р°РјРё Рё СЃРµСЃСЃРёСЏРјРё");
         
-        Label accountInfo = new Label("Текущий аккаунт: " + 
+        Label accountInfo = new Label("РўРµРєСѓС‰РёР№ Р°РєРєР°СѓРЅС‚: " + 
             (accountManager.getCurrentAccount() != null ? 
-             accountManager.getCurrentAccount().getUsername() : "Не выбран"));
+             accountManager.getCurrentAccount().getUsername() : "РќРµ РІС‹Р±СЂР°РЅ"));
         accountInfo.setTextFill(Color.rgb(220, 220, 240));
         accountInfo.setStyle("-fx-font-size: 14;");
         
-        Button manageAccountsBtn = new Button("Управление аккаунтами");
+        Button manageAccountsBtn = new Button("РЈРїСЂР°РІР»РµРЅРёРµ Р°РєРєР°СѓРЅС‚Р°РјРё");
         manageAccountsBtn.setStyle(
             "-fx-background-color: rgba(59, 130, 246, 0.5);" +
             "-fx-text-fill: white;" +
@@ -3539,9 +3537,9 @@ public class MainController {
         form.getChildren().add(accountCard);
 
         // === 2. Version Management ===
-        VBox versionCard = createSettingsCard("Версии Minecraft", "Управление версиями игры");
+        VBox versionCard = createSettingsCard("Р’РµСЂСЃРёРё Minecraft", "РЈРїСЂР°РІР»РµРЅРёРµ РІРµСЂСЃРёСЏРјРё РёРіСЂС‹");
         
-        Button manageVersionsBtn = new Button("Управление версиями");
+        Button manageVersionsBtn = new Button("РЈРїСЂР°РІР»РµРЅРёРµ РІРµСЂСЃРёСЏРјРё");
         manageVersionsBtn.setStyle(
             "-fx-background-color: rgba(59, 130, 246, 0.5);" +
             "-fx-text-fill: white;" +
@@ -3555,7 +3553,7 @@ public class MainController {
         form.getChildren().add(versionCard);
 
         // === 3. General Settings ===
-        VBox generalCard = createSettingsCard("Основные настройки", "Основные параметры лаунчера");
+        VBox generalCard = createSettingsCard("РћСЃРЅРѕРІРЅС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё", "РћСЃРЅРѕРІРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ Р»Р°СѓРЅС‡РµСЂР°");
         
         // Auto-login toggle
         HBox autoLoginRow = new HBox(12);
@@ -3565,14 +3563,14 @@ public class MainController {
         boolean autoLogin = settings.getBoolean("autoLogin", false);
         autoLoginToggle.setSelected(autoLogin);
         updateToggleStyle(autoLoginToggle);
-        autoLoginToggle.setText(autoLogin ? "🟢 Вкл" : "🔴 Выкл");
+        autoLoginToggle.setText(autoLogin ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         autoLoginToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("autoLogin", val);
             updateToggleStyle(autoLoginToggle);
-            autoLoginToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            autoLoginToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
         
-        Label autoLoginLabel = new Label("Автовход:");
+        Label autoLoginLabel = new Label("РђРІС‚РѕРІС…РѕРґ:");
         autoLoginLabel.setTextFill(Color.rgb(200, 200, 220));
         
         autoLoginRow.getChildren().addAll(autoLoginLabel, autoLoginToggle);
@@ -3587,14 +3585,14 @@ public class MainController {
         boolean saveConsoleLog = settings.getBoolean("saveConsoleLog", true);
         consoleLogToggle.setSelected(saveConsoleLog);
         updateToggleStyle(consoleLogToggle);
-        consoleLogToggle.setText(saveConsoleLog ? "🟢 Вкл" : "🔴 Выкл");
+        consoleLogToggle.setText(saveConsoleLog ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         consoleLogToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("saveConsoleLog", val);
             updateToggleStyle(consoleLogToggle);
-            consoleLogToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            consoleLogToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
         
-        Label consoleLogLabel = new Label("Сохранять лог консоли:");
+        Label consoleLogLabel = new Label("РЎРѕС…СЂР°РЅСЏС‚СЊ Р»РѕРі РєРѕРЅСЃРѕР»Рё:");
         consoleLogLabel.setTextFill(Color.rgb(200, 200, 220));
         
         consoleLogRow.getChildren().addAll(consoleLogLabel, consoleLogToggle);
@@ -3610,12 +3608,12 @@ public class MainController {
         form.setPadding(new Insets(15, 0, 15, 0));
 
         // === 1. Game Directory ===
-        VBox gameDirCard = createSettingsCard("Папка игры", "Путь к файлам Minecraft");
+        VBox gameDirCard = createSettingsCard("РџР°РїРєР° РёРіСЂС‹", "РџСѓС‚СЊ Рє С„Р°Р№Р»Р°Рј Minecraft");
         HBox dirRow = new HBox(10);
         dirRow.setAlignment(Pos.CENTER_LEFT);
 
         TextField dirField = new TextField(settings.getString("gameDirectory", ""));
-        dirField.setPromptText("Например: C:\\Users\\Имя\\AppData\\Roaming\\.powerlaunch");
+        dirField.setPromptText("РќР°РїСЂРёРјРµСЂ: C:\\Users\\РРјСЏ\\AppData\\Roaming\\.powerlaunch");
         dirField.setPrefWidth(400);
         dirField.setStyle(settingsInputStyle());
         // Save on focus loss / Enter, then rescan installed versions
@@ -3624,10 +3622,10 @@ public class MainController {
         });
         dirField.setOnAction(e -> { settings.set("gameDirectory", dirField.getText().trim()); versionManager.reload(); });
 
-        Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать папку");
+        Button dirBrowseBtn = createBrowseButton(createFolderSvg(), "Р’С‹Р±СЂР°С‚СЊ РїР°РїРєСѓ");
         dirBrowseBtn.setOnAction(e -> {
             DirectoryChooser dc = new DirectoryChooser();
-            dc.setTitle("Выберите папку игры");
+            dc.setTitle("Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ РёРіСЂС‹");
             if (!dirField.getText().isEmpty()) {
                 dc.setInitialDirectory(new File(dirField.getText()));
             }
@@ -3645,7 +3643,7 @@ public class MainController {
         form.getChildren().add(gameDirCard);
 
         // === 2. Java Selection ===
-        VBox javaCard = createSettingsCard("Настройки Java", "Выбор версии и пути к Java");
+        VBox javaCard = createSettingsCard("РќР°СЃС‚СЂРѕР№РєРё Java", "Р’С‹Р±РѕСЂ РІРµСЂСЃРёРё Рё РїСѓС‚Рё Рє Java");
         
         // Java choice dropdown
         HBox javaChoiceRow = new HBox(10);
@@ -3657,9 +3655,9 @@ public class MainController {
         // Auto-detect Java versions
         String currentJavaHome = System.getProperty("java.home");
         String currentJavaVersion = System.getProperty("java.version");
-        String autoLabel = "Автоопределение (Java " + currentJavaVersion + ")";
+        String autoLabel = "РђРІС‚РѕРѕРїСЂРµРґРµР»РµРЅРёРµ (Java " + currentJavaVersion + ")";
         javaChoice.getItems().add(autoLabel);
-        javaChoice.getItems().add("Только текущая");
+        javaChoice.getItems().add("РўРѕР»СЊРєРѕ С‚РµРєСѓС‰Р°СЏ");
 
         // Try to find other Java installations
         try {
@@ -3706,7 +3704,7 @@ public class MainController {
             settings.set("javaChoice", val != null && val.equals(autoLabel) ? "auto" : val);
         });
 
-        Label javaChoiceLabel = new Label("Версия:");
+        Label javaChoiceLabel = new Label("Р’РµСЂСЃРёСЏ:");
         javaChoiceLabel.setTextFill(Color.rgb(200, 200, 220));
         javaChoiceRow.getChildren().add(javaChoiceLabel);
         javaChoiceRow.getChildren().add(javaChoice);
@@ -3718,15 +3716,15 @@ public class MainController {
         javaPathRow.setPadding(new Insets(8, 0, 0, 0));
 
         TextField javaPathField = new TextField(settings.getString("javaPath", ""));
-        javaPathField.setPromptText("Путь к javaw.exe / java");
+        javaPathField.setPromptText("РџСѓС‚СЊ Рє javaw.exe / java");
         javaPathField.setPrefWidth(400);
         javaPathField.setStyle(settingsInputStyle());
         javaPathField.textProperty().addListener((obs, old, val) -> settings.set("javaPath", val));
 
-        Button javaBrowseBtn = createBrowseButton(createFolderSvg(), "Выбрать java/javaw.exe");
+        Button javaBrowseBtn = createBrowseButton(createFolderSvg(), "Р’С‹Р±СЂР°С‚СЊ java/javaw.exe");
         javaBrowseBtn.setOnAction(e -> {
             FileChooser fc = new FileChooser();
-            fc.setTitle("Выберите java/javaw.exe");
+            fc.setTitle("Р’С‹Р±РµСЂРёС‚Рµ java/javaw.exe");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java Executable", "*.exe", "*"));
             if (!javaPathField.getText().isEmpty()) {
                 fc.setInitialDirectory(new File(javaPathField.getText()).getParentFile());
@@ -3737,7 +3735,7 @@ public class MainController {
             }
         });
 
-        Label javaPathLabel = new Label("Путь:");
+        Label javaPathLabel = new Label("РџСѓС‚СЊ:");
         javaPathLabel.setTextFill(Color.rgb(200, 200, 220));
         javaPathRow.getChildren().add(javaPathLabel);
         javaPathRow.getChildren().add(javaPathField);
@@ -3747,7 +3745,7 @@ public class MainController {
         form.getChildren().add(javaCard);
 
         // === 3. JVM Arguments ===
-        VBox jvmCard = createSettingsCard("Аргументы JVM", "Параметры виртуальной машины Java");
+        VBox jvmCard = createSettingsCard("РђСЂРіСѓРјРµРЅС‚С‹ JVM", "РџР°СЂР°РјРµС‚СЂС‹ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ РјР°С€РёРЅС‹ Java");
         jvmCard.setPrefHeight(120);
 
         TextField jvmField = new TextField();
@@ -3772,7 +3770,7 @@ public class MainController {
         form.setPadding(new Insets(15, 0, 15, 0));
 
         // === 1. GPU Selection ===
-        VBox gpuCard = createSettingsCard("Настройки графики", "Выбор GPU и разрешения");
+        VBox gpuCard = createSettingsCard("РќР°СЃС‚СЂРѕР№РєРё РіСЂР°С„РёРєРё", "Р’С‹Р±РѕСЂ GPU Рё СЂР°Р·СЂРµС€РµРЅРёСЏ");
         
         // GPU selection
         HBox gpuRow = new HBox(10);
@@ -3780,7 +3778,7 @@ public class MainController {
 
         ComboBox<String> gpuChoice = new ComboBox<>();
         gpuChoice.setPrefWidth(400);
-        gpuChoice.getItems().add("Авто (система)");
+        gpuChoice.getItems().add("РђРІС‚Рѕ (СЃРёСЃС‚РµРјР°)");
 
         // Try to detect available GPUs
         try {
@@ -3803,23 +3801,23 @@ public class MainController {
 
         // Fallback if no GPUs detected
         if (gpuChoice.getItems().size() <= 1) {
-            gpuChoice.getItems().add("Интегрированная");
-            gpuChoice.getItems().add("Дискретная (высокая производительность)");
+            gpuChoice.getItems().add("РРЅС‚РµРіСЂРёСЂРѕРІР°РЅРЅР°СЏ");
+            gpuChoice.getItems().add("Р”РёСЃРєСЂРµС‚РЅР°СЏ (РІС‹СЃРѕРєР°СЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚СЊ)");
         }
 
         String savedGpu = settings.getString("gpuChoice", "auto");
         if (savedGpu.equals("auto")) {
-            gpuChoice.setValue("Авто (система)");
+            gpuChoice.setValue("РђРІС‚Рѕ (СЃРёСЃС‚РµРјР°)");
         } else {
             gpuChoice.setValue(savedGpu);
         }
         gpuChoice.setStyle(settingsComboStyle());
         gpuChoice.setOnAction(e -> {
             String val = gpuChoice.getValue();
-            settings.set("gpuChoice", val != null && val.equals("Авто (система)") ? "auto" : val);
+            settings.set("gpuChoice", val != null && val.equals("РђРІС‚Рѕ (СЃРёСЃС‚РµРјР°)") ? "auto" : val);
         });
 
-        Label gpuLabel = new Label("Видеокарта:");
+        Label gpuLabel = new Label("Р’РёРґРµРѕРєР°СЂС‚Р°:");
         gpuLabel.setTextFill(Color.rgb(200, 200, 220));
         gpuRow.getChildren().add(gpuLabel);
         gpuRow.getChildren().add(gpuChoice);
@@ -3834,21 +3832,21 @@ public class MainController {
         boolean customRes = settings.getBoolean("useCustomResolution", false);
         customResToggle.setSelected(customRes);
         updateToggleStyle(customResToggle);
-        customResToggle.setText(customRes ? "🟢 Вкл" : "🔴 Выкл");
+        customResToggle.setText(customRes ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         customResToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("useCustomResolution", val);
             updateToggleStyle(customResToggle);
-            customResToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            customResToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
 
-        Label customResLabel = new Label("Кастомное разрешение:");
+        Label customResLabel = new Label("РљР°СЃС‚РѕРјРЅРѕРµ СЂР°Р·СЂРµС€РµРЅРёРµ:");
         customResLabel.setTextFill(Color.rgb(200, 200, 220));
 
         HBox resolutionInputs = new HBox(8);
         resolutionInputs.setAlignment(Pos.CENTER_LEFT);
         resolutionInputs.setDisable(!customRes);
         
-        Label widthLabel = new Label("Ширина:");
+        Label widthLabel = new Label("РЁРёСЂРёРЅР°:");
         widthLabel.setTextFill(Color.rgb(200, 200, 220));
         
         TextField widthField = new TextField(String.valueOf(settings.getInt("gameWidth", 854)));
@@ -3863,7 +3861,7 @@ public class MainController {
             }
         });
         
-        Label heightLabel = new Label("Высота:");
+        Label heightLabel = new Label("Р’С‹СЃРѕС‚Р°:");
         heightLabel.setTextFill(Color.rgb(200, 200, 220));
         
         TextField heightField = new TextField(String.valueOf(settings.getInt("gameHeight", 480)));
@@ -3891,7 +3889,7 @@ public class MainController {
         form.getChildren().add(gpuCard);
 
         // === 3. Server Auto-connect ===
-        VBox serverCard = createSettingsCard("Настройки сервера", "Автоподключение к серверу");
+        VBox serverCard = createSettingsCard("РќР°СЃС‚СЂРѕР№РєРё СЃРµСЂРІРµСЂР°", "РђРІС‚РѕРїРѕРґРєР»СЋС‡РµРЅРёРµ Рє СЃРµСЂРІРµСЂСѓ");
         
         // Auto-connect toggle
         HBox autoConnectRow = new HBox(12);
@@ -3901,14 +3899,14 @@ public class MainController {
         boolean autoConnect = settings.getBoolean("autoConnect", false);
         autoConnectToggle.setSelected(autoConnect);
         updateToggleStyle(autoConnectToggle);
-        autoConnectToggle.setText(autoConnect ? "🟢 Вкл" : "🔴 Выкл");
+        autoConnectToggle.setText(autoConnect ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         autoConnectToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("autoConnect", val);
             updateToggleStyle(autoConnectToggle);
-            autoConnectToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            autoConnectToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
 
-        Label autoConnectLabel = new Label("Подключение при запуске:");
+        Label autoConnectLabel = new Label("РџРѕРґРєР»СЋС‡РµРЅРёРµ РїСЂРё Р·Р°РїСѓСЃРєРµ:");
         autoConnectLabel.setTextFill(Color.rgb(200, 200, 220));
 
         autoConnectRow.getChildren().addAll(autoConnectLabel, autoConnectToggle);
@@ -3919,11 +3917,11 @@ public class MainController {
         serverIpRow.setAlignment(Pos.CENTER_LEFT);
         serverIpRow.setPadding(new Insets(5, 0, 0, 0));
 
-        Label ipLabel = new Label("IP сервера:");
+        Label ipLabel = new Label("IP СЃРµСЂРІРµСЂР°:");
         ipLabel.setTextFill(Color.rgb(200, 200, 220));
 
         TextField serverIpField = new TextField(settings.getString("connectServerIp", ""));
-        serverIpField.setPromptText("например: play.example.com:25565");
+        serverIpField.setPromptText("РЅР°РїСЂРёРјРµСЂ: play.example.com:25565");
         serverIpField.setPrefWidth(300);
         serverIpField.setStyle(settingsInputStyle());
         serverIpField.textProperty().addListener((obs, old, val) -> settings.set("connectServerIp", val));
@@ -3941,7 +3939,7 @@ public class MainController {
         form.setPadding(new Insets(15, 0, 15, 0));
 
         // === 1. Theme Selection ===
-        VBox themeCard = createSettingsCard("Тема оформления", "Выбор цветовой темы лаунчера");
+        VBox themeCard = createSettingsCard("РўРµРјР° РѕС„РѕСЂРјР»РµРЅРёСЏ", "Р’С‹Р±РѕСЂ С†РІРµС‚РѕРІРѕР№ С‚РµРјС‹ Р»Р°СѓРЅС‡РµСЂР°");
         
         // Theme selection buttons in a grid
         GridPane themeGrid = new GridPane();
@@ -4000,7 +3998,7 @@ public class MainController {
         form.getChildren().add(themeCard);
 
         // === 2. Animation Settings ===
-        VBox animationCard = createSettingsCard("Настройки анимаций", "Управление анимациями интерфейса");
+        VBox animationCard = createSettingsCard("РќР°СЃС‚СЂРѕР№РєРё Р°РЅРёРјР°С†РёР№", "РЈРїСЂР°РІР»РµРЅРёРµ Р°РЅРёРјР°С†РёСЏРјРё РёРЅС‚РµСЂС„РµР№СЃР°");
         
         // Animation enable/disable toggle
         HBox animationToggleRow = new HBox(12);
@@ -4010,14 +4008,14 @@ public class MainController {
         boolean animationsEnabled = settings.getBoolean("animationsEnabled", true);
         animationToggle.setSelected(animationsEnabled);
         updateToggleStyle(animationToggle);
-        animationToggle.setText(animationsEnabled ? "🟢 Вкл" : "🔴 Выкл");
+        animationToggle.setText(animationsEnabled ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         animationToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("animationsEnabled", val);
             updateToggleStyle(animationToggle);
-            animationToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            animationToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
         
-        Label animationLabel = new Label("Анимации интерфейса:");
+        Label animationLabel = new Label("РђРЅРёРјР°С†РёРё РёРЅС‚РµСЂС„РµР№СЃР°:");
         animationLabel.setTextFill(Color.rgb(200, 200, 220));
         
         animationToggleRow.getChildren().addAll(animationLabel, animationToggle);
@@ -4028,7 +4026,7 @@ public class MainController {
         speedRow.setAlignment(Pos.CENTER_LEFT);
         speedRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label speedLabel = new Label("Скорость анимаций:");
+        Label speedLabel = new Label("РЎРєРѕСЂРѕСЃС‚СЊ Р°РЅРёРјР°С†РёР№:");
         speedLabel.setTextFill(Color.rgb(200, 200, 220));
         speedLabel.setPrefWidth(180);
         
@@ -4056,12 +4054,12 @@ public class MainController {
         typeRow.setAlignment(Pos.CENTER_LEFT);
         typeRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label typeLabel = new Label("Тип анимаций:");
+        Label typeLabel = new Label("РўРёРї Р°РЅРёРјР°С†РёР№:");
         typeLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ComboBox<String> animationType = new ComboBox<>();
-        animationType.getItems().addAll("Плавные", "Пружинные", "Быстрые", "Минимальные");
-        animationType.setValue(settings.getString("animationType", "Плавные"));
+        animationType.getItems().addAll("РџР»Р°РІРЅС‹Рµ", "РџСЂСѓР¶РёРЅРЅС‹Рµ", "Р‘С‹СЃС‚СЂС‹Рµ", "РњРёРЅРёРјР°Р»СЊРЅС‹Рµ");
+        animationType.setValue(settings.getString("animationType", "РџР»Р°РІРЅС‹Рµ"));
         animationType.setPrefWidth(180);
         animationType.setStyle(settingsComboStyle());
         animationType.setOnAction(e -> {
@@ -4074,13 +4072,13 @@ public class MainController {
         form.getChildren().add(animationCard);
 
         // === 3. Color Customization ===
-        VBox colorCard = createSettingsCard("Цветовая палитра", "Настройка цветов интерфейса");
+        VBox colorCard = createSettingsCard("Р¦РІРµС‚РѕРІР°СЏ РїР°Р»РёС‚СЂР°", "РќР°СЃС‚СЂРѕР№РєР° С†РІРµС‚РѕРІ РёРЅС‚РµСЂС„РµР№СЃР°");
         
         // Background color picker
         HBox bgColorRow = new HBox(12);
         bgColorRow.setAlignment(Pos.CENTER_LEFT);
         
-        Label bgColorLabel = new Label("Фоновый цвет:");
+        Label bgColorLabel = new Label("Р¤РѕРЅРѕРІС‹Р№ С†РІРµС‚:");
         bgColorLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ColorPicker bgColorPicker = new ColorPicker(Color.web(settings.getString("backgroundColor", "#0f172a")));
@@ -4103,7 +4101,7 @@ public class MainController {
         accentColorRow.setAlignment(Pos.CENTER_LEFT);
         accentColorRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label accentColorLabel = new Label("Акцентный цвет:");
+        Label accentColorLabel = new Label("РђРєС†РµРЅС‚РЅС‹Р№ С†РІРµС‚:");
         accentColorLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ColorPicker accentColorPicker = new ColorPicker(Color.web(settings.getString("accentColor", "#3b82f6")));
@@ -4125,7 +4123,7 @@ public class MainController {
         textColorRow.setAlignment(Pos.CENTER_LEFT);
         textColorRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label textColorLabel = new Label("Цвет текста:");
+        Label textColorLabel = new Label("Р¦РІРµС‚ С‚РµРєСЃС‚Р°:");
         textColorLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ColorPicker textColorPicker = new ColorPicker(Color.web(settings.getString("textColor", "#f8fafc")));
@@ -4145,7 +4143,7 @@ public class MainController {
         form.getChildren().add(colorCard);
 
         // === 4. Gradient Settings ===
-        VBox gradientCard = createSettingsCard("Градиенты", "Настройка градиентного оформления");
+        VBox gradientCard = createSettingsCard("Р“СЂР°РґРёРµРЅС‚С‹", "РќР°СЃС‚СЂРѕР№РєР° РіСЂР°РґРёРµРЅС‚РЅРѕРіРѕ РѕС„РѕСЂРјР»РµРЅРёСЏ");
         
         // Gradient enable toggle
         HBox gradientToggleRow = new HBox(12);
@@ -4155,15 +4153,15 @@ public class MainController {
         boolean gradientEnabled = settings.getBoolean("gradientEnabled", false);
         gradientToggle.setSelected(gradientEnabled);
         updateToggleStyle(gradientToggle);
-        gradientToggle.setText(gradientEnabled ? "🟢 Вкл" : "🔴 Выкл");
+        gradientToggle.setText(gradientEnabled ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         gradientToggle.selectedProperty().addListener((obs, old, val) -> {
             settings.set("gradientEnabled", val);
             Main.applyTheme();
             updateToggleStyle(gradientToggle);
-            gradientToggle.setText(val ? "🟢 Вкл" : "🔴 Выкл");
+            gradientToggle.setText(val ? "рџџў Р’РєР»" : "рџ”ґ Р’С‹РєР»");
         });
         
-        Label gradientLabel = new Label("Градиенты:");
+        Label gradientLabel = new Label("Р“СЂР°РґРёРµРЅС‚С‹:");
         gradientLabel.setTextFill(Color.rgb(200, 200, 220));
         
         gradientToggleRow.getChildren().addAll(gradientLabel, gradientToggle);
@@ -4174,12 +4172,12 @@ public class MainController {
         gradientTypeRow.setAlignment(Pos.CENTER_LEFT);
         gradientTypeRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label gradientTypeLabel = new Label("Тип градиента:");
+        Label gradientTypeLabel = new Label("РўРёРї РіСЂР°РґРёРµРЅС‚Р°:");
         gradientTypeLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ComboBox<String> gradientType = new ComboBox<>();
-        gradientType.getItems().addAll("Линейный", "Радиальный", "Угловой", "Отраженный");
-        gradientType.setValue(settings.getString("gradientType", "Линейный"));
+        gradientType.getItems().addAll("Р›РёРЅРµР№РЅС‹Р№", "Р Р°РґРёР°Р»СЊРЅС‹Р№", "РЈРіР»РѕРІРѕР№", "РћС‚СЂР°Р¶РµРЅРЅС‹Р№");
+        gradientType.setValue(settings.getString("gradientType", "Р›РёРЅРµР№РЅС‹Р№"));
         gradientType.setPrefWidth(150);
         gradientType.setStyle(settingsComboStyle());
         gradientType.setOnAction(e -> {
@@ -4194,12 +4192,12 @@ public class MainController {
         gradientDirRow.setAlignment(Pos.CENTER_LEFT);
         gradientDirRow.setPadding(new Insets(10, 0, 0, 0));
         
-        Label gradientDirLabel = new Label("Направление:");
+        Label gradientDirLabel = new Label("РќР°РїСЂР°РІР»РµРЅРёРµ:");
         gradientDirLabel.setTextFill(Color.rgb(200, 200, 220));
         
         ComboBox<String> gradientDirection = new ComboBox<>();
-        gradientDirection.getItems().addAll("Сверху вниз", "Снизу вверх", "Слева направо", "Справа налево", "Диагональ");
-        gradientDirection.setValue(settings.getString("gradientDirection", "Сверху вниз"));
+        gradientDirection.getItems().addAll("РЎРІРµСЂС…Сѓ РІРЅРёР·", "РЎРЅРёР·Сѓ РІРІРµСЂС…", "РЎР»РµРІР° РЅР°РїСЂР°РІРѕ", "РЎРїСЂР°РІР° РЅР°Р»РµРІРѕ", "Р”РёР°РіРѕРЅР°Р»СЊ");
+        gradientDirection.setValue(settings.getString("gradientDirection", "РЎРІРµСЂС…Сѓ РІРЅРёР·"));
         gradientDirection.setPrefWidth(150);
         gradientDirection.setStyle(settingsComboStyle());
         gradientDirection.setOnAction(e -> {
