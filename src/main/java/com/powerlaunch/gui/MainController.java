@@ -3492,6 +3492,80 @@ public class MainController {
         contentWrapper.setPadding(new Insets(20));
         contentWrapper.getChildren().add(tabPane);
 
+        // Save/cancel buttons (same as showLauncherSettingsPage)
+        HBox buttonRow = new HBox(15);
+        buttonRow.setAlignment(Pos.CENTER);
+        buttonRow.setPadding(new Insets(10, 0, 0, 0));
+
+        Button saveBtn = new Button("💾 Save & return to menu");
+        saveBtn.setPrefHeight(44);
+        saveBtn.setStyle(
+                "-fx-background-color: linear-gradient(to right, #e94560, #c23152);" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 30;" +
+                "-fx-cursor: hand;"
+        );
+        saveBtn.setOnMouseEntered(e -> saveBtn.setStyle(
+                "-fx-background-color: linear-gradient(to right, #ff5a77, #e94560);" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 30;" +
+                "-fx-cursor: hand;"
+        ));
+        saveBtn.setOnMouseExited(e -> saveBtn.setStyle(
+                "-fx-background-color: linear-gradient(to right, #e94560, #c23152);" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14;" +
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 30;" +
+                "-fx-cursor: hand;"
+        ));
+        saveBtn.setOnAction(e -> {
+            settings.save();
+            setStatus("✓ Settings saved");
+            showMainPage();
+        });
+
+        Button cancelBtn = new Button("◀ Back without saving");
+        cancelBtn.setPrefHeight(44);
+        cancelBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: rgba(255,255,255,0.6);" +
+                "-fx-border-color: rgba(255,255,255,0.15);" +
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 20;" +
+                "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.05);" +
+                "-fx-text-fill: white;" +
+                "-fx-border-color: rgba(255,255,255,0.3);" +
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 20;" +
+                "-fx-cursor: hand;"
+        ));
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: rgba(255,255,255,0.6);" +
+                "-fx-border-color: rgba(255,255,255,0.15);" +
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 10 20;" +
+                "-fx-cursor: hand;"
+        ));
+        cancelBtn.setOnAction(e -> showMainPage());
+
+        buttonRow.getChildren().addAll(saveBtn, cancelBtn);
+        contentWrapper.getChildren().add(buttonRow);
+
         // Set this as the current page
         mainContent.getChildren().setAll(contentWrapper);
         currentPage = "settings-with-tabs";
